@@ -1,0 +1,1592 @@
+/* 
+* Emys head consist of three horizontal discs. Top and bottom discs are movable 
+* while the middle one is permanently fixed to the cylinder shape supporting structure. 
+* Emys eyeballs endowed with eyelids are located in the middle disc and are able to 
+* rotate and eject.
+*
+*  From mechanical point of view Emys has 11 degrees of freedom: 
+*	- 1 in neck,
+*	- 2 in head,
+*	- 1 in each eyelid,
+* 	- 2 in each eye,
+* 	- 1 in upper disk,
+*	- 1 in lower disk. 
+*
+*
+*  Author: Jan Kedzierski
+*  Date: 11.11.2015
+*  Ver: 11.0
+*/
+
+do(Global) {
+  
+  
+  echo("INFO: Loading EMYS...");  
+  
+  
+  function LoadEmys {
+    
+    
+    //////////////////////////////////////////////////////////////////////////////////
+    //
+    //
+    //	Load dynamixel driver.
+    //
+    //
+    //////////////////////////////////////////////////////////////////////////////////
+	  
+    echo("INFO: Creating head servos...");
+	  
+    if (!_En_DynamixelHead)  { echo("ERROR: Dynamixel module is disabled.");  return false;};
+	  
+    if (!hasSlot(_UObjN_UDynamixel)) loadModule(_uObjectsDir+_UObjN_UDynamixel);
+    var Global.Dyn1=Dynamixel.new();
+    if (!Dyn1.Open(_com_head,57600))  { echo("ERROR: Port " + _com_head + " error.");  return false;};
+    //if (!Dyn1.Open(_com_head,57143))  { echo("ERROR: Port " + _com_head + " error.");  return false;};
+	  
+	  
+    echo("INFO: Adding head servos...");
+    
+    if (_Dyn_FindServosHead){	  
+      echo(Dyn1.FindServos(_Head_IDs.min,_Head_IDs.max));
+    } else {
+      for (var n:_Head_IDs){
+      	//Dyn1.ForceAddServo(n,1);
+        Dyn1.ForceAddServo(n,2);
+      };
+    };
+    
+    if (!hasSlot("Servo")) class Global.Servo{};
+	  
+    var Global.servo1=Servo.new();
+    UVar.new(servo1, "position");
+    UVar.new(servo1, "coefficient");
+    var Global.servo2=Servo.new();
+    UVar.new(servo2, "position");
+    UVar.new(servo2, "coefficient");
+    var Global.servo3=Servo.new();
+    UVar.new(servo3, "position");
+    UVar.new(servo3, "coefficient");
+    var Global.servo4=Servo.new();
+    UVar.new(servo4, "position");
+    UVar.new(servo4, "coefficient");
+    var Global.servo5=Servo.new();
+    UVar.new(servo5, "position");
+    UVar.new(servo5, "coefficient");
+    var Global.servo6=Servo.new();
+    UVar.new(servo6, "position");
+    UVar.new(servo6, "coefficient");
+    var Global.servo7=Servo.new();
+    UVar.new(servo7, "position");
+    UVar.new(servo7, "coefficient");
+    var Global.servo8=Servo.new();
+    UVar.new(servo8, "position");
+    UVar.new(servo8, "coefficient");
+    var Global.servo9=Servo.new();
+    UVar.new(servo9, "position");
+    UVar.new(servo9, "coefficient");
+    var Global.servo10=Servo.new();
+    UVar.new(servo10, "position");
+    UVar.new(servo10, "coefficient");
+    var Global.servo11=Servo.new();
+    UVar.new(servo11, "position");
+    UVar.new(servo11, "coefficient");
+    
+    
+    servo1.coefficient = _Head_DynamixelRatio;
+    servo2.coefficient = _Head_DynamixelRatio;
+    servo3.coefficient = _Head_DynamixelRatio;
+    servo4.coefficient = _Head_DynamixelRatio;
+    servo5.coefficient = _Head_DynamixelRatio;
+    servo6.coefficient = _Head_HitecRatio;
+    servo7.coefficient = _Head_HitecRatio;
+    servo8.coefficient = _Head_TransRatio;
+    servo9.coefficient = _Head_HitecRatio;
+    servo10.coefficient = _Head_HitecRatio;
+    servo11.coefficient = _Head_TransRatio;
+    
+    servo1.&position.notifyChange( closure()  {Dyn1.SetGoalPosition(_Head_IDs[1],servo1.position/servo1.coefficient);});
+    servo2.&position.notifyChange( closure()  {Dyn1.SetGoalPosition(_Head_IDs[2],servo2.position/servo2.coefficient);});
+    servo3.&position.notifyChange( closure()  {Dyn1.SetGoalPosition(_Head_IDs[3],servo3.position/servo3.coefficient);});
+    servo4.&position.notifyChange( closure()  {Dyn1.SetGoalPosition(_Head_IDs[4],servo4.position/servo4.coefficient);});
+    servo5.&position.notifyChange( closure()  {Dyn1.SetGoalPosition(_Head_IDs[5],servo5.position/servo5.coefficient);});
+    servo6.&position.notifyChange( closure()  {Dyn1.SetGoalPosition(_Head_IDs[6],servo6.position/servo6.coefficient);});
+    servo7.&position.notifyChange( closure()  {Dyn1.SetGoalPosition(_Head_IDs[7],servo7.position/servo7.coefficient);});
+    servo8.&position.notifyChange( closure()  {Dyn1.SetGoalPosition(_Head_IDs[8],servo8.position/servo8.coefficient);});
+    servo9.&position.notifyChange( closure()  {Dyn1.SetGoalPosition(_Head_IDs[9],servo9.position/servo9.coefficient);});
+    servo10.&position.notifyChange( closure() {Dyn1.SetGoalPosition(_Head_IDs[10],servo10.position/servo10.coefficient);});
+    servo11.&position.notifyChange( closure() {Dyn1.SetGoalPosition(_Head_IDs[11],servo11.position/servo11.coefficient);});
+		
+    echo("OK: Head servos created.");
+    
+    if (_Head_IDs.size>12) {   
+      
+      echo("INFO: Adding head sensors...");
+      
+      if (!hasSlot("TSensor")) class Global.TSensor{};
+      
+      
+      var Global.sensor1=TSensor.new();
+      UVar.new(sensor1, "value");
+      UVar.new(sensor1, "touch");
+      var Global.sensor2=TSensor.new();
+      UVar.new(sensor2, "value");
+      UVar.new(sensor2, "touch");
+      var Global.sensor3=TSensor.new();
+      UVar.new(sensor3, "value");
+      UVar.new(sensor3, "touch");
+      var Global.sensor4=TSensor.new();
+      UVar.new(sensor4, "value");
+      UVar.new(sensor4, "touch");
+      var Global.sensor5=TSensor.new();
+      UVar.new(sensor5, "value");
+      UVar.new(sensor5, "touch");
+      
+      sensor1.&value.notifyAccess( closure()  {sensor1.value = Dyn1.GetPresentPosition(_Head_IDs[12]);});
+      sensor1.&touch.notifyAccess( closure()  {sensor1.touch = Dyn1.GetMoving(_Head_IDs[12]);});
+      sensor2.&value.notifyAccess( closure()  {sensor2.value = Dyn1.GetPresentPosition(_Head_IDs[13]);});
+      sensor2.&touch.notifyAccess( closure()  {sensor2.touch = Dyn1.GetMoving(_Head_IDs[13]);});
+      sensor3.&value.notifyAccess( closure()  {sensor3.value = Dyn1.GetPresentPosition(_Head_IDs[14]);});
+      sensor3.&touch.notifyAccess( closure()  {sensor3.touch = Dyn1.GetMoving(_Head_IDs[14]);});
+      sensor4.&value.notifyAccess( closure()  {sensor4.value = Dyn1.GetPresentPosition(_Head_IDs[15]);});
+      sensor4.&touch.notifyAccess( closure()  {sensor4.touch = Dyn1.GetMoving(_Head_IDs[15]);});
+      sensor5.&value.notifyAccess( closure()  {sensor5.value = Dyn1.GetPresentPosition(_Head_IDs[16]);});
+      sensor5.&touch.notifyAccess( closure()  {sensor5.touch = Dyn1.GetMoving(_Head_IDs[16]);});
+      
+      echo("OK: Head servos created.");  
+    };  
+    
+    // Configuring servos parameters
+    
+    //neck pitch slave
+    Dyn1.SetCWCompSlope(_Head_IDs[0],32);
+    Dyn1.SetCWCompSlope(_Head_IDs[0],32);
+    //neck pitch master
+    Dyn1.SetCWCompSlope(_Head_IDs[1],64);
+    Dyn1.SetCCWCompSlope(_Head_IDs[1],64);
+    //neck yaw
+    Dyn1.SetCWCompSlope(_Head_IDs[2],64);
+    Dyn1.SetCCWCompSlope(_Head_IDs[2],64);
+    
+    //head pitch
+    // Dyn1.SetCWCompSlope(_Head_IDs[3],32);
+    // Dyn1.SetCCWCompSlope(_Head_IDs[3],32);
+    //disc down
+    Dyn1.SetCWCompSlope(_Head_IDs[4],64);
+    Dyn1.SetCCWCompSlope(_Head_IDs[4],64);
+    //disc up
+    Dyn1.SetCWCompSlope(_Head_IDs[5],64);
+    Dyn1.SetCCWCompSlope(_Head_IDs[5],64);
+    
+    //////////////////////////////////////////////////////////////////////////////////
+    //
+    //
+    //	Load EMYS structure.
+    //
+    //
+    //////////////////////////////////////////////////////////////////////////////////
+    
+    echo("INFO: Creating head structure...");
+	  
+    //==========================================
+    // 	NECK (pitch)
+    //==========================================
+    robot.body.addComponent("neck"); 
+    robot.body.neck.addComponent("pitch"); 
+    servo1.getSlot("position").copy(robot.body.neck.pitch,"val")|;
+    
+    do (robot.body.neck.pitch) 
+    { 
+      if ((val->rangemax =  Dyn1.GetCCWAngleLimit(_Head_IDs[1])*servo1.coefficient)>360) {echo("ERROR: Can NOT read head servo ID " + _Head_IDs[1].asString + " CCW angle limit!"); return false; };
+      if ((val->rangemin =  Dyn1.GetCWAngleLimit(_Head_IDs[1])*servo1.coefficient)>360) {echo("ERROR: Can NOT read head servo ID " + _Head_IDs[1].asString + " CW angle limit!"); return false; };
+      if ((val =  Dyn1.GetPresentPosition(_Head_IDs[1])*servo1.coefficient)>360) { echo("ERROR: Can NOT read head servo ID " + _Head_IDs[1].asString + " position!"); return false; };
+    };
+    
+    
+    //==========================================
+    // 	HEAD (pitch,yaw) 
+    //==========================================
+    robot.body.neck.addComponent("head");
+    robot.body.neck.head.addComponent("pitch"); 
+    robot.body.neck.head.addComponent("yaw"); 
+    servo2.getSlot("position").copy(robot.body.neck.head.yaw,"val")|;
+    servo3.getSlot("position").copy(robot.body.neck.head.pitch,"val")|;
+    
+    do (robot.body.neck.head) 
+    { 
+      if ((yaw.val->rangemax =  Dyn1.GetCCWAngleLimit(_Head_IDs[2])*servo2.coefficient)>360) {echo("ERROR: Can NOT read head servo ID " + _Head_IDs[2].asString + " CCW angle limit!"); return false; };
+      if ((yaw.val->rangemin =  Dyn1.GetCWAngleLimit(_Head_IDs[2])*servo2.coefficient)>360) {echo("ERROR: Can NOT read head servo ID " + _Head_IDs[2].asString + " CW angle limit!"); return false; };
+      if ((yaw.val =  Dyn1.GetPresentPosition(_Head_IDs[2])*servo2.coefficient)>360) { echo("ERROR: Can NOT read head servo ID " + _Head_IDs[2].asString + " position!"); return false; };
+      if ((pitch.val->rangemax =  Dyn1.GetCCWAngleLimit(_Head_IDs[3])*servo3.coefficient)>360) {echo("ERROR: Can NOT read head servo ID " + _Head_IDs[3].asString + " CCW angle limit!"); return false; };
+      if ((pitch.val->rangemin =  Dyn1.GetCWAngleLimit(_Head_IDs[3])*servo3.coefficient)>360) {echo("ERROR: Can NOT read head servo ID " + _Head_IDs[3].asString + " CW angle limit!"); return false; };
+      if ((pitch.val =  Dyn1.GetPresentPosition(_Head_IDs[3])*servo3.coefficient)>360) { echo("ERROR: Can NOT read head servo ID " + _Head_IDs[3].asString + " position!"); return false; };
+    };
+    //==========================================
+    // 	DISCs (up,down) 
+    //==========================================
+    robot.body.neck.head.addComponent(Localizer.new("disc"));
+    servo4.getSlot("position").copy(robot.body.neck.head.disc[down],"val")|;
+    servo5.getSlot("position").copy(robot.body.neck.head.disc[up],"val")|;
+    
+    do (robot.body.neck.head) 
+    { 
+      if ((disc[down].val->rangemax =  Dyn1.GetCCWAngleLimit(_Head_IDs[4])*servo4.coefficient)>360) {echo("ERROR: Can NOT read head servo ID " + _Head_IDs[4].asString + " CCW angle limit!"); return false; };
+      if ((disc[down].val->rangemin =  Dyn1.GetCWAngleLimit(_Head_IDs[4])*servo4.coefficient)>360) {echo("ERROR: Can NOT read head servo ID " + _Head_IDs[4].asString + " CW angle limit!"); return false; };
+      if ((disc[down].val =  Dyn1.GetPresentPosition(_Head_IDs[4])*servo4.coefficient)>360) { echo("ERROR: Can NOT read head servo ID " + _Head_IDs[4].asString + " position!"); return false; };
+      if ((disc[up].val->rangemax =  Dyn1.GetCCWAngleLimit(_Head_IDs[5])*servo5.coefficient)>360) {echo("ERROR: Can NOT read head servo ID " + _Head_IDs[5].asString + " CCW angle limit!"); return false; };
+      if ((disc[up].val->rangemin =  Dyn1.GetCWAngleLimit(_Head_IDs[5])*servo5.coefficient)>360) {echo("ERROR: Can NOT read head servo ID " + _Head_IDs[5].asString + " CW angle limit!"); return false; };
+      if ((disc[up].val =  Dyn1.GetPresentPosition(_Head_IDs[5])*servo5.coefficient)>360) { echo("ERROR: Can NOT read head servo ID " + _Head_IDs[5].asString + " position!"); return false; };
+    };
+    
+    //============================================================
+    // 	EYEs (left,right) 
+    //============================================================
+    robot.body.neck.head.addComponent(Localizer.new("eye"));
+    robot.body.neck.head.eye[left].addComponent("lid");
+    robot.body.neck.head.eye[left].addComponent("brow");
+    robot.body.neck.head.eye[left].addComponent("trans");
+    robot.body.neck.head.eye[right].addComponent("lid");
+    robot.body.neck.head.eye[right].addComponent("brow");
+    robot.body.neck.head.eye[right].addComponent("trans");
+    servo6.getSlot("position").copy(robot.body.neck.head.eye[left].lid,"val")|;
+    servo7.getSlot("position").copy(robot.body.neck.head.eye[left].brow,"val")|;
+    servo8.getSlot("position").copy(robot.body.neck.head.eye[left].trans,"val")|;
+    servo9.getSlot("position").copy(robot.body.neck.head.eye[right].lid,"val")|;
+    servo10.getSlot("position").copy(robot.body.neck.head.eye[right].brow,"val")|;
+    servo11.getSlot("position").copy(robot.body.neck.head.eye[right].trans,"val")|;
+    
+    do (robot.body.neck.head) 
+    {       
+      if ((eye[left].lid.val->rangemax = Dyn1.GetCCWAngleLimit(_Head_IDs[6])*servo6.coefficient)>360) {echo("ERROR: Can NOT read head servo ID " + _Head_IDs[6].asString + " CCW angle limit!"); return false; };
+      if ((eye[left].lid.val->rangemin = Dyn1.GetCWAngleLimit(_Head_IDs[6])*servo6.coefficient)>360) {echo("ERROR: Can NOT read head servo ID " + _Head_IDs[6].asString + " CW angle limit!"); return false; };
+      if ((eye[left].lid.val = Dyn1.GetPresentPosition(_Head_IDs[6])*servo6.coefficient)>360) { echo("ERROR: Can NOT read head servo ID " + _Head_IDs[6].asString + " position!"); return false; };
+      
+      if ((eye[left].brow.val->rangemax = Dyn1.GetCCWAngleLimit(_Head_IDs[7])*servo7.coefficient)>360) {echo("ERROR: Can NOT read head servo ID " + _Head_IDs[7].asString + " CCW angle limit!"); return false; };
+      if ((eye[left].brow.val->rangemin = Dyn1.GetCWAngleLimit(_Head_IDs[7])*servo7.coefficient)>360) {echo("ERROR: Can NOT read head servo ID " + _Head_IDs[7].asString + " CW angle limit!"); return false; };
+      if ((eye[left].brow.val = Dyn1.GetPresentPosition(_Head_IDs[7])*servo7.coefficient)>360) { echo("ERROR: Can NOT read head servo ID " + _Head_IDs[7].asString + " position!"); return false; };
+      
+      if ((eye[left].trans.val->rangemax = Dyn1.GetCCWAngleLimit(_Head_IDs[8])*servo8.coefficient)>360) {echo("ERROR: Can NOT read head servo ID " + _Head_IDs[8].asString + " CCW angle limit!"); return false; };
+      if ((eye[left].trans.val->rangemin = Dyn1.GetCWAngleLimit(_Head_IDs[8])*servo8.coefficient)>360) {echo("ERROR: Can NOT read head servo ID " + _Head_IDs[8].asString + " CW angle limit!"); return false; };
+      eye[left].trans.val = 0;
+      
+      // TO DO!!
+      // if ((eye[left].trans.val = Dyn1.GetPresentPosition(_Head_IDs[8])*servo8.coefficient)>36000) { echo("ERROR: Can NOT read head servo ID " + _Head_IDs[8].asString + " position!"); return false; }; 
+      
+      if ((eye[right].lid.val->rangemax = Dyn1.GetCCWAngleLimit(_Head_IDs[9])*servo9.coefficient)>360) {echo("ERROR: Can NOT read head servo ID " + _Head_IDs[9].asString + " CCW angle limit!"); return false; };
+      if ((eye[right].lid.val->rangemin = Dyn1.GetCWAngleLimit(_Head_IDs[9])*servo9.coefficient)>360) {echo("ERROR: Can NOT read head servo ID " + _Head_IDs[9].asString + " CW angle limit!"); return false; };
+      if ((eye[right].lid.val = Dyn1.GetPresentPosition(_Head_IDs[9])*servo9.coefficient)>360) { echo("ERROR: Can NOT read head servo ID " + _Head_IDs[9].asString + " position!"); return false; };
+      
+      if ((eye[right].brow.val->rangemax = Dyn1.GetCCWAngleLimit(_Head_IDs[10])*servo10.coefficient)>360) {echo("ERROR: Can NOT read head servo ID " + _Head_IDs[10].asString + " CCW angle limit!"); return false; };
+      if ((eye[right].brow.val->rangemin = Dyn1.GetCWAngleLimit(_Head_IDs[10])*servo10.coefficient)>360) {echo("ERROR: Can NOT read head servo ID " + _Head_IDs[10].asString + " CW angle limit!"); return false; };
+      if ((eye[right].brow.val = Dyn1.GetPresentPosition(_Head_IDs[10])*servo10.coefficient)>360) { echo("ERROR: Can NOT read head servo ID " + _Head_IDs[10].asString + " position!"); return false; };
+      
+      if ((eye[right].trans.val->rangemax = Dyn1.GetCCWAngleLimit(_Head_IDs[11])*servo11.coefficient)>360) {echo("ERROR: Can NOT read head servo ID " + _Head_IDs[11].asString + " CCW angle limit!"); return false; };
+      if ((eye[right].trans.val->rangemin = Dyn1.GetCWAngleLimit(_Head_IDs[11])*servo11.coefficient)>360) {echo("ERROR: Can NOT read head servo ID " + _Head_IDs[11].asString + " CW angle limit!"); return false; };
+      eye[right].trans.val = 0;
+      
+      // TO DO!!
+      // if ((eye[right].trans.val= Dyn1.GetPresentPosition(_Head_IDs[11])*servo11.coefficient)>36000) { echo("ERROR: Can NOT read head servo ID " + _Head_IDs[11].asString + " position!"); return false; }; 
+      
+    };
+    
+    
+    if (_Head_IDs.size>12) {   
+      
+      //============================================================
+      // 	TOUCH SENSORS 
+      //============================================================
+      robot.body.neck.head.addComponent(Localizer.new("sensor"));
+      sensor1.getSlot("value").copy(robot.body.neck.head.sensor[up],"val")|;
+      sensor1.getSlot("touch").copy(robot.body.neck.head.sensor[up],"touch")|;
+      sensor2.getSlot("value").copy(robot.body.neck.head.sensor[left],"val")|;
+      sensor2.getSlot("touch").copy(robot.body.neck.head.sensor[left],"touch")|;
+      sensor3.getSlot("value").copy(robot.body.neck.head.sensor[front],"val")|;
+      sensor3.getSlot("touch").copy(robot.body.neck.head.sensor[front],"touch")|;
+      sensor4.getSlot("value").copy(robot.body.neck.head.sensor[right],"val")|;
+      sensor4.getSlot("touch").copy(robot.body.neck.head.sensor[right],"touch")|;
+      sensor5.getSlot("value").copy(robot.body.neck.head.sensor[down],"val")|;
+      sensor5.getSlot("touch").copy(robot.body.neck.head.sensor[down],"touch")|;
+      
+      do (robot.body.neck.head) 
+      {       
+        sensor[up].val->rangemax = 2000;
+        sensor[up].val->rangemin = 0;
+        if ((sensor[up].val = Dyn1.GetPresentPosition(_Head_IDs[12]))==9999) { echo("ERROR: Can NOT read head sensor ID " + _Head_IDs[12].asString + " value!"); return false; };    
+        sensor[up].touch->rangemax = 1;
+        sensor[up].touch->rangemin = 0;
+        if ((sensor[up].touch = Dyn1.GetMoving(_Head_IDs[12]))==9999) { echo("ERROR: Can NOT read head sensor ID " + _Head_IDs[12].asString + " touch!"); return false; };
+        ////////////
+        //
+        sensor[left].val->rangemax = 2000;
+        sensor[left].val->rangemin = 0;
+        if ((sensor[left].val = Dyn1.GetPresentPosition(_Head_IDs[13]))==9999) { echo("ERROR: Can NOT read head sensor ID " + _Head_IDs[13].asString + " value!"); return false; };    
+        sensor[left].touch->rangemax = 1;
+        sensor[left].touch->rangemin = 0;
+        if ((sensor[left].touch = Dyn1.GetMoving(_Head_IDs[13]))==9999) { echo("ERROR: Can NOT read head sensor ID " + _Head_IDs[13].asString + " touch!"); return false; };
+        ////////////
+        //
+        sensor[front].val->rangemax = 2000;
+        sensor[front].val->rangemin = 0;
+        if ((sensor[front].val = Dyn1.GetPresentPosition(_Head_IDs[14]))==9999) { echo("ERROR: Can NOT read head sensor ID " + _Head_IDs[14].asString + " value!"); return false; };    
+        sensor[front].touch->rangemax = 1;
+        sensor[front].touch->rangemin = 0;
+        if ((sensor[front].touch = Dyn1.GetMoving(_Head_IDs[14]))==9999) { echo("ERROR: Can NOT read head sensor ID " + _Head_IDs[14].asString + " touch!"); return false; };
+        ////////////
+        //
+        sensor[right].val->rangemax = 2000;
+        sensor[right].val->rangemin = 0;
+        if ((sensor[right].val = Dyn1.GetPresentPosition(_Head_IDs[15]))==9999) { echo("ERROR: Can NOT read head sensor ID " + _Head_IDs[15].asString + " value!"); return false; };    
+        sensor[right].touch->rangemax = 1;
+        sensor[right].touch->rangemin = 0;
+        if ((sensor[right].touch = Dyn1.GetMoving(_Head_IDs[15]))==9999) { echo("ERROR: Can NOT read head sensor ID " + _Head_IDs[15].asString + " touch!"); return false; };
+        ////////////
+        //
+        sensor[down].val->rangemax = 2000;
+        sensor[down].val->rangemin = 0;
+        if ((sensor[down].val = Dyn1.GetPresentPosition(_Head_IDs[16]))==9999) { echo("ERROR: Can NOT read head sensor ID " + _Head_IDs[16].asString + " value!"); return false; };    
+        sensor[down].touch->rangemax = 1;
+        sensor[down].touch->rangemin = 0;
+        if ((sensor[down].touch = Dyn1.GetMoving(_Head_IDs[16]))==9999) { echo("ERROR: Can NOT read head sensor ID " + _Head_IDs[16].asString + " touch!"); return false; };
+        ////////////
+      };
+    };
+    
+    do (robot.body.neck.head) { 
+      function MoveBack(intensity,time) 	{call.local_head_MoveBack(intensity,time,true);		};
+      function MoveForward(intensity,time) 	{call.local_head_MoveForward(intensity,time,true);	};
+      function MoveLeft(intensity,time) 	{call.local_head_MoveLeft(intensity,time,true);		};
+      function MoveRight(intensity,time) 	{call.local_head_MoveRight(intensity,time,true);	};
+      function MoveUp(intensity,time) 		{call.local_head_MoveUp(intensity,time,true);		};
+      function MoveDown(intensity,time) 	{call.local_head_MoveDown(intensity,time,true);		};
+      function MoveVertical(time) 		{call.local_head_MoveVertical(time,true);		};
+      function MoveNo(intensity,time) 		{call.local_head_MoveNo(intensity,time,true);		};
+      function MoveYes(intensity,time) 		{call.local_head_MoveYes(intensity,time,true);		};
+      function MoveAt(yaw,pitch,time) 		{call.local_head_MoveAt(yaw,pitch,time,true);		};
+      function MoveAtSpeed(yaw,pitch,speed) 	{call.local_head_MoveAtSpeed(yaw,pitch,speed,true);	};
+      
+      function MoveAtPitch(yaw,pitchNeck,pitchTotal,time) 		{call.local_head_MoveAtPitch(yaw,pitchNeck,pitchTotal,time,true);		};
+      function MoveAtPitchSpeed(yaw,pitchNeck,pitchTotal,speed) 	{call.local_head_MoveAtPitchSpeed(yaw,pitchNeck,pitchTotal,speed,true);	};
+      
+      
+      function MoveEyeClose(intensity,time) 	{call.local_head_MoveEyeClose(intensity,time,true);	};
+      //
+      function ExpSmile(intensity,time) 	{call.local_head_ExpSmile(intensity,time,true);		};
+      function ExpAngry(intensity,time) 	{call.local_head_ExpAngry(intensity,time,true);		};
+      function ExpDisgust(intensity,time) 	{call.local_head_ExpDisgust(intensity,time,true);	};
+      function ExpSurprise(intensity,time) 	{call.local_head_ExpSurprise(intensity,time,true);	};
+      function ExpSad(intensity,time) 		{call.local_head_ExpSad(intensity,time,true);		};
+      function ExpFear(intensity,time) 		{call.local_head_ExpFear(intensity,time,true);		};
+      function ExpNormal(time) 			{call.local_head_ExpNormal(time,true);			};
+      //
+      function BehaveJoy(intensity,time) 	{call.local_head_BehaveJoy(intensity,time,true);	};
+      function BehaveAngry(intensity,time) 	{call.local_head_BehaveAngry(intensity,time,true);	};
+      function BehaveDisgust(intensity,time) 	{call.local_head_BehaveDisgust(intensity,time,true);	};
+      function BehaveSurprise(intensity,time) 	{call.local_head_BehaveSurprise(intensity,time,true);	};
+      function BehaveSad(intensity,time) 	{call.local_head_BehaveSad(intensity,time,true);	};
+      function BehaveFear(intensity,time) 	{call.local_head_BehaveFear(intensity,time,true);	};
+      function BehaveYawn(time) 		{call.local_head_BehaveYawn(time,true);			};
+      function BehaveNormal(time) 		{call.local_head_BehaveNormal(time,true);		};
+      //
+      function ActAround(intensity,time,freq) 	{call.local_head_ActAround(intensity,time,freq);	};
+      function ActBreathe(intensity,time) 	{call.local_head_ActBreathe(intensity,time);		};
+      function ActWalking(intensity,time) 	{call.local_head_ActWalking(intensity,time);		};
+      function ActQuake(intensity) 		{call.local_head_ActQuake(intensity);			};
+      function ActBlinking(frequency,time) 	{call.local_head_ActBlinking(frequency,time);		};
+      function ActGnashing(intensity,time) 	{call.local_head_ActGnashing(intensity,time);		};
+      function ActAlive(A_inten,A_time,A_freq,BR_inten,BR_time,BL_frequency,BL_time)
+      {call.local_head_ActAlive(A_inten,A_time,A_freq,BR_inten,BR_time,BL_frequency,BL_time);};
+      //
+      function Stop 				{call.local_head_Stop;					};
+      //function Initialize			{call.local_head_Initialize;				};
+    };  
+    do (robot.body.neck.head.eye[right]) 	{  
+      function Blink(time) 			{call.local_head_RBlink(time,true);			}; 			
+    };
+    
+    do (robot.body.neck.head.eye[left]) 	{  
+      function Blink(time) 			{call.local_head_LBlink(time,true);			};	
+    };
+    //
+    // Speech functions
+    //
+    if ((robot.hasLocalSlot("audio"))&&(robot.audio.hasLocalSlot("speech"))) 
+    do (robot.body.neck.head) { 
+      function Say(text, intensity, voice) 	{call.local_head_SaySpeech(text, intensity, voice, true);};	
+    };
+    if ((robot.hasLocalSlot("audio"))&&(robot.audio.hasLocalSlot("player"))) 
+    do (robot.body.neck.head) { 
+      function SayFile(file, intensity) 	{call.local_head_SayFile(file, intensity, true);	};
+      function SayYawn() 			{call.local_head_SayYawn(true);				};	
+    };
+    
+    
+    //
+    // Trajectory generators
+    //
+    do (robot.body.neck.pitch) { 
+      function Move(pos, time) 			{call.local_head_MoveNeckPitch(pos, time);		};	
+      function MoveSpeed(pos, speed) 		{call.local_head_MoveNeckPitchS(pos, speed);		};	
+    };
+    do (robot.body.neck.head.pitch) { 
+      function Move(pos, time) 			{call.local_head_MoveHeadPitch(pos, time);		};	
+      function MoveSpeed(pos, speed) 		{call.local_head_MoveHeadPitchS(pos, speed);		};	
+    };
+    do (robot.body.neck.head.yaw) { 
+      function Move(pos, time) 			{call.local_head_MoveHeadYaw(pos, time);		};
+      function MoveSpeed(pos, speed) 		{call.local_head_MoveHeadYawS(pos, speed);		};
+    };
+    do (robot.body.neck.head.disc[up]) { 
+      function Move(pos, time) 			{call.local_head_MoveDiscUp(pos,time);			};
+      function MoveSpeed(pos, speed) 		{call.local_head_MoveDiscUpS(pos,time);			};
+      function MoveI(intensity,time) 		{call.local_head_MoveDiscUpI(intensity,time,true);	};   
+    };	
+    do (robot.body.neck.head.disc[down]) { 
+      function Move(pos, time) 			{call.local_head_MoveDiscDown(pos,time);		};  
+      function MoveSpeed(pos,speed) 		{call.local_head_MoveDiscDownS(pos,speed);		};   
+      function MoveI(intensity,time) 		{call.local_head_MoveDiscDownI(intensity,time,true);	}; 
+    };
+    do (robot.body.neck.head.eye[right].brow){ 
+      function Move(pos, time) 			{call.local_head_MoveEyeBrowRight(pos,time);		}; 
+      function MoveSpeed(pos, speed) 		{call.local_head_MoveEyeBrowRightS(pos,speed);		}; 	
+    };
+    do (robot.body.neck.head.eye[left].brow) { 
+      function Move(pos, time) 			{call.local_head_MoveEyeBrowLeft(pos,time);		}; 
+      function MoveSpeed(pos, speed) 		{call.local_head_MoveEyeBrowLeftS(pos,speed);		}; 	
+    };
+    do (robot.body.neck.head.eye[right].trans){ 
+      function Move(pos, time) 			{call.local_head_MoveEyeTransRight(pos,time);		}; 
+      function MoveSpeed(pos,speed) 		{call.local_head_MoveEyeTransRightS(pos,speed);		}; 	//
+    };
+    do (robot.body.neck.head.eye[left].trans){ 
+      function Move(pos, time) 			{call.local_head_MoveEyeTransLeft(pos,time);		}; 
+      function MoveSpeed(pos,speed) 		{call.local_head_MoveEyeTransLeftS(pos,speed);		}; 	//
+    };
+    do (robot.body.neck.head.eye[right].lid){ 
+      function Move(pos, time) 			{call.local_head_MoveEyeLidRight(pos,time);		}; 
+      function MoveSpeed(pos,speed) 		{call.local_head_MoveEyeLidRightS(pos,speed);		}; 	//
+    };
+    do (robot.body.neck.head.eye[left].lid){ 
+      function Move(pos, time) 			{call.local_head_MoveEyeLidLeft(pos,time);		}; 
+      function MoveSpeed(pos, speed) 		{call.local_head_MoveEyeLidLeft(pos,speed);		}; 	//
+    };
+    
+    
+    echo("OK: Head structure created.");
+    return true;
+  }|{};
+  
+  //////////////////////////////////////////////////////////////////////////////////
+  //
+  //
+  //	EMYS joints trajectory generators
+  //
+  //
+  //////////////////////////////////////////////////////////////////////////////////
+  //
+  //  
+  var a_NeckPitch = Tag.new;
+  var a_HeadPitch = Tag.new;
+  var a_HeadYaw = Tag.new;
+  var a_DiscUp = Tag.new;
+  var a_DiscDown = Tag.new;
+  var a_EyeLeftTrans = Tag.new;
+  var a_EyeRightTrans = Tag.new;
+  var a_EyeLeftLid = Tag.new;
+  var a_EyeRightLid = Tag.new;
+  var a_EyeLeftBrow = Tag.new;
+  var a_EyeRightBrow = Tag.new;
+  //
+  //////////////////////////////////////////////////////////////////////////////////
+  
+  function local_head_MoveNeckPitch(pos, time)
+  {
+    a_NeckPitch.stop | a_NeckPitch: robot.body.neck.pitch.val = (_Head_ZeroPosition[0] + pos) smooth:time;
+  }|{};
+  
+  function local_head_MoveHeadPitch(pos, time)
+  {
+    a_HeadPitch.stop | a_HeadPitch: robot.body.neck.head.pitch.val = (_Head_ZeroPosition[2] + pos) smooth:time;
+  }|{}; 
+  
+  function local_head_MoveHeadYaw(pos, time)
+  {
+    a_HeadYaw.stop | a_HeadYaw: robot.body.neck.head.yaw.val = (_Head_ZeroPosition[1] + pos) smooth:time;
+  }|{}; 
+  
+  function local_head_MoveDiscUp(pos,time)
+  {
+    a_DiscUp.stop | a_DiscUp: robot.body.neck.head.disc[up].val = (_Head_ZeroPosition[4] + pos) smooth:time;
+  }|{}; 
+  
+  function local_head_MoveDiscDown(pos,time)
+  {
+    a_DiscDown.stop | a_DiscDown: robot.body.neck.head.disc[down].val = (_Head_ZeroPosition[3] + pos) smooth:time;
+  }|{}; 
+  
+  function local_head_MoveEyeTransRight(pos,time)
+  {
+    a_EyeRightTrans.stop | a_EyeRightTrans: robot.body.neck.head.eye[right].trans.val = (_Head_ZeroPosition[10] + pos)  smooth:time;
+  }|{}; 
+  
+  function local_head_MoveEyeBrowRight(pos,time)
+  {
+    a_EyeRightBrow.stop | a_EyeRightBrow: robot.body.neck.head.eye[right].brow.val = (_Head_ZeroPosition[9] + pos) smooth:time;
+  }|{}; 
+  
+  function local_head_MoveEyeLidRight(pos,time)
+  {
+    a_EyeRightLid.stop | a_EyeRightLid: robot.body.neck.head.eye[right].lid.val = (_Head_ZeroPosition[8] - pos) smooth:time;
+  }|{}; 
+  
+  function local_head_MoveEyeTransLeft(pos,time)
+  {
+    a_EyeLeftTrans.stop | a_EyeLeftTrans:  robot.body.neck.head.eye[left].trans.val = (_Head_ZeroPosition[7] + pos)  smooth:time;
+  }|{}; 
+  
+  function local_head_MoveEyeBrowLeft(pos,time)
+  {
+    a_EyeLeftBrow.stop | a_EyeLeftBrow:  robot.body.neck.head.eye[left].brow.val = (_Head_ZeroPosition[6] + pos) smooth:time;
+  }|{}; 
+  
+  function local_head_MoveEyeLidLeft(pos,time)
+  {
+    a_EyeLeftLid.stop | a_EyeLeftLid:  robot.body.neck.head.eye[left].lid.val = (_Head_ZeroPosition[5] - pos) smooth:time;
+  }|{}; 
+  
+  /////////////
+  
+  function local_head_MoveNeckPitchS(pos, speed)
+  {
+    a_NeckPitch.stop | a_NeckPitch: robot.body.neck.pitch.val = (_Head_ZeroPosition[0] + pos) speed:speed;
+  }|{};
+  
+  function local_head_MoveHeadPitchS(pos, speed)
+  {
+    a_HeadPitch.stop | a_HeadPitch: robot.body.neck.head.pitch.val = (_Head_ZeroPosition[2] + pos) speed:speed;
+  }|{}; 
+  
+  function local_head_MoveHeadYawS(pos, speed)
+  {
+    a_HeadYaw.stop | a_HeadYaw: robot.body.neck.head.yaw.val = (_Head_ZeroPosition[1] + pos) speed:speed;
+  }|{}; 
+  
+  function local_head_MoveDiscDownS(pos,speed)
+  {
+    a_DiscDown.stop | a_DiscDown: robot.body.neck.head.disc[down].val = (_Head_ZeroPosition[3] + pos) speed:speed;
+  }|{}; 
+  
+  function local_head_MoveDiscUpS(pos,speed)
+  {
+    a_DiscUp.stop | a_DiscUp: robot.body.neck.head.disc[up].val = (_Head_ZeroPosition[4] + pos) speed:speed;
+  }|{}; 
+  
+  function local_head_MoveEyeBrowRightS(pos,speed)
+  {
+    a_EyeRightBrow.stop | a_EyeRightBrow: robot.body.neck.head.eye[right].brow.val = (_Head_ZeroPosition[9] + pos) speed:speed;
+  }|{}; 
+  
+  function local_head_MoveEyeTransRightS(pos,speed)
+  {
+    a_EyeRightTrans.stop | a_EyeRightTrans: robot.body.neck.head.eye[right].trans.val = (_Head_ZeroPosition[10] + pos)  speed:speed;
+  }|{}; 
+  
+  function local_head_MoveEyeLidRightS(pos,speed)
+  {
+    a_EyeRightLid.stop | a_EyeRightLid: robot.body.neck.head.eye[right].lid.val = (_Head_ZeroPosition[8] - pos) speed:speed;
+  }|{}; 
+  
+  function local_head_MoveEyeBrowLeftS(pos,speed)
+  {
+    a_EyeLeftBrow.stop | a_EyeLeftBrow:  robot.body.neck.head.eye[left].brow.val = (_Head_ZeroPosition[6] + pos) speed:speed;
+  }|{}; 
+  
+  function local_head_MoveEyeTransLeftS(pos,speed)
+  {
+    a_EyeLeftTrans.stop | a_EyeLeftTrans:  robot.body.neck.head.eye[left].trans.val = (_Head_ZeroPosition[7] + pos)  speed:speed;
+  }|{}; 
+  
+  function local_head_MoveEyeLidLeftS(pos,speed)
+  {
+    a_EyeLeftLid.stop | a_EyeLeftLid: robot.body.neck.head.eye[left].lid.val = (_Head_ZeroPosition[5] - pos) speed:speed;
+  }|{}; 
+  //////////////////////////////////////////////////////////////////////////////////
+  //
+  //
+  //	Load EMYS behaviours.
+  //
+  //
+  //////////////////////////////////////////////////////////////////////////////////
+  //
+  var h_tagg_neck=Tag.new;
+  var h_tagg_discs=Tag.new;
+  var h_tagg_eyes=Tag.new;
+  
+  //
+  
+  function local_head_MoveBack(intensity,time,lock) {
+    if (intensity>10) intensity=10;
+    if (intensity<0) intensity=0;
+    if (lock) h_tagg_neck.freeze;
+    robot.body.neck.pitch.Move(1.64*intensity,time)&
+    robot.body.neck.head.pitch.Move(-1.64*intensity,time);
+    if (lock) h_tagg_neck.unfreeze;
+  }|{};
+  
+  function local_head_MoveForward(intensity,time,lock) {
+    if (intensity>10) intensity=10;
+    if (intensity<0) intensity=0;
+    if (lock) h_tagg_neck.freeze;
+    robot.body.neck.pitch.Move(-1.8*intensity,time)&
+    robot.body.neck.head.pitch.Move(1.8*intensity,time);
+    if (lock) h_tagg_neck.unfreeze;
+  }|{};
+  
+  function local_head_MoveLeft(intensity,time,lock) {
+    if (intensity>10) intensity=10;
+    if (intensity<0) intensity=0;
+    if (lock) h_tagg_neck.freeze;
+    robot.body.neck.head.yaw.Move(9.0*intensity,time);
+    if (lock)  h_tagg_neck.unfreeze;
+  }|{};
+  
+  
+  function local_head_MoveRight(intensity,time,lock) {
+    if (intensity>10) intensity=10;
+    if (intensity<0) intensity=0;
+    if (lock) h_tagg_neck.freeze;
+    robot.body.neck.head.yaw.Move(-9.0*intensity,time);
+    if (lock) h_tagg_neck.unfreeze;
+  }|{};
+  
+  
+  function local_head_MoveUp(intensity,time,lock) {
+    if (intensity>10) intensity=10;
+    if (intensity<0) intensity=0;
+    if (lock) h_tagg_neck.freeze;
+    robot.body.neck.pitch.Move(0.90*intensity,time)&
+    robot.body.neck.head.pitch.Move(1.8*intensity,time);
+    if (lock) h_tagg_neck.unfreeze;
+  }|{};
+  
+  
+  function local_head_MoveDown(intensity,time,lock) {
+    if (intensity>10) intensity=10;
+    if (intensity<0) intensity=0;
+    if (lock) h_tagg_neck.freeze;
+    robot.body.neck.pitch.Move(-1.5*intensity,time)&
+    robot.body.neck.head.pitch.Move(-1.64*intensity,time);
+    if (lock) h_tagg_neck.unfreeze;
+  }|{};
+  
+  
+  function local_head_MoveVertical(time,lock) {
+    if (lock) h_tagg_neck.freeze;
+    robot.body.neck.pitch.Move(0,time)&
+    robot.body.neck.head.pitch.Move(0,time)&
+    robot.body.neck.head.yaw.Move(0,time);
+    if (lock) h_tagg_neck.unfreeze;
+  }|{};
+  
+  
+  function local_head_MoveAt(yaw,pitch,time,lock) {
+    if (yaw>90) yaw = 90;
+    if (yaw<-90) yaw = -90;
+    if (pitch>26) pitch = 26;
+    if (pitch<-26) pitch = -26;
+    var tn_pitch = pitch*0.34; 
+    var th_pitch = pitch*0.63; 
+    
+    if (lock) h_tagg_neck.freeze;
+    robot.body.neck.pitch.Move(tn_pitch,time)&
+    robot.body.neck.head.pitch.Move(th_pitch,time)&
+    robot.body.neck.head.yaw.Move(yaw,time);
+    if (lock) h_tagg_neck.unfreeze;
+  }|{};
+  
+  
+  function local_head_MoveAtSpeed(yaw,pitch,speed,lock) {
+    if (yaw>90) yaw=90;
+    if (yaw<-90) yaw=-90;
+    if (pitch>26) pitch=26;
+    if (pitch<-26) pitch=-26;
+    var tn_pitch=pitch*0.34; 
+    var th_pitch=pitch*0.63;
+    
+    if (speed<=0) return;
+    
+    var abs_yaw   = abs((robot.body.neck.head.yaw.val-_Head_ZeroPosition[1])-yaw);
+    var abs_pitch = abs((robot.body.neck.pitch.val-_Head_ZeroPosition[0])-tn_pitch) +
+    abs((robot.body.neck.head.pitch.val-_Head_ZeroPosition[2])-th_pitch);
+    
+    if ((abs_yaw +abs_pitch)<=0) return;
+    var speed_nom = max(abs_yaw,abs_pitch);
+    
+    var s_yaw = (abs_yaw/speed_nom)*speed; 
+    var sn_pitch = (abs_pitch/speed_nom)*speed *0.34;
+    var sh_pitch = (abs_pitch/speed_nom)*speed *0.63;
+    
+    if (lock) h_tagg_neck.freeze;
+    if (sn_pitch) robot.body.neck.pitch.MoveSpeed(tn_pitch,sn_pitch)&
+    if (sh_pitch) robot.body.neck.head.pitch.MoveSpeed(th_pitch,sh_pitch)&
+    if (s_yaw>0) robot.body.neck.head.yaw.MoveSpeed(yaw,s_yaw);
+    if (lock) h_tagg_neck.unfreeze;
+  }|{};  
+  
+  
+  
+  function local_head_MoveAtPitch(yaw,pitchNeck,pitchTotal,time,lock) {
+    if (yaw>90) yaw = 90;
+    if (yaw<-90) yaw = -90;
+    if (pitchNeck>20) pitchNeck = 20;
+    if (pitchNeck<-17) pitchNeck = -17;
+    if (pitchTotal>39) pitchTotal = 39;
+    if (pitchTotal<-34) pitchTotal = -34;
+    
+    var th_pitch=pitchTotal-pitchNeck;
+    if(th_pitch>19) th_pitch = 19;
+    if(th_pitch<-17) th_pitch = -17;
+    
+    
+    if (lock) h_tagg_neck.freeze;
+    robot.body.neck.pitch.Move(pitchNeck,time)&
+    robot.body.neck.head.pitch.Move(th_pitch,time)&
+    robot.body.neck.head.yaw.Move(yaw,time);
+    if (lock) h_tagg_neck.unfreeze;
+  }|{};
+  
+  
+  function local_head_MoveAtPitchSpeed(yaw,pitchNeck,pitchTotal,speed,lock) {
+    if (yaw>90) yaw = 90;
+    if (yaw<-90) yaw = -90;
+    if (pitchNeck>20) pitchNeck = 20;
+    if (pitchNeck<-17) pitchNeck = -17;
+    if (pitchTotal>39) pitchTotal = 39;
+    if (pitchTotal<-34) pitchTotal = -34;
+    
+    var tn_pitch=pitchNeck; 
+    var th_pitch=pitchTotal-pitchNeck;
+    
+    if(th_pitch>19) th_pitch = 19;
+    if(th_pitch<-17) th_pitch = -17;
+    
+    if (speed<=0) return;
+    
+    var abs_yaw   = abs((robot.body.neck.head.yaw.val-_Head_ZeroPosition[1])-yaw);
+    var abs_Neckpitch = abs((robot.body.neck.pitch.val-_Head_ZeroPosition[0])-tn_pitch);
+    var abs_Headpitch = abs((robot.body.neck.head.pitch.val-_Head_ZeroPosition[2])-th_pitch);
+    
+    if ((abs_yaw +abs_Neckpitch+abs_Headpitch)<=0) return;
+    var speed_nom = [abs_yaw,abs_Neckpitch,abs_Headpitch].max;
+    
+    var s_yaw = (abs_yaw/speed_nom)*speed; 
+    var sn_pitch = (abs_Neckpitch/speed_nom)*speed;
+    var sh_pitch = (abs_Headpitch/speed_nom)*speed;
+    
+    if (lock) h_tagg_neck.freeze;
+    if (sn_pitch) robot.body.neck.pitch.MoveSpeed(tn_pitch,sn_pitch)&
+    if (sh_pitch) robot.body.neck.head.pitch.MoveSpeed(th_pitch,sh_pitch)&
+    if (s_yaw>0) robot.body.neck.head.yaw.MoveSpeed(yaw,s_yaw);
+    if (lock) h_tagg_neck.unfreeze;
+  }|{};  
+  
+  
+	
+  function local_head_RBlink(time,lock) {
+    if (lock) h_tagg_eyes.freeze;
+    var tmp = - robot.body.neck.head.eye[right].lid.val + _Head_ZeroPosition[8];
+    robot.body.neck.head.eye[right].lid.Move(75,time/2)|
+    robot.body.neck.head.eye[right].lid.Move(tmp,time/2);
+    if (lock) h_tagg_eyes.unfreeze;
+  }|{};
+  
+  function local_head_LBlink(time,lock) {
+    if (lock) h_tagg_eyes.freeze;
+    var tmp = - robot.body.neck.head.eye[left].lid.val + _Head_ZeroPosition[5];
+    robot.body.neck.head.eye[left].lid.Move(75,time/2)|
+    robot.body.neck.head.eye[left].lid.Move(tmp,time/2);
+    if (lock) h_tagg_eyes.unfreeze;
+  }|{};
+  
+  function local_head_MoveEyeClose(intensity,time,lock) {
+    if (intensity>10) intensity=10;
+    if (intensity<0) intensity=0;
+    if (lock) h_tagg_eyes.freeze;
+    robot.body.neck.head.eye[left].lid.Move(intensity*7.5,time/2)&
+    robot.body.neck.head.eye[right].lid.Move(intensity*7.5,time/2);
+    if (lock) h_tagg_eyes.unfreeze;
+  }|{};
+  
+  
+  function local_head_MoveNo(intensity,time,lock) {
+    if (intensity>10) intensity=10;
+    if (intensity<0) intensity=0;
+    if (lock) {
+      h_tagg_neck.freeze;
+    };
+    robot.body.neck.head.yaw.Move(-4.5*intensity,time/3)|
+    robot.body.neck.head.yaw.Move(4.5*intensity,time/3)|
+    robot.body.neck.head.yaw.Move(0,time/3);
+    if (lock) {
+      h_tagg_neck.unfreeze;
+    };
+  }|{};
+  
+  function local_head_MoveYes(intensity,time,lock) {
+    if (intensity>10) intensity=10;
+    if (intensity<0) intensity=0;
+    if (lock) {
+      h_tagg_neck.freeze;
+    };
+    robot.body.neck.head.pitch.Move(-1.6*intensity,time/2)&
+    robot.body.neck.pitch.Move(-0.9*intensity,time/2)|
+    robot.body.neck.head.pitch.Move(0,time/2)&
+    robot.body.neck.pitch.Move(0,time/2);
+    if (lock) {
+      h_tagg_neck.unfreeze;
+    };
+  }|{};
+  
+	
+  function local_head_MoveDiscUpI(intensity,time,lock) {
+    if (intensity>10) intensity=10;
+    if (intensity<0) intensity=0;
+    if (lock) h_tagg_discs.freeze;
+    robot.body.neck.head.disc[up].Move(-6+1.5*intensity,time);
+    if (lock) h_tagg_discs.unfreeze;
+  }|{};
+  
+  function local_head_MoveDiscDownI(intensity,time,lock) {
+    if (intensity>10) intensity=10;
+    if (intensity<0) intensity=0;
+    if (lock) h_tagg_discs.freeze;
+    robot.body.neck.head.disc[down].Move(-1.7*intensity+6,time);
+    if (lock) h_tagg_discs.unfreeze;
+  }|{};   
+  
+  function local_head_ExpSmile(intensity,time,lock) {
+    if (intensity>10) intensity=10;
+    if (intensity<0) intensity=0;
+    if (lock) {
+      h_tagg_discs.freeze;
+      h_tagg_eyes.freeze;
+    };
+    robot.body.neck.head.disc[up].Move(0.58*intensity,time)&
+    robot.body.neck.head.disc[down].Move(-1.45*intensity,time)&
+    robot.body.neck.head.eye[right].trans.Move(0,time)&
+    robot.body.neck.head.eye[left].trans.Move(0,time)&
+    robot.body.neck.head.eye[right].brow.Move(-2*intensity,time)&
+    robot.body.neck.head.eye[left].brow.Move(2*intensity,time)&    
+    robot.body.neck.head.eye[right].lid.Move(-1.0*intensity,time)&
+    robot.body.neck.head.eye[left].lid.Move(-1.0*intensity,time);
+    //robot.body.neck.head.eye[right].lid.Move(0,time)&
+    //robot.body.neck.head.eye[left].lid.Move(0,time);
+    if (lock) {
+    h_tagg_discs.unfreeze;
+      h_tagg_eyes.unfreeze;
+      };
+    }|{};
+  
+  function local_head_ExpAngry(intensity,time,lock) {
+  if (intensity>10) intensity=10;
+    if (intensity<0) intensity=0;
+    if (lock) {
+    h_tagg_discs.freeze;
+      h_tagg_eyes.freeze;
+      };
+    robot.body.neck.head.disc[up].Move(-0.7*intensity,time)&
+    robot.body.neck.head.disc[down].Move(0,time)&
+    robot.body.neck.head.eye[right].trans.Move(0,time)&
+    robot.body.neck.head.eye[left].trans.Move(0,time)&
+    robot.body.neck.head.eye[right].brow.Move(3*intensity,time)&
+    robot.body.neck.head.eye[left].brow.Move(-3*intensity,time)&
+    robot.body.neck.head.eye[right].lid.Move(1.45*intensity,time)&
+    robot.body.neck.head.eye[left].lid.Move(1.45*intensity,time);
+    if (lock) {
+    h_tagg_discs.unfreeze;
+      h_tagg_eyes.unfreeze;
+      };
+    }|{};
+  
+  function local_head_ExpDisgust(intensity,time,lock) {
+  if (intensity>10) intensity=10;
+    if (intensity<0) intensity=0;
+    if (lock) {
+    h_tagg_discs.freeze;
+      h_tagg_eyes.freeze;
+      };
+    robot.body.neck.head.disc[up].Move(-0.7*intensity,time)&
+    robot.body.neck.head.disc[down].Move(0.41*intensity,time)&
+    robot.body.neck.head.eye[right].trans.Move(0,time)&
+    robot.body.neck.head.eye[left].trans.Move(0,time)&
+    robot.body.neck.head.eye[right].brow.Move(0,time)&
+    robot.body.neck.head.eye[left].brow.Move(0,time)&
+    robot.body.neck.head.eye[right].lid.Move(2.9*intensity,time)&
+    robot.body.neck.head.eye[left].lid.Move(2.9*intensity,time);
+    if (lock) {
+    h_tagg_discs.unfreeze;
+      h_tagg_eyes.unfreeze;
+      };
+    }|{};
+  
+  
+  function local_head_ExpSurprise(intensity,time,lock) {
+  if (intensity>10) intensity=10;
+    if (intensity<0) intensity=0;
+    if (lock) {
+    h_tagg_discs.freeze;
+      h_tagg_eyes.freeze;
+      };
+    robot.body.neck.head.disc[up].Move(1.6*intensity,time)&
+    robot.body.neck.head.disc[down].Move(-1.6*intensity,time)&
+    { 
+    if (intensity==10) {
+      robot.body.neck.head.eye[right].trans.Move(50,time)&
+        robot.body.neck.head.eye[left].trans.Move(50,time);
+        } else {
+      robot.body.neck.head.eye[right].trans.Move(0,time)&
+        robot.body.neck.head.eye[left].trans.Move(0,time);
+        };
+      }&
+    robot.body.neck.head.eye[right].brow.Move(0,time)&
+    robot.body.neck.head.eye[left].brow.Move(0,time)&
+    robot.body.neck.head.eye[right].lid.Move(0,time)&
+    robot.body.neck.head.eye[left].lid.Move(0,time);
+    if (lock) {
+    h_tagg_discs.unfreeze;
+      h_tagg_eyes.unfreeze;
+      };
+    }|{}; 
+  
+  
+  function local_head_ExpSad(intensity,time,lock) {
+  if (intensity>10) intensity=10;
+    if (intensity<0) intensity=0; 
+    if (lock) {
+    h_tagg_discs.freeze;
+      h_tagg_eyes.freeze;
+      };   
+    robot.body.neck.head.disc[up].Move(0,time)&
+    robot.body.neck.head.disc[down].Move(0,time)&
+    robot.body.neck.head.eye[right].trans.Move(0,time)&
+    robot.body.neck.head.eye[left].trans.Move(0,time)&
+    robot.body.neck.head.eye[right].brow.Move(-3*intensity,time)&
+    robot.body.neck.head.eye[left].brow.Move(3*intensity,time)&
+    robot.body.neck.head.eye[right].lid.Move(2.03*intensity,time)&
+    robot.body.neck.head.eye[left].lid.Move(2.03*intensity,time);
+    if (lock) {
+    h_tagg_discs.unfreeze;
+      h_tagg_eyes.unfreeze;
+      };
+    }|{}; 
+  
+  
+  function local_head_ExpFear(intensity,time,lock) {
+  if (intensity>10) intensity=10;
+    if (intensity<0) intensity=0;
+    if (lock) {
+    h_tagg_discs.freeze;
+      h_tagg_eyes.freeze;
+      };
+    robot.body.neck.head.disc[up].Move(0.29*intensity,time)&
+    robot.body.neck.head.disc[down].Move(0.58*intensity,time)&
+    robot.body.neck.head.eye[right].trans.Move(0,time)&
+    robot.body.neck.head.eye[left].trans.Move(0,time)&
+    robot.body.neck.head.eye[right].brow.Move(-2*intensity,time)&
+    robot.body.neck.head.eye[left].brow.Move(2*intensity,time)&
+    robot.body.neck.head.eye[right].lid.Move(-1.0*intensity,time)&
+    robot.body.neck.head.eye[left].lid.Move(-1.0*intensity,time);
+    if (lock) {
+    h_tagg_discs.unfreeze;
+      h_tagg_eyes.unfreeze;
+      };
+    }|{}; 
+  
+  function local_head_ExpNormal(time,lock) {
+  if (lock) {
+    h_tagg_discs.freeze;
+      h_tagg_eyes.freeze;
+      };
+    robot.body.neck.head.disc[up].Move(0,time)&
+    robot.body.neck.head.disc[down].Move(0,time)&
+    robot.body.neck.head.eye[right].trans.Move(0,time)&
+    robot.body.neck.head.eye[left].trans.Move(0,time)&
+    robot.body.neck.head.eye[right].brow.Move(0,time)&
+    robot.body.neck.head.eye[left].brow.Move(0,time)&
+    robot.body.neck.head.eye[right].lid.Move(0,time)&
+    robot.body.neck.head.eye[left].lid.Move(0,time);
+    if (lock) {
+    h_tagg_discs.unfreeze;
+      h_tagg_eyes.unfreeze;
+      };
+    }|{};
+  
+  function local_head_BehaveNormal(time,lock) {
+  // phase 1
+    if (lock) {
+    h_tagg_neck.freeze;
+      h_tagg_discs.freeze;
+      h_tagg_eyes.freeze;
+      };
+    local_head_ExpNormal(time,false)&
+    local_head_MoveVertical(time,false);
+    if (lock) {
+    h_tagg_neck.unfreeze;
+      h_tagg_discs.unfreeze;
+      h_tagg_eyes.unfreeze;
+      };
+    }|{};
+  
+  function local_head_BehaveYawn(time,lock) {
+  
+    // phase 1
+    if (lock) {
+    h_tagg_neck.freeze;
+      h_tagg_discs.freeze;
+      h_tagg_eyes.freeze;
+      };
+    var time1=time*0.4;
+    robot.body.neck.head.disc[up].Move(0,time1)&
+    robot.body.neck.head.disc[down].Move(-14.5,time1)&
+    robot.body.neck.head.eye[right].trans.Move(0,time1)&
+    robot.body.neck.head.eye[left].trans.Move(0,time1)&
+    robot.body.neck.head.eye[right].brow.Move(0,time1)&
+    robot.body.neck.head.eye[left].brow.Move(0,time1)&
+    robot.body.neck.head.eye[right].lid.Move(60,time1)&
+    robot.body.neck.head.eye[left].lid.Move(60,time1)&
+    local_head_MoveUp(10,time1,false);
+    
+    // phase 2
+    var time2=time*0.2;
+    sleep(time2);
+    
+    // phase 3
+    var time3=time*0.4;
+    local_head_BehaveNormal(time3,false);
+    if (lock) {
+    h_tagg_neck.unfreeze;
+      h_tagg_discs.unfreeze;
+      h_tagg_eyes.unfreeze;
+      };
+    }|{};
+  
+  function local_head_BehaveFear(intensity,time,lock) {
+  if (intensity>10) intensity=10;
+    if (intensity<0) intensity=0;
+    // phase 1
+    if (lock) {
+    h_tagg_neck.freeze;
+      h_tagg_discs.freeze;
+      h_tagg_eyes.freeze;
+      };
+    local_head_ExpFear(intensity,time/3,false),
+    local_head_MoveBack(intensity*0.5,time/3,false),
+    h_tag:{
+    robot.body.neck.head.disc[down].Move(5.8-0.29*intensity,0.3);
+      a_DiscDown.stop | a_DiscDown: robot.body.neck.head.disc[down].val = (_Head_ZeroPosition[3]+5.8-0.29*intensity) sin:(0.1) ampli:0.29*intensity,
+      },
+    sleep(time*2/3);
+    h_tag.stop;
+    if (lock) {
+    h_tagg_neck.unfreeze;
+      h_tagg_discs.unfreeze;
+      h_tagg_eyes.unfreeze;
+      };
+    }|{};
+  
+	
+  function local_head_BehaveSad(intensity,time,lock) {
+  if (intensity>10) intensity=10;
+    if (intensity<0) intensity=0;
+	  
+    if (lock) {
+    h_tagg_neck.freeze;
+      h_tagg_discs.freeze;
+      h_tagg_eyes.freeze;
+      };
+	  
+    // phase 1
+    var time1=time*0.26;
+    local_head_ExpSad(intensity,time1,false)&
+    local_head_MoveDown((intensity*0.3),time1,false)&
+    local_head_MoveLeft((intensity*0.15),time1,false);
+    
+	  
+    // phase 2
+    var time2=time*0.33;
+    local_head_LBlink(time2,false) & local_head_RBlink(time2,false);
+    sleep(time*0.066);
+    local_head_LBlink(time2,false) & local_head_RBlink(time2,false);
+    
+    if (lock) {
+    h_tagg_neck.unfreeze;
+      h_tagg_discs.unfreeze;
+      h_tagg_eyes.unfreeze;
+      };
+    }|{};
+  
+  function local_head_BehaveSurprise(intensity,time,lock) {
+	
+    if (lock) {
+    h_tagg_neck.freeze;
+      h_tagg_discs.freeze;
+      h_tagg_eyes.freeze;
+      }; 
+    
+    if (time<1) return;
+    
+    time=time-0.6;
+	  
+    // phase 1
+    local_head_ExpSurprise(intensity,0.1,false)&
+    local_head_MoveBack(intensity,0.3,false);
+    
+    // phase 2
+    var time1=time*0.1;
+    sleep(time1);
+	  
+    // phase 3
+    var time2=time*0.2;
+    local_head_ExpSurprise((intensity-1),time2,false);
+	  
+    // phase 4
+    var time3=time*0.1;
+    local_head_LBlink(0.3,false) & local_head_RBlink(0.3,false);
+    sleep(time3);
+    local_head_LBlink(0.3,false) & local_head_RBlink(0.3,false);
+	  
+    // phase 5
+    var time4=time*0.2;
+    local_head_ExpSurprise((intensity*0.5),time4,false)&
+    sleep(time4);
+	  
+    // phase 6
+    var time5=time*0.4;
+    local_head_ExpNormal(time5,false);
+    //sleep(time5);
+    
+    if (lock) {
+    h_tagg_neck.unfreeze;
+      h_tagg_discs.unfreeze;
+      h_tagg_eyes.unfreeze;
+      };
+    }|{};
+  
+  function local_head_BehaveDisgust(intensity,time,lock) {
+  if (lock) {
+    h_tagg_neck.freeze;
+      h_tagg_discs.freeze;
+      h_tagg_eyes.freeze;
+      };
+    
+    // phase 1
+    local_head_ExpDisgust(intensity,time,false)&
+    local_head_MoveBack(intensity,time,false)&
+    local_head_MoveLeft(1,time,false);
+    
+    if (lock) {
+    h_tagg_neck.unfreeze;
+      h_tagg_discs.unfreeze;
+      h_tagg_eyes.unfreeze;
+    };
+  }|{};
+  
+  function local_head_BehaveAngry(intensity,time,lock) {
+    if (intensity>10) intensity=10;
+    if (intensity<0) intensity=0;
+    
+    if (lock) {
+      h_tagg_neck.freeze;
+      h_tagg_discs.freeze;
+      h_tagg_eyes.freeze;
+    };
+    
+    // phase 1
+    var time1=time*0.65;
+    local_head_ExpAngry(intensity,time1,false)&
+    local_head_MoveForward(intensity,time1,false);
+	  
+    // phase 2
+    var time2=time*0.35;
+    robot.body.neck.head.disc[down].Move(0.41*intensity,time2);
+    
+    if (lock) {
+      h_tagg_neck.unfreeze;
+      h_tagg_discs.unfreeze;
+      h_tagg_eyes.unfreeze;
+    };
+  }|{};
+  
+  
+  function local_head_BehaveJoy(intensity,time,lock) {
+    if (intensity>10) intensity=10;
+    if (intensity<0) intensity=0;
+    
+    if (lock) {
+      h_tagg_neck.freeze;
+      h_tagg_discs.freeze;
+      h_tagg_eyes.freeze;
+    };
+    
+    //TODO: is this timie correct?
+    // phase 1
+    var time1=time*0.75;
+    local_head_ExpSmile(intensity,time1,false);
+	  
+    // phase 2
+    var time2=time*0.35;
+    robot.body.neck.head.disc[down].Move(0.145*intensity,time2);
+    
+    if (lock) {
+      h_tagg_neck.unfreeze;
+      h_tagg_discs.unfreeze;
+      h_tagg_eyes.unfreeze;
+    };
+  }|{};
+  
+  
+  
+  
+  function local_head_ActAround(intensity,time,freq) { 
+    if (intensity>10) intensity=10;	
+    if (intensity<0) intensity=0;
+    var tmp=time/2;
+    
+    h_tagg_neck.unfreeze| 
+    h_tagg_neck.stop|
+    h_tagg_neck:loop{
+      var time_=tmp + ((tmp*10).round.random)/10;
+      {
+        var action= (3+freq).random;
+        var inten=((intensity+1).round).random;
+        
+        switch(action){
+          case 0: local_head_MoveLeft(inten,time_,false);
+          case 1: local_head_MoveRight(inten,time_,false);
+          default: sleep(tmp+time_/10);
+        };
+      }&{
+        var action= (4+freq).random;
+        var inten=((intensity+1).round).random;
+        
+        switch(action){
+          case 0: local_head_MoveDown(inten,time_,false);
+          case 1: local_head_MoveUp(inten,time_,false);
+          case 2: local_head_MoveBack(inten,time_,false);
+          case 3: local_head_MoveForward(inten,time_,false);
+          default: sleep(time_);
+        };
+      };
+    },
+  }|{};
+  
+  
+  function local_head_ActBreathe(intensity,time) { 
+    var mode=true;
+    time = time/2;
+    if (intensity<0) { intensity=-intensity;  mode=false;}; 
+    if (intensity>10) intensity=10;  
+    h_tagg_discs.unfreeze| 
+    h_tagg_discs.stop|
+    h_tagg_discs:loop {
+      {
+        robot.body.neck.head.disc[up].Move(-0.55*intensity,time);
+      } & {
+        if (mode) 
+        robot.body.neck.head.disc[down].Move(0.55*intensity,time)
+        else 
+        robot.body.neck.head.disc[down].Move(-0.55*intensity,time);
+      };
+      
+      {
+        robot.body.neck.head.disc[up].Move(0.55*intensity,time);
+      } & {
+        if (mode)
+        robot.body.neck.head.disc[down].Move(-0.55*intensity,time)
+        else 
+        robot.body.neck.head.disc[down].Move(0.55*intensity,time);
+      };
+    },
+  }|{};
+  
+  
+  
+  function local_head_ActWalking(intensity,time) { 
+    if (intensity>10) intensity=10;	
+    if (intensity<0) intensity=0;
+    h_tagg_neck.unfreeze| 
+    h_tagg_neck.stop|
+    h_tagg_neck:loop{
+      local_head_MoveBack(intensity,time/2,false);
+      local_head_MoveForward(intensity,time/2,false);
+    },
+  }|{};
+  
+  
+  function local_head_ActQuake(intensity) { 
+    if (intensity>10) intensity=10;	
+    if (intensity<0) intensity=0;
+    h_tagg_neck.unfreeze| 
+    h_tagg_neck.stop|
+    h_tagg_neck:loop{
+      var yaw = ((intensity).round).random;
+      var pitch = ((intensity).round).random;
+      local_head_MoveAt(yaw,pitch,0.1,false);
+    },
+  }|{};
+	
+  
+  function local_head_ActBlinking(frequency,time) { 
+    h_tagg_eyes.unfreeze| 
+    h_tagg_eyes.stop|
+    h_tagg_eyes:loop{
+      var freq = frequency/2 + ((frequency/2).round).random;
+      sleep(freq);
+      local_head_LBlink(time/2,false) & local_head_RBlink(time/2,false);
+    },
+  }|{};
+  
+  
+  
+  function local_head_ActGnashing(intensity,time) {
+    if (intensity>10) intensity=10;
+    if (intensity<0) intensity=0;
+    h_tagg_discs.unfreeze| 
+    h_tagg_discs.stop|
+    h_tagg_discs:{
+      robot.body.neck.head.disc[down].Move(5.8-0.29*intensity,0.3);
+      a_DiscDown.stop | a_DiscDown: robot.body.neck.head.disc[down].val = (_Head_ZeroPosition[3]+5.8-0.29*intensity) sin:(time) ampli:0.29*intensity,
+    };
+  }|{};
+  
+  
+  function local_head_ActAlive(A_inten,A_time,A_freq,BR_inten,BR_time,BL_frequency,BL_time) {   
+    if (A_inten>0) local_head_ActAround(A_inten,A_time,A_freq)&
+    local_head_ActBreathe(BR_inten,BR_time)&
+    local_head_ActBlinking(BL_frequency,BL_time),
+  }|{};
+  
+  
+  function local_head_SayYawn(lock) {
+    if (lock) {
+      h_tagg_neck.freeze;
+      h_tagg_discs.freeze;
+      h_tagg_eyes.freeze;
+    };
+    var time=2.2;
+    if ((robot.hasLocalSlot("audio"))&&(robot.audio.hasLocalSlot("player"))) robot.audio.player.Play(_uFilesDir+"sounds/samples/yawn.wav"),
+    local_head_BehaveYawn(time,lock);
+    if (lock) {
+      h_tagg_neck.unfreeze;
+      h_tagg_discs.unfreeze;
+      h_tagg_eyes.unfreeze;
+    };
+  }|{};
+  
+  
+  function local_head_SayFile(file,intensity,lock){
+    if (intensity>10) intensity=10;	
+    if (intensity<0) intensity=0;
+    
+    
+    if ((!robot.hasLocalSlot("audio"))&&(!robot.audio.hasLocalSlot("player"))) {
+      echo("ERROR: No audio or player component in the robot structure");
+      return;
+    };    
+    
+    if (!hasSlot("_speak_lock")) var Global._speak_lock = false;
+    if (!hasSlot("_speak_disc")) var Global._speak_disc = 0;
+    if (!hasSlot("_speak_leye")) var Global._speak_leye = 0;
+    if (!hasSlot("_speak_reye")) var Global._speak_reye = 0;
+    if (!hasSlot("_speak_music_vol")) var Global._speak_music_vol = 5;
+    
+    
+    intensity=intensity*14.5;  
+    
+    if (!hasSlot("t_speech")) var Global.t_speech=Tag.new else t_speech.stop;
+    t_speech:{
+      
+      if (!Global._speak_lock){
+        if (robot.audio.hasLocalSlot("musicPlayer")) Global._speak_music_vol = robot.audio.musicPlayer.volume;
+        Global._speak_disc = robot.body.neck.head.disc[down].val - _Head_ZeroPosition[3];
+        Global._speak_leye = robot.body.neck.head.eye[left].brow.val - _Head_ZeroPosition[6];
+        Global._speak_reye = robot.body.neck.head.eye[right].brow.val - _Head_ZeroPosition[9];
+        Global._speak_lock = true;
+      };
+      
+      var visems = File.new(file + ".vis").asList;
+      var tmp=0;
+      var t=Tag.new(); 
+      
+      if (lock) {
+        h_tagg_discs.freeze;
+        //h_tagg_eyes.freeze;
+      };
+      
+      robot.audio.player.Play(file + ".wav"),
+      for (var visem : visems){
+        var par = visem.split(" ");
+        par[0]=par[0].asFloat;
+        par[1]=par[1].asFloat;
+        t:{ 
+          if ((par[0]==0))  
+          robot.body.neck.head.disc[down].MoveSpeed(0,intensity),
+          
+          if ((par[0]==5)||(par[0]==15)||(par[0]==16)||(par[0]==17)||(par[0]==19)||(par[0]==20))  
+          robot.body.neck.head.disc[down].MoveSpeed(2.9,intensity), 
+          
+          if ((par[0]==18)||(par[0]==21))   
+          robot.body.neck.head.disc[down].MoveSpeed(4.93,intensity),
+          
+          if ((par[0]==2)||(par[0]==4)||(par[0]==3)||(par[0]==8)||(par[0]==9)||(par[0]==13)||(par[0]==14))   
+          robot.body.neck.head.disc[down].MoveSpeed(-8.7,intensity),
+          
+          if ((par[0]==1)||(par[0]==6)||(par[0]==11)||(par[0]==12))  
+          robot.body.neck.head.disc[down].MoveSpeed(-14.5,intensity),
+          
+          if ((par[0]==7)||(par[0]==10))  
+          robot.body.neck.head.disc[down].MoveSpeed(2.9,intensity), 
+          
+          if (tmp==0){	
+            robot.body.neck.head.eye[right].brow.MoveSpeed(15,intensity)&  
+            robot.body.neck.head.eye[left].brow.MoveSpeed(-15,intensity),
+            tmp=1;
+          } else {
+            robot.body.neck.head.eye[right].brow.MoveSpeed(-15,intensity)&  
+            robot.body.neck.head.eye[left].brow.MoveSpeed(15,intensity),
+            tmp=0;
+          },
+        },
+        if ((par[1]-0.015)>0) sleep(par[1]-0.015);
+        t.stop;
+      };
+      
+      if (robot.audio.hasLocalSlot("musicPlayer")) robot.audio.musicPlayer.volume = Global._speak_music_vol;
+	    
+      robot.body.neck.head.disc[down].Move(Global._speak_disc,0.5)&
+      robot.body.neck.head.eye[left].brow.Move(Global._speak_leye,0.5)&
+      robot.body.neck.head.eye[right].brow.Move(Global._speak_reye,0.5);
+      
+      Global._speak_lock = false;
+      
+      if (lock) {
+        h_tagg_discs.unfreeze;
+        // h_tagg_eyes.unfreeze;
+      };
+    }; 
+  }|{};
+  
+	
+	
+  function trig_SaySpeech(toggle,reye, leye, disc, viseme, intensity){ 
+    
+    if ((viseme==0)||(viseme==8)) 
+    robot.body.neck.head.disc[down].MoveSpeed(disc + 0,intensity), 
+    
+    if ((viseme==2)||(viseme==3)||(viseme==5)||(viseme==9)||(viseme==13)||(viseme==14)) 
+    robot.body.neck.head.disc[down].MoveSpeed(disc - 8.7,intensity), 
+    
+    if ((viseme==1)||(viseme==4)||(viseme==7)||(viseme==11)||(viseme==12))
+    robot.body.neck.head.disc[down].MoveSpeed(disc - 14.5,intensity), 
+    
+    if ((viseme==6)||(viseme==10)||(viseme==15)||(viseme==16)||(viseme==17)||(viseme==18)||(viseme==19)||(viseme==20)||(viseme==21))
+    robot.body.neck.head.disc[down].MoveSpeed(disc + 4.93,intensity), 
+    
+    if (toggle==false){	  
+      // robot.body.neck.head.eye[right].brow.MoveSpeed(15,intensity)&  
+      // robot.body.neck.head.eye[left].brow.MoveSpeed(-15,intensity),
+      robot.body.neck.head.eye[right].brow.MoveSpeed(reye + 15,intensity)&  
+      robot.body.neck.head.eye[left ].brow.MoveSpeed(leye - 15,intensity),
+    } else {
+      robot.body.neck.head.eye[right].brow.MoveSpeed(reye - 15,intensity)&  
+      robot.body.neck.head.eye[left ].brow.MoveSpeed(leye + 15,intensity),
+    },
+  }|{};
+  
+  
+  
+  function local_head_SaySpeech(text, intensity, voice, lock){
+    robot.audio.speech.progress = 0;
+    if (intensity>10) intensity=10;	
+    if (intensity<0) intensity=0;
+    
+    if ((!robot.hasLocalSlot("audio"))&&(!robot.audio.hasLocalSlot("speech"))) {
+      echo("ERROR: No audio or speech component in the robot structure");
+      return;
+    };   
+    
+    
+    if (!hasSlot("_speak_lock")) var Global._speak_lock = false;
+    if (!hasSlot("_speak_disc")) var Global._speak_disc = 0;
+    if (!hasSlot("_speak_leye")) var Global._speak_leye = 0;
+    if (!hasSlot("_speak_reye")) var Global._speak_reye = 0;
+    if (!hasSlot("_speak_music_vol")) var Global._speak_music_vol = 5;
+    
+    intensity=intensity*14.5; 
+    
+    
+    if (!hasSlot("t_speech")) var Global.t_speech=Tag.new else t_speech.stop;
+    t_speech:{
+      
+      var toggle=0;
+      
+      if (!Global._speak_lock){
+        if (robot.audio.hasLocalSlot("musicPlayer")) Global._speak_music_vol = robot.audio.musicPlayer.volume;
+        Global._speak_disc = robot.body.neck.head.disc[down].val - _Head_ZeroPosition[3];
+        Global._speak_leye = robot.body.neck.head.eye[left].brow.val - _Head_ZeroPosition[6];
+        Global._speak_reye = robot.body.neck.head.eye[right].brow.val - _Head_ZeroPosition[9];
+        Global._speak_lock = true;
+      };
+	    
+      at(robot.audio.speech.visemeTrig==1)
+      {
+        detach({ trig_SaySpeech(toggle, Global._speak_reye, Global._speak_leye, Global._speak_disc,  robot.audio.speech.visemeId, intensity),}),
+        toggle=!toggle; 
+        robot.audio.speech.visemeTrig=0;
+      },
+      
+	    
+      if (lock) {
+        h_tagg_discs.freeze;
+        // h_tagg_eyes.freeze;
+      };
+      
+      if (robot.audio.hasLocalSlot("musicPlayer")) Global.robot.audio.musicPlayer.volume=5;	
+      robot.audio.speech.Say(text,voice);  
+      if (robot.audio.hasLocalSlot("musicPlayer")) robot.audio.musicPlayer.volume = Global._speak_music_vol;
+	    
+      robot.body.neck.head.disc[down].Move(Global._speak_disc,0.5)&
+      robot.body.neck.head.eye[left].brow.Move(Global._speak_leye,0.5)&
+      robot.body.neck.head.eye[right].brow.Move(Global._speak_reye,0.5);
+      
+      Global._speak_lock = false;
+      
+      if (lock) {
+        h_tagg_discs.unfreeze;
+        // h_tagg_eyes.unfreeze;
+      };
+    };
+  }|{};
+  
+  
+  function local_head_Stop() { 
+    h_tagg_neck.stop();
+    h_tagg_discs.stop();
+    h_tagg_eyes.stop();
+    //
+    a_NeckPitch.stop();
+    a_HeadPitch.stop();
+    a_HeadYaw.stop();
+    a_DiscUp.stop();
+    a_DiscDown.stop();
+    a_EyeLeftTrans.stop();
+    a_EyeRightTrans.stop();
+    a_EyeLeftLid.stop();
+    a_EyeRightLid.stop();
+    a_EyeLeftBrow.stop();
+    a_EyeRightBrow.stop();
+  }|{};  
+  
+  
+  
+  echo("OK: EMYS loaded."); 
+  };

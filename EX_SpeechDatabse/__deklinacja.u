@@ -1,0 +1,32 @@
+
+load("Tools.u");
+
+var input = ["kaczki",3,7,2006,1];
+var s = "Gra w {0}, zdobyles {1L0} na {2L1}, jest rok {3}. Masz {4L2}.";
+
+var lex = [["punkt", "punkty", "punktow"],
+				["kot", "koty", "kotow"],
+				["wpierdol", "wpierdole", "wpierdoli"]];
+
+
+function fill(str,input,lex){
+				
+	var s = str ^ input;
+	s = s.split("{").map(function(s){s.split("}");});
+
+	//which form to choose from lex based on count 
+	function which(i){
+		if (i==1) return 0;
+		if (i in [2,3,4]) return 1
+		else return 2;
+	}|;
+
+	for(var i=1; i<s.size; i++ ){
+		[var left, var right] = s[i][0].split("L").map(function(str){str.asFloat});
+		s[i][0] = "{0} {1}" ^ [input[left], lex[right][which(input[left])]]; 
+	};
+
+	s.map(function(x){x.join}).join;
+}|;
+
+fill(s,input,lex);

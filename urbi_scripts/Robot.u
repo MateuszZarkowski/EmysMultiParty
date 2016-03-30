@@ -1,0 +1,294 @@
+/*
+* Simple robot body abstraction definition.
+*
+*
+*  Author: Jan Kedzierski
+*  Date: 07.04.2015
+*  Ver: 5.3s
+*/	
+
+
+
+load("urbi/component.u")|;
+load("urbi/naming-standard.u")|;
+
+do(Global) {
+  
+  
+  var a_Logg = Tag.new;
+  var _LoggAction = "";
+  var _LoggPar = [];
+  
+  function LoadRobot(){
+    echo("INFO: Creating overal robot structure...");
+    
+    /////////////////////////////
+    // ROBOT
+    var Global.robot = Component.new("robot");
+    
+    class identity: Interface.Identity
+    {
+      var robotType = "EMYS";
+      var name = "MyRobot";
+      var model = "MK II";
+      var serial = "001";
+    };
+    robot.addProto(identity);
+    
+    // add body component
+    robot.addComponent("body");
+    
+    UVar.new(Global,"robot_ready");
+    Global.getSlot("robot_ready").copy(robot,"ready");
+    robot.ready=false;
+    
+    UVar.new(Global,"power_level");
+    Global.getSlot("power_level").copy(robot,"power_level");
+    robot.power_level=0;  
+    
+    ////////////////////////
+    // LOG 
+    
+    robot.addComponent("log");
+    
+    var robot.log.level = _logLevel;
+    
+    do (robot.log) { 
+      function Start() 		{call.b_RStartLog();};
+      function Stop() 		{call.b_RStopLog();};
+      function Set(action, par) 	{call.b_RSetLog(action, par);};
+    };
+    
+    
+    echo("OK: Robot created.");
+    echo(" ");
+    return true;
+  }|{};
+  
+  
+  function b_RStartLog(){
+    
+    var _path = Path.new(_uFilesDir+"log/"+_logFileName);
+    //var _path = Path.new("C://_robot_log/"+_logFileName);
+    var _file;
+    if (!_path.exists) { 
+      _file = File.create(_path);
+      var o = OutputStream.new(_file)|;
+      o << "DATE" << ";";
+      o << "ACTION" << ";";
+      o << "ACTION PARAMETERS" << ";";
+      //
+      o << "EMOTION" << ";";
+      o << "EMOTION INTENSITY" << ";";
+      o << "EMOTION PROBABILITY" << ";";
+      o << "EMOTION P" << ";";
+      o << "EMOTION A" << ";";
+      o << "EMOTION D" << ";";
+      o << "EMOTION X" << ";";
+      o << "EMOTION Y" << ";";
+      o << "EMOTION Z" << ";";
+      //
+      o << "VIDEO HUMAN DETECTOR ENABLE" << ";";
+      o << "VIDEO HUMAN DETECTOR VISIBLE" << ";";
+      o << "VIDEO HUMAN DETECTOR POSITION" << ";";
+      o << "VIDEO HUMAN DETECTOR POSITION ON IMAGE" << ";";
+      o << "VIDEO HUMAN DETECTOR ORIENTATION" << ";";
+      o << "VIDEO HUMAN DETECTOR FACE TRACKING PAUSE" << ";";
+      //
+      o << "VIDEO RIGHT HAND DETECTOR VISIBLE" << ";";
+      o << "VIDEO RIGHT HAND DETECTOR POSITION" << ";";
+      o << "VIDEO RIGHT HAND DETECTOR POSITION ON IMAGE" << ";";
+      o << "VIDEO RIGHT HAND DETECTOR ORIENTATION" << ";";
+      //
+      o << "VIDEO LEFT HAND DETECTOR VISIBLE" << ";";
+      o << "VIDEO LEFT HAND DETECTOR POSITION" << ";";
+      o << "VIDEO LEFT HAND DETECTOR POSITION ON IMAGE" << ";";
+      o << "VIDEO LEFT HAND DETECTOR ORIENTATION" << ";";
+      //
+      o << "VIDEO TORSO HAND DETECTOR VISIBLE" << ";";
+      o << "VIDEO TORSO HAND DETECTOR POSITION" << ";";
+      o << "VIDEO TORSO HAND DETECTOR POSITION ON IMAGE" << ";";
+      o << "VIDEO TORSO HAND DETECTOR ORIENTATION" << ";";
+      //
+      o << "VIDEO HEAD DETECTOR VISIBLE" << ";";
+      o << "VIDEO HEAD DETECTOR ORIENTED ON ROBOT" << ";";
+      o << "VIDEO HEAD DETECTOR POSITION" << ";";
+      o << "VIDEO HEAD DETECTOR POSITION ON IMAGE" << ";";
+      o << "VIDEO HEAD DETECTOR ORIENTATION" << ";";
+      //
+      o << "VIDEO MOVE DETECTOR ENABLE" << ";";
+      o << "VIDEO MOVE DETECTOR VISIBLE" << ";";
+      o << "VIDEO MOVE DETECTOR POSITION" << ";";
+      //
+      o << "AUDIO MASTER VOLUME" << ";";
+      o << "AUDIO PLAYER VOLUME" << ";";
+      o << "AUDIO PLAYER IS PLAYING" << ";";
+      //
+      o << "AUDIO MUSIC PLAYER VOLUME" << ";";
+      o << "AUDIO MUSIC PLAYER IS PLAYING" << ";";
+      //
+      o << "AUDIO SPEECH VOLUME" << ";";
+      o << "AUDIO SPEECH RATE" << ";";
+      o << "AUDIO SPEECH PITCH" << ";";
+      //
+      o << "AUDIO RECOGNITION PAUSE" << ";";
+      o << "AUDIO RECOGNITION IS LISTENING" << ";";
+      o << "AUDIO RECOGNITION RESULT TAG" << ";";
+      o << "AUDIO RECOGNITION RESULT" << ";";
+      //
+      o << "AUDIO DETECTOR BEAM ANGLE" << ";";
+      o << "AUDIO DETECTOR SOURCE ANGLE" << ";";
+      o << "AUDIO DETECTOR SOURCE CONFIDENCE" << ";"; 
+      
+      o << "\n"|;
+      o.close;
+      
+    } else
+    _file = File.new(_path);
+    
+    ////////////////////////////////////////////////
+    
+    
+    a_Logg: every (1s) {
+      if (robot.log.level==0) {
+        //return;
+      } else if (robot.log.level==1){
+        if (Global._LoggAction!="") {
+          b_ROneLog(_file,Global._LoggAction,Global._LoggPar);
+          Global._LoggAction = "";
+          Global._LoggPar=[];
+        };
+      } else if (robot.log.level==2){
+        b_ROneLog(_file,Global._LoggAction,Global._LoggPar);
+        Global._LoggAction = "";
+        Global._LoggPar=[];
+      }
+      
+    },
+  }|{}; 
+  
+  
+  function b_ROneLog(file, action, par){  
+    
+    var _int_action_par="";
+    
+    for(var x:par) {_int_action_par = _int_action_par + x + ",";};
+    var o = OutputStream.new(file)|;
+    
+    
+    o << Date.now.asString().split(".")[0] << ";";
+    o << action <<";";
+    o << _int_action_par <<";";
+    ///////////////////
+    // EMOTIONS
+    if (robot.hasLocalSlot("emotion")) {
+      var _tmp_emot = robot.emotion.Get;
+      o << _tmp_emot[0] << ";";
+      o << _tmp_emot[1] << ";";
+      o << robot.emotion.prob << ";";
+      o << robot.emotion.P << ";";
+      o << robot.emotion.A << ";";
+      o << robot.emotion.D << ";";
+      o << robot.emotion.X << ";";
+      o << robot.emotion.Y << ";";
+      o << robot.emotion.Z << ";";
+    } else {
+      for (9) o << "" << ";";
+    };
+    ///////////////////
+    // VIDEO
+    if ((robot.hasLocalSlot("video"))&&(robot.video.hasLocalSlot("humanDetector"))) {
+      o << robot.video.humanDetector.enable << ";";
+      o << robot.video.humanDetector.visible << ";";
+      o << robot.video.humanDetector.position << ";";
+      o << robot.video.humanDetector.positionOnImage << ";";
+      o << robot.video.humanDetector.orientation << ";";
+      o << robot.video.humanDetector.faceTrackingPause << ";";
+      //
+      o << robot.video.humanDetector.hand[right].visible << ";";
+      o << robot.video.humanDetector.hand[right].position  << ";";
+      o << robot.video.humanDetector.hand[right].positionOnImage  << ";";
+      o << robot.video.humanDetector.hand[right].orientation << ";";
+      //
+      o << robot.video.humanDetector.hand[left].visible << ";";
+      o << robot.video.humanDetector.hand[left].position  << ";";
+      o << robot.video.humanDetector.hand[left].positionOnImage  << ";";
+      o << robot.video.humanDetector.hand[left].orientation << ";";
+      //
+      o << robot.video.humanDetector.torso.visible << ";";
+      o << robot.video.humanDetector.torso.position  << ";";
+      o << robot.video.humanDetector.torso.positionOnImage  << ";";
+      o << robot.video.humanDetector.torso.orientation << ";";
+      //
+      o << robot.video.humanDetector.head.visible << ";";
+      o << robot.video.humanDetector.head.oriented << ";";
+      o << robot.video.humanDetector.head.position << ";";
+      o << robot.video.humanDetector.head.positionOnImage << ";";
+      o << robot.video.humanDetector.head.orientation << ";";
+    } else {
+      for (25) o << "" << ";";
+    };
+    //
+    if ((robot.hasLocalSlot("video"))&&(robot.video.hasLocalSlot("moveDetector"))) {
+      o << robot.video.moveDetector.enable << ";";
+      o << robot.video.moveDetector.visible << ";";
+      o << [robot.video.moveDetector.x,robot.video.moveDetector.y] << ";";
+    } else {
+      for (3) o << "" << ";";
+    }; 
+    ///////////////////
+    // AUDIO
+    if ((robot.hasLocalSlot("audio"))&&(robot.audio.hasLocalSlot("player")))  {
+      o << robot.audio.player.masterVolume  << ";";
+      o << robot.audio.player.volume  << ";";
+      o << robot.audio.player.isPlaying  << ";";
+    } else {
+      for (3) o << "" << ";";
+    }; 
+    if ((robot.hasLocalSlot("audio"))&&(robot.audio.hasLocalSlot("musicPlayer")))  {
+      o << robot.audio.musicPlayer.volume  << ";";
+      o << robot.audio.musicPlayer.isPlaying  << ";";
+    } else {
+      for (2) o << "" << ";";
+    };
+    if ((robot.hasLocalSlot("audio"))&&(robot.audio.hasLocalSlot("speech")))  { 
+      o << robot.audio.speech.volume  << ";";
+      o << robot.audio.speech.rate  << ";";
+      o << robot.audio.speech.pitch << ";";
+    } else {
+      for (3) o << "" << ";";
+    };
+    if ((robot.hasLocalSlot("audio"))&&(robot.audio.hasLocalSlot("recognition")))  { 
+      o << robot.audio.recognition.pause << ";";
+      o << robot.audio.recognition.isListening << ";";
+      o << robot.audio.recognition.resultTag << ";";
+      o << robot.audio.recognition.result << ";";
+    } else {
+      for (4) o << "" << ";";
+    };
+    if ((robot.hasLocalSlot("audio"))&&(robot.audio.hasLocalSlot("detector")))  {
+      o << robot.audio.detector.beamAngle << ";";
+      o << robot.audio.detector.sourceAngle << ";";
+      o << robot.audio.detector.sourceConfidence << ";";
+    } else {
+      for (3) o << "" << ";";
+    };
+    
+    
+    o << "\n"|;
+    o.flush;
+    o.close;
+  }|{}; 
+  
+  function b_RStopLog(){  
+    a_Logg.stop;
+  }|{}; 
+  
+  function b_RSetLog(action, par){
+    Global._LoggAction = action;
+    Global._LoggPar = par;
+  }|{};  
+  
+};
+
+

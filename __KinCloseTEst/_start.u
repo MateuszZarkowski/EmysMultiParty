@@ -1,0 +1,28 @@
+// loading a module
+var pwd = Path.cwd|;
+Path.new("../modules/").cd|;
+loadModule("../modules/UKinect");
+pwd.cd|;
+//***************************
+
+var Global.Kinect= UKinect.new();
+
+
+Kinect.Open(0,true,true,true,false,true,false,false);
+echo("opened 1");
+sleep(2s);
+echo("closing 1");
+Kinect.Close();
+echo("closed 1");
+sleep(2s);
+
+Kinect.Open(0,true,true,true,false,true,false,false);
+echo("opened 2");
+
+
+Kinect.depthNearMode=1;
+Kinect.skeletonChooserMode=3;
+t: loop {
+	Kinect.PollVideo(true); // - wait for new data
+	Kinect.PollAudio(false); // - do NOT wait for new data
+},

@@ -1,0 +1,94 @@
+
+//EX1
+loadModule("UKinect");
+var Global.Kinect= UKinect.new();
+Kinect.Open(0,  //kinect_number
+	true, //color
+	true, //depth
+	true, //skeleton
+	true, //face
+	true, //interaction
+	true, //audio
+	true)|;//speech
+Kinect.depthNearMode=1|;
+Kinect.skeletonChooserMode=3|;
+Kinect.speechLoadGrammar("speech.grxml")|;
+
+// t: every(20ms) 	Kinect.PollAudio(false), // - do NOT wait for new data
+// t: every(20ms) 	Kinect.PollVideo(false), // - do NOT wait for new data
+
+// t: loop	Kinect.PollAudio(true), // - do NOT wait for new data
+// t: loop	Kinect.PollVideo(true), // - wait for new data
+
+var fps=-1;
+var frames = 0;
+every(1s){ fps = frames| frames=0; },
+
+t: loop{ 
+	Kinect.PollVideo(true);
+	frames++;
+}, // - wait for new data
+
+
+var lookThreshold = 30|;
+var isLookedAt = false|;
+var lastLookedAt = -1d|;
+
+
+var Global.facePosition = [0,0,0,0,0,0];
+t: at(watch(Kinect.faceIsTracking)? ) {
+	if (Kinect.faceIsTracking) {
+		Global.facePosition = Kinect.facePosition;
+		//                   Yaw(deg)             - X(m) * 35(deg/m)
+		var yawCompensated = facePosition[4] - facePosition[0]*35|;
+		if ( yawCompensated.abs < lookThreshold){
+			isLookedAt = true;
+			lastLookedAt = time;
+		} else isLookedAt = false;
+	} else isLookedAt = false;
+};
+
+	
+// var log = [];
+every(250ms){
+	echo("");
+	echo("FPS Urbi: " +fps + " , Kinect: " + Kinect.fps)|
+ 	echo("Tracking: " + Kinect.faceIsTracking);
+ 	echo("Looked at: " + isLookedAt);
+ 	echo("Last look: " + (time - lastLookedAt));
+	
+	
+	// echo("X: " + facePosition[0]);
+	// echo("Z: " + facePosition[2]);
+	// echo("Yaw: " + facePosition[4]);
+	// echo("Yaw_Correct: " + Yaw_Correct);
+	
+	// if (Kinect.faceIsTracking){
+		// log << [facePosition[0],facePosition[2],facePosition[4]];
+	// };
+},
+	
+// sleep(120s);
+// echo(log);
+// {
+	// var to_write = log;
+	// var o = OutputStream.new(File.create("log2.txt"))|;
+	// o << to_write;
+	// to_write.each(function(e) { o << e << "\n" ;} );
+	// o.close;
+// };
+
+ // at (Kinect.speechResultTag=="LOOK"){
+    // echo(Kinect.speechResultTag);
+    // Kinect.speechResultTag="";
+      // echo(pos[3]);
+      // g.freeze;
+      // robot.body.neck.head.MoveAt(-pos[4],pos[3],1); 
+      // sleep(2);
+      // g.unfreeze;
+  // }
+
+// every(500ms) 	echo(Kinect.speechResult),
+
+// sleep(10s)|
+// t.stop;

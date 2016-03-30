@@ -1,0 +1,74 @@
+
+
+load("DialogueManagerClass.u")|;
+load("QuizGameClass.u")|;
+
+
+Speech.rate = 10;
+
+robot.dialogue = DialogueManager.new;
+robot.dialogue.debug=true;
+// var quiz = QuizGame.new("Quiz_4ans_100_PL.txt",1)|;
+
+
+robot.dialogue.CalibrateOnQuestion("Czy chcesz zagrać w grę?", "YesNo");
+
+var quiz = QuizGame.new("../quizes/Quiz_4ans_1000_PL.txt",1)|;
+
+
+
+
+loop {
+	var q1 = quiz.GetQuizQuestion|;
+	var ans = q1.GetMixedAnswers(3)|;
+	
+  // TODO: movet this to QuizGame?
+	var mergeQuestion = q1.question.replace("?",".") + "\n" +
+  " .A. " + ans[0] + ".\n" +
+  " .Be. " + ans[1] + ".\n" +
+  " .C. " + ans[2]|; //+ "\n" +
+  // " D. " + ans[3] |;
+	// robot.dialogue.Print( mergeQuestion );
+	// robot.dialogue.AskQuestion(mergeQuestion,"_QuizGameAnswers", true);
+  
+  
+  var res = robot.dialogue.AskQuestionFill(mergeQuestion,ans,"ToFill_QuizGameAnswers3", [0,1]);
+  while(res["Tag"] == "REPEAT"){
+    res = robot.dialogue.AskQuestionFill(mergeQuestion,ans,"ToFill_QuizGameAnswers3", [0,1]);
+  };
+  
+  // robot.dialogue.PrintResult;
+  if( quiz.PostAnswer(robot.audio.recognition[0].semantics["Answer"].asFloat) ){
+    robot.dialogue.Speak("Dobrze!");
+  } else {
+    robot.dialogue.Speak("Niestety nie! Poprawna odpowiedz to {0}." ^ [q1.answers[0]]);
+  };
+  quiz.NextQuestion;
+};
+
+
+
+
+// var running = true;
+// every(1000ms) {
+// if(!running) continue;
+// echo("************************************************************");
+// echo("Kinect: " + Kinect.fps)|
+// echo("IDS: " + Kinect.skeletonTrackedIDs)|
+// echo("Faces: " + Kinect.faceIsTracking);
+
+// for(var user:2) {
+// echo("%%%%%%%%%%%%%%%%%%%%%%%%%");
+// echo("Tracking" + user + ": " + robot.video.humanDetector[user].head.faceIsTracking);	
+// if (robot.video.humanDetector[user].head.position != []) {
+// echo("Head Pos: " + robot.video.humanDetector[user].head.position.range(0,3));
+// echo("Head Orient: " + robot.video.humanDetector[user].head.orientation);
+// echo("Head  facing: " + robot.video.humanDetector[user].head.facing);
+// echo("Torso facing: " + robot.video.humanDetector[user].facing);
+// echo("Head isFacing: " + robot.video.humanDetector[user].head.oriented);
+// echo("Torso isFacing: " + robot.video.humanDetector[user].oriented);
+// };	
+// };
+
+// },
+

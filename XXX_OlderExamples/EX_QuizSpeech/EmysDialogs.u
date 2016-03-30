@@ -1,0 +1,2212 @@
+/*
+* Definitions of FLASH dialogs.
+*
+*
+*  Author: Jan Kedzierski
+*  Date: 06.03.2015
+*  Ver:  2.16
+*/	
+  
+ 
+do(Global) {
+  
+  if (!robot.hasLocalSlot("dialogue")) robot.addComponent("dialogue");
+  
+  var robot.dialogue.language = 0;
+  var robot.dialogue.defaultTimeOutValue = 12;
+  var robot.dialogue.timeOut = 0;
+
+  var robot.dialogue.speech_sequences = [[" empty "," pusty "," vazio "]];
+  for&(var i:1000) {robot.dialogue.speech_sequences << [" empty "," pusty "," vazio "];};
+
+ 
+  do (robot.dialogue) { 
+    // GAMES
+    function AskWhatKindOfGame()		{call.d_AskWhatKindOfGame();};
+    function AskIfColorIsCorrect()		{call.d_AskIfColorIsCorrect();};
+    function SayAboutLearningGame()		{call.d_SayAboutLearningGame();};
+    function SayAboutCheckingGame()		{call.d_SayAboutCheckingGame();};
+    function SayAboutKnowledgeLevel(knowledgeLevel)	{call.d_SayAboutKnowledgeLevel(knowledgeLevel);};
+    function SayGotColor(colorName)		{call.d_SayGotColor(colorName);};
+    function SayColor(colorName)		{call.d_SayColor(colorName);};
+    function SayShowNextObject()		{call.d_SayShowNextObject();};
+    function SayCantGetColor()			{call.d_SayCantGetColor();};
+    function WaitForObjectToLearn()		{call.d_WaitForObjectToLearn();};
+    function WaitForObjectToCheck()		{call.d_WaitForObjectToCheck();};
+    function WaitForColor()			{call.d_WaitForColor();};
+    function WaitForColorQuestion()		{call.d_WaitForColorQuestion();};   
+    function GetColorName(colorName)		{call.d_GetColorName(colorName);};
+    
+    // DEMO  INTRODUCE & EMOTION
+    function AskIfSayMoreAbout()		{call.d_AskIfSayMoreAbout();};
+  
+    // FACEBOOK
+    function AskIfReadFacebookPosts()		{call.d_AskIfReadFacebookPosts();};
+    function AskIfLikeOrNext()			{call.d_AskIfLikeOrNext();};
+    function SayNoFacebookNotifications()	{call.d_SayNoFacebookNotifications();};
+    function SayPostedPhotoOnFacebook()		{call.d_SayPostedPhotoOnFacebook();};
+    function ReadFacebookNotifications()	{call.d_ReadFacebookNotifications();};
+    function ReadFacebookPost(postNo)		{call.d_ReadFacebookPost(postNo);};
+    
+    // PHOTO
+    function AskWhatForPhoto()			{call.d_AskWhatForPhoto();};
+  
+    // EMAIL
+    function AskIfTakePhoto()			{call.d_AskIfTakePhoto();};
+    function AskIfRecordVoice()			{call.d_AskIfRecordVoice();};
+    function AskIfReadMessage()			{call.d_AskIfReadMessage();};
+    function AskIfReadNextMessage()		{call.d_AskIfReadNextMessage();};
+    function AskIfAnswearMessage()		{call.d_AskIfAnswearMessage();};
+    function AskToWhoSendMessage()		{call.d_AskToWhoSendMessage();};
+    function AskIfSureSendMessage(name)		{call.d_AskIfSureSendMessage(name);};
+    function SayVoiceOrPhotoMustHave() 		{call.d_SayVoiceOrPhotoMustHave();};
+    function SayReadyForPhoto()			{call.d_SayReadyForPhoto();};
+    function SayRecordStart()			{call.d_SayRecordStart();};
+    function SayMessageSend()			{call.d_SayMessageSend();};
+    function SayHowManyEmails()			{call.d_SayHowManyEmails();};
+    function SayNoEmails()			{call.d_SayNoEmails();};
+    function SayDownloadingEmails()		{call.d_SayDownloadingEmails();};
+    function SayMessageSendError()		{call.d_SayMessageSendError();};
+    function ReadMessage()			{call.d_ReadMessage();};
+    
+    // CALENDAR
+    function AskCalendarEventsForNextDays()	{call.d_AskCalendarEventsForNextDays();};
+    function AskForNextPieceOfCalendarEvents()	{call.d_AskForNextPieceOfCalendarEvents();};
+    function SayHowManyEventsForOneDay()	{call.d_SayHowManyEventsForOneDay();};
+    function SayNoMoreEventsForThisWeek()	{call.d_SayNoMoreEventsForThisWeek();};
+    function SayNoEventsForToday()		{call.d_SayNoEventsForToday();};
+    function ReadCalendarEventsForOneDay()	{call.d_ReadCalendarEventsForOneDay();};
+     
+    // ALARM
+    function AskWhatTimeAlarm()			{call.d_AskWhatTimeAlarm();};
+    function AskIfTimeIsCorrect(time_in) 	{call.d_AskIfTimeIsCorrect(time_in);};
+    function AskSnoozeAlarm()			{call.d_AskSnoozeAlarm();};
+    function SayGetUp()				{call.d_SayGetUp();}; 
+ 
+    // NEWS
+    function AskWhatKindOfNews()		{call.d_AskWhatKindOfNews();};
+    function AskForNextPieceOfText()		{call.d_AskForNextPieceOfText();};
+    function SayNoMoreText()			{call.d_SayNoMoreText();};
+    function ReadNews(newsNo)			{call.d_ReadNews(newsNo);};
+    
+    // TV
+    function AskTVForNextDays()			{call.d_AskTVForNextDays();};
+    function ReadTV(tvNo)			{call.d_ReadTV(tvNo);}; 
+    function ReadTVForToday()			{call.d_ReadTVForToday();}; 
+    function ReadTVForNextDays()		{call.d_ReadTVForNextDays();}; 
+      
+    // WEATHER
+    function AskWeatherNextDays()		{call.d_AskWeatherNextDays();};
+    function SayWeather()			{call.d_SayWeather();};
+    function SayWeatherNextDay()		{call.d_SayWeatherNextDay();};
+    
+    // MUSIC
+    function AskWhatKindOfMusic()		{call.d_AskWhatKindOfMusic();};
+    
+    // BASIC ACTIONS
+    function SayBored()				{call.d_SayBored();};
+    function SayCantSeeAnybody()		{call.d_SayCantSeeAnybody();};
+    function SayCantSeeSilhouette()		{call.d_SayCantSeeSilhouette();};
+    function SayWelcome()			{call.d_SayWelcome();};
+    function SayTime()				{call.d_SayTime();};
+    function SayDate()				{call.d_SayDate();};
+    function SayConfirmation()			{call.d_SayConfirmation();};
+    function SayOK()				{call.d_SayOK();};
+    function SayNetworkError()			{call.d_SayNetworkError();};
+    function SaySatisfied()			{call.d_SaySatisfied();};	
+    function SayDissatisfied()			{call.d_SayDissatisfied();};
+    function ListenBasic()			{call.d_ListenBasic();};
+    
+    // CUSTOM
+    function ListenCustomList(phrasesList)	{call.d_ListenCustomList(phrasesList);};
+    
+    // OTHER TOOLS
+    function BeepSound()			{call.d_BeepSound();};
+    function BeepTimeout()			{call.d_BeepTimeout();};
+    function CheckIfEnglish(phrase)		{call.d_CheckIfEnglish(phrase);};
+    function WaitTimeout()			{call.d_WaitTimeout();};
+    function ResetTimeout(_time)		{call.d_ResetTimeout(_time);};
+    function Say(text, check_lang)		{call.d_Say(text, check_lang);};
+    function SetEmotion(emot, intensity)	{call.d_SetEmotion(emot, intensity);};
+  };
+
+  /////////////////////////////////////////////////////////
+  //	G A M E S
+  /////////////////////////////////////////////////////////
+  
+  function d_SayAboutLearningGame() {
+    robot.log.Set("LEARNING: SAY ABOUT GAMES",[]);
+    robot.dialogue.Say( robot.dialogue.speech_sequences[504+3.random][robot.dialogue.language], false);
+  };
+   
+  function d_SayAboutCheckingGame() {
+    robot.log.Set("LEARNING: SAY ABOUT CHECKING",[]);
+    robot.dialogue.Say( robot.dialogue.speech_sequences[507+3.random][robot.dialogue.language], false);
+  }; 
+
+  function d_SayCantGetColor() {
+    robot.log.Set("LEARNING: SAY CAN NOT GET COLOR",[]);
+    robot.dialogue.Say( robot.dialogue.speech_sequences[546+3.random][robot.dialogue.language], false);
+  }; 
+  
+  function d_SayGotColor(colorName) {
+    var tmp = 2.random;
+    var _ev_say = "";
+    
+    if (tmp==0) 
+    {
+      _ev_say =  robot.dialogue.speech_sequences[520+2.random][robot.dialogue.language];
+    } else {
+      _ev_say =  robot.dialogue.GetColorName(colorName) +" . " + robot.dialogue.speech_sequences[520+2.random][robot.dialogue.language];
+    };
+    
+    robot.log.Set("LEARNING: SAY GOT COLOR",[colorName]);
+    robot.dialogue.Say( _ev_say, false);
+  };
+  
+  function d_SayAboutKnowledgeLevel(knowledgeLevel) {
+  
+    var _low = 3;
+    var _mid = 6;
+    var _high = 9;
+    var _ev_say ="";
+    
+    if (knowledgeLevel <= _low){
+      _ev_say =  robot.dialogue.speech_sequences[580+3.random][robot.dialogue.language];
+      _ev_say = _ev_say + " " + robot.dialogue.speech_sequences[583+3.random][robot.dialogue.language];
+    } else if ((knowledgeLevel > _low)&&(knowledgeLevel <= _mid)) {
+      _ev_say =  robot.dialogue.speech_sequences[586+3.random][robot.dialogue.language];
+      _ev_say = _ev_say + " " + robot.dialogue.speech_sequences[589+3.random][robot.dialogue.language];
+    } else if (knowledgeLevel > _mid) {
+      _ev_say = robot.dialogue.speech_sequences[592+3.random][robot.dialogue.language];
+    };
+    robot.log.Set("LEARNING: SAY ABOUT KNOWLEDGE",[]);
+    robot.dialogue.Say( _ev_say, false);
+  
+  };
+  
+  function d_SayColor(colorName) {
+    var _ev_say ="";
+    _ev_say =  robot.dialogue.speech_sequences[540+5.random][robot.dialogue.language];
+    _ev_say = _ev_say + " " + robot.dialogue.GetColorName(colorName) + ".";
+    
+    robot.log.Set("LEARNING: SAY COLOR NAME",[colorName]);
+    robot.dialogue.Say( _ev_say, false);
+  };
+
+
+  function d_SayShowNextObject(){
+    robot.log.Set("LEARNING: SAY SHOW NEXT OBJECT",[]);
+    robot.dialogue.Say( robot.dialogue.speech_sequences[530+5.random][robot.dialogue.language], false);
+  };
+  
+
+  
+  function d_AskWhatKindOfGame()
+  {
+    robot.audio.recognition.pause = true;
+    robot.audio.recognition.resultTag="";
+    robot.audio.recognition.result="";
+    robot.audio.recognition.ResetGrammar;
+    if (robot.dialogue.language==0) robot.audio.recognition.LoadGrammar(_uFilesDir+"grammars/WhatGameEN.grxml");
+    if (robot.dialogue.language==1) robot.audio.recognition.LoadGrammar(_uFilesDir+"grammars/WhatGamePL.grxml"); 
+    if (robot.dialogue.language==2) robot.audio.recognition.LoadGrammar(_uFilesDir+"grammars/WhatGamePT.grxml");  
+    // 
+    robot.log.Set("LEARNING: ASK WHAT KIND OF GAME",[]);
+    robot.dialogue.Say(robot.dialogue.speech_sequences[500+4.random][robot.dialogue.language],false);
+    robot.dialogue.ResetTimeout(-1);
+    robot.audio.recognition.pause = false;
+
+
+    at ((robot.audio.recognition.resultTag!="")&&(robot.audio.recognition.resultTag!="REPEAT"))
+    {
+      robot.dialogue.ResetTimeout(-1);
+      robot.audio.recognition.pause = true;
+      robot.dialogue.BeepSound();
+      return robot.audio.recognition.resultTag;
+    },
+
+    // REPEAT
+    at (robot.audio.recognition.resultTag=="REPEAT")
+    {
+      robot.dialogue.ResetTimeout(-1);
+      robot.audio.recognition.pause = true;
+      robot.dialogue.BeepSound();
+      robot.dialogue.Say(robot.dialogue.speech_sequences[500+4.random][robot.dialogue.language],false);
+      robot.audio.recognition.resultTag = "";
+      robot.audio.recognition.result="";
+      robot.audio.recognition.pause = false;
+    },
+    ///////////////////////////////////////////
+    robot.dialogue.WaitTimeout()|
+    robot.audio.recognition.pause = true|
+    robot.dialogue.BeepTimeout();
+    return "TIMEOUT";
+  };
+  
+    
+  function d_AskIfColorIsCorrect() {
+    robot.audio.recognition.pause = true;
+    robot.audio.recognition.resultTag="";
+    robot.audio.recognition.result="";
+    robot.audio.recognition.ResetGrammar;
+    if (robot.dialogue.language==0) robot.audio.recognition.LoadGrammar(_uFilesDir+"grammars/YesNoEN.grxml");
+    if (robot.dialogue.language==1) robot.audio.recognition.LoadGrammar(_uFilesDir+"grammars/YesNoPL.grxml"); 
+    if (robot.dialogue.language==2) robot.audio.recognition.LoadGrammar(_uFilesDir+"grammars/YesNoPT.grxml");  
+    // 
+    robot.log.Set("LEARNING: ASK IF COLOR IS CORRECT",[]);
+    robot.dialogue.Say(robot.dialogue.speech_sequences[510+6.random][robot.dialogue.language],false);
+    robot.dialogue.ResetTimeout(-1);
+    robot.audio.recognition.pause = false;
+
+    at ((robot.audio.recognition.resultTag!="")&&(robot.audio.recognition.resultTag!="REPEAT"))
+    {
+      robot.dialogue.ResetTimeout(-1);
+      robot.audio.recognition.pause = true;
+      robot.dialogue.BeepSound();
+      return robot.audio.recognition.resultTag;
+    },
+    
+
+    // REPEAT
+    at (robot.audio.recognition.resultTag=="REPEAT")
+    {
+      robot.dialogue.ResetTimeout(-1);
+      robot.audio.recognition.pause = true;
+      robot.dialogue.BeepSound();
+      robot.dialogue.Say(robot.dialogue.speech_sequences[510+6.random][robot.dialogue.language],false);
+      robot.audio.recognition.resultTag = "";
+      robot.audio.recognition.result="";
+      robot.audio.recognition.pause = false;
+    },
+    ///////////////////////////////////////////
+    robot.dialogue.WaitTimeout()|
+    robot.audio.recognition.pause = true|
+    robot.dialogue.BeepTimeout();
+    return "TIMEOUT";
+  };
+  
+  
+  function d_WaitForObjectToLearn() {
+    robot.audio.recognition.pause = true;
+    robot.audio.recognition.resultTag="";
+    robot.audio.recognition.result="";
+    robot.audio.recognition.ResetGrammar;
+    if (robot.dialogue.language==0) robot.audio.recognition.LoadGrammar(_uFilesDir+"grammars/WaitForObjectToLearnEN.grxml");
+    if (robot.dialogue.language==1) robot.audio.recognition.LoadGrammar(_uFilesDir+"grammars/WaitForObjectToLearnPL.grxml"); 
+    if (robot.dialogue.language==2) robot.audio.recognition.LoadGrammar(_uFilesDir+"grammars/WaitForObjectToLearnPT.grxml");  
+    robot.log.Set("LEARNING: WAIT FOR OBJECT TO LEARN",[]);
+    
+    robot.dialogue.ResetTimeout(20);
+    robot.audio.recognition.pause = false;
+     
+    at (robot.audio.recognition.resultTag!="")
+    {
+      robot.dialogue.ResetTimeout(-1);
+      robot.audio.recognition.pause = true;
+      robot.dialogue.BeepSound();
+      return robot.audio.recognition.resultTag;
+    },
+    
+    ///////////////////////////////////////////
+    robot.dialogue.WaitTimeout()|
+    robot.audio.recognition.pause = true|
+    robot.dialogue.BeepTimeout();
+    return "TIMEOUT";
+  };
+
+
+  function d_WaitForObjectToCheck() {
+    robot.audio.recognition.pause = true;
+    robot.audio.recognition.resultTag="";
+    robot.audio.recognition.result="";
+    robot.audio.recognition.ResetGrammar;
+    if (robot.dialogue.language==0) robot.audio.recognition.LoadGrammar(_uFilesDir+"grammars/WaitForObjectToCheckEN.grxml");
+    if (robot.dialogue.language==1) robot.audio.recognition.LoadGrammar(_uFilesDir+"grammars/WaitForObjectToCheckPL.grxml"); 
+    if (robot.dialogue.language==2) robot.audio.recognition.LoadGrammar(_uFilesDir+"grammars/WaitForObjectToCheckPT.grxml");  
+    
+    robot.log.Set("LEARNING: WAIT FOR OBJECT TO CHECK",[]);
+    
+    robot.dialogue.ResetTimeout(20);
+    robot.audio.recognition.pause = false;
+     
+    at (robot.audio.recognition.resultTag!="")
+    {
+      robot.dialogue.ResetTimeout(-1);
+      robot.audio.recognition.pause = true;
+      robot.dialogue.BeepSound();
+      return robot.audio.recognition.resultTag;
+    },
+    
+    ///////////////////////////////////////////
+    robot.dialogue.WaitTimeout()|
+    robot.audio.recognition.pause = true|
+    robot.dialogue.BeepTimeout();
+    return "TIMEOUT";
+  };
+   
+  function d_WaitForColor() {
+    robot.audio.recognition.pause = true;
+    robot.audio.recognition.resultTag="";
+    robot.audio.recognition.result="";
+    robot.audio.recognition.ResetGrammar;
+    if (robot.dialogue.language==0) robot.audio.recognition.LoadGrammar(_uFilesDir+"grammars/WaitForColorEN.grxml");
+    if (robot.dialogue.language==1) robot.audio.recognition.LoadGrammar(_uFilesDir+"grammars/WaitForColorPL.grxml"); 
+    if (robot.dialogue.language==2) robot.audio.recognition.LoadGrammar(_uFilesDir+"grammars/WaitForColorPT.grxml");  
+    
+    robot.log.Set("LEARNING: WAIT FOR COLOR NAME",[]);
+    
+    robot.dialogue.ResetTimeout(-1);
+    robot.audio.recognition.pause = false;
+     
+    at (robot.audio.recognition.resultTag!="")
+    {
+      robot.dialogue.ResetTimeout(-1);
+      robot.audio.recognition.pause = true;
+      robot.dialogue.BeepSound();
+      return robot.audio.recognition.resultTag;
+    },
+    
+    ///////////////////////////////////////////
+    robot.dialogue.WaitTimeout()|
+    robot.audio.recognition.pause = true|
+    robot.dialogue.BeepTimeout();
+    return "TIMEOUT";
+  };
+    
+  function d_WaitForColorQuestion() {
+    robot.audio.recognition.pause = true;
+    robot.audio.recognition.resultTag="";
+    robot.audio.recognition.result="";
+    robot.audio.recognition.ResetGrammar;
+    if (robot.dialogue.language==0) robot.audio.recognition.LoadGrammar(_uFilesDir+"grammars/WaitForColorQuestionEN.grxml");
+    if (robot.dialogue.language==1) robot.audio.recognition.LoadGrammar(_uFilesDir+"grammars/WaitForColorQuestionPL.grxml"); 
+    if (robot.dialogue.language==2) robot.audio.recognition.LoadGrammar(_uFilesDir+"grammars/WaitForColorQuestionPT.grxml");  
+    
+    robot.log.Set("LEARNING: WAIT FOR COLOR QUESTION",[]);
+    
+    robot.dialogue.ResetTimeout(-1);
+    robot.audio.recognition.pause = false;
+     
+    at (robot.audio.recognition.resultTag!="")
+    {
+      robot.dialogue.ResetTimeout(-1);
+      robot.audio.recognition.pause = true;
+      robot.dialogue.BeepSound();
+      return robot.audio.recognition.resultTag;
+    },
+    
+    ///////////////////////////////////////////
+    robot.dialogue.WaitTimeout()|
+    robot.audio.recognition.pause = true|
+    robot.dialogue.BeepTimeout();
+    return "TIMEOUT";
+  };
+  
+  function d_GetColorName(colorName) {
+    switch (colorName)
+    {
+      case "WHITE": 	return robot.dialogue.speech_sequences[550][robot.dialogue.language];
+      case "GREY": 	return robot.dialogue.speech_sequences[551][robot.dialogue.language];
+      case "BLACK": 	return robot.dialogue.speech_sequences[552][robot.dialogue.language];
+      case "RED": 	return robot.dialogue.speech_sequences[553][robot.dialogue.language];
+      case "YELLOW": 	return robot.dialogue.speech_sequences[554][robot.dialogue.language];
+      case "GREEN": 	return robot.dialogue.speech_sequences[555][robot.dialogue.language];
+      case "BLUE": 	return robot.dialogue.speech_sequences[556][robot.dialogue.language];
+      case "VIOLET": 	return robot.dialogue.speech_sequences[557][robot.dialogue.language];
+      case "ORANGE": 	return robot.dialogue.speech_sequences[558][robot.dialogue.language];
+      case "BROWN": 	return robot.dialogue.speech_sequences[559][robot.dialogue.language];
+      case "PINK": 	return robot.dialogue.speech_sequences[560][robot.dialogue.language];
+      case "NAVYBLUE": 	return robot.dialogue.speech_sequences[561][robot.dialogue.language];
+      case "PURPLE": 	return robot.dialogue.speech_sequences[562][robot.dialogue.language];
+      case "ECRU": 	return robot.dialogue.speech_sequences[563][robot.dialogue.language];
+      case "SALMON": 	return robot.dialogue.speech_sequences[564][robot.dialogue.language];
+      case "FLESH": 	return robot.dialogue.speech_sequences[565][robot.dialogue.language];
+      case "AZURE": 	return robot.dialogue.speech_sequences[566][robot.dialogue.language];
+      case "OLIVE": 	return robot.dialogue.speech_sequences[567][robot.dialogue.language];
+      case "AQUAMARINE":return robot.dialogue.speech_sequences[568][robot.dialogue.language];
+      case "TURQUOISE": return robot.dialogue.speech_sequences[569][robot.dialogue.language];
+      case "GRAPHITE": 	return robot.dialogue.speech_sequences[570][robot.dialogue.language];
+      default: 	return "";
+    }
+  };
+   
+  
+  /////////////////////////////////////////////////////////
+  //	E M O T I O N
+  /////////////////////////////////////////////////////////
+
+  
+  
+  function d_AskIfSayMoreAbout()
+  {
+    robot.audio.recognition.pause = true;
+    robot.audio.recognition.resultTag="";
+    robot.audio.recognition.result="";
+    robot.audio.recognition.ResetGrammar;
+    if (robot.dialogue.language==0) robot.audio.recognition.LoadGrammar(_uFilesDir+"grammars/YesNoEN.grxml");
+    if (robot.dialogue.language==1) robot.audio.recognition.LoadGrammar(_uFilesDir+"grammars/YesNoPL.grxml"); 
+    if (robot.dialogue.language==2) robot.audio.recognition.LoadGrammar(_uFilesDir+"grammars/YesNoPT.grxml");  
+    // 
+    robot.log.Set("DEMO: ASK IF SAY MORE",[]);
+    
+    robot.dialogue.Say(robot.dialogue.speech_sequences[490+3.random][robot.dialogue.language],false);
+    robot.dialogue.ResetTimeout(-1);
+    robot.audio.recognition.pause = false;
+
+    at ((robot.audio.recognition.resultTag!="")&&(robot.audio.recognition.resultTag!="REPEAT"))
+    {
+      robot.dialogue.ResetTimeout(-1);
+      robot.audio.recognition.pause = true;
+      robot.dialogue.BeepSound();
+      return robot.audio.recognition.resultTag;
+    },
+
+    // REPEAT
+    at (robot.audio.recognition.resultTag=="REPEAT")
+    {
+      robot.dialogue.ResetTimeout(-1);
+      robot.audio.recognition.pause = true;
+      robot.dialogue.BeepSound();
+      robot.dialogue.Say(robot.dialogue.speech_sequences[490+3.random][robot.dialogue.language],false);
+      robot.audio.recognition.resultTag = "";
+      robot.audio.recognition.result="";
+      robot.audio.recognition.pause = false;
+    },
+    ///////////////////////////////////////////
+    robot.dialogue.WaitTimeout()|
+    robot.audio.recognition.pause = true|
+    robot.dialogue.BeepTimeout();
+    return "TIMEOUT";
+  };
+
+  /////////////////////////////////////////////////////////
+  //	F A C E B O O K
+  /////////////////////////////////////////////////////////
+
+
+  function d_ReadFacebookPost(postNo)
+  {
+ 
+    if (postNo>(robot.network.facebook["user"].post.story.size-1)) return;
+    
+    var _postFromName = robot.network.facebook["user"].post.fromName[postNo];
+    var _postStory = robot.network.facebook["user"].post.story[postNo];
+    var _postMessage = robot.network.facebook["user"].post.message[postNo].split("#")[0].split("http")[0];
+    var _postDescription = robot.network.facebook["user"].post.description[postNo].split("#")[0].split("http")[0];
+    var _postCaption = robot.network.facebook["user"].post.caption[postNo].split("#")[0].split("http")[0];
+      
+    robot.log.Set("FACEBOOK: READ POST",[]);
+    
+    if (_postStory!="") {
+      robot.dialogue.Say(_postStory,false);
+    } else {
+      var _ev_say = _postFromName; 
+      if ((_postFromName.split(" ")[0][_postFromName.split(" ")[0].size-1]=="a")&&(_postFromName.split(" ")[0]!="Kuba"))
+	_ev_say = _ev_say + " " + robot.dialogue.speech_sequences[355][robot.dialogue.language] + " " 
+      else
+	_ev_say = _ev_say + " " + robot.dialogue.speech_sequences[356][robot.dialogue.language] + " " ;
+      robot.dialogue.Say(_ev_say,false);	
+    };
+    
+    if (_postMessage!=""){
+      robot.dialogue.Say(_postMessage,true);
+    } else if(_postDescription!="") {
+      robot.dialogue.Say(_postDescription,true);
+    } else {
+      robot.dialogue.Say(_postCaption,true);
+    };
+   
+    return;  
+  }; 
+
+
+
+  function d_SayPostedPhotoOnFacebook()
+  {
+    robot.log.Set("FACEBOOK: SAY PHOTO POSTED",[]);
+    robot.dialogue.Say(robot.dialogue.speech_sequences[375+3.random][robot.dialogue.language],false);
+  }; 
+  
+  
+
+  
+  function d_AskIfLikeOrNext()	
+  {
+    robot.audio.recognition.pause = true;
+    robot.audio.recognition.resultTag="";
+    robot.audio.recognition.result="";
+    robot.audio.recognition.ResetGrammar;
+    if (robot.dialogue.language==0) robot.audio.recognition.LoadGrammar(_uFilesDir+"grammars/LikeNextEN.grxml");
+    if (robot.dialogue.language==1) robot.audio.recognition.LoadGrammar(_uFilesDir+"grammars/LikeNextPL.grxml"); 
+    if (robot.dialogue.language==2) robot.audio.recognition.LoadGrammar(_uFilesDir+"grammars/LikeNextPT.grxml");  
+    // 
+    robot.log.Set("FACEBOOK: ASK IF LIKE OR NEXT",[]);
+    
+    robot.dialogue.Say(robot.dialogue.speech_sequences[367+3.random][robot.dialogue.language],false);
+    robot.dialogue.ResetTimeout(-1);
+    robot.audio.recognition.pause = false;
+
+    at ((robot.audio.recognition.resultTag!="")&&(robot.audio.recognition.resultTag!="REPEAT"))
+    {
+      robot.dialogue.ResetTimeout(-1);
+      robot.audio.recognition.pause = true;
+      robot.dialogue.BeepSound();
+      return robot.audio.recognition.resultTag;
+    },
+    
+    // REPEAT
+    at (robot.audio.recognition.resultTag=="REPEAT")
+    {
+      robot.dialogue.ResetTimeout(-1);
+      robot.audio.recognition.pause = true;
+      robot.dialogue.BeepSound();
+      robot.dialogue.Say(robot.dialogue.speech_sequences[367+3.random][robot.dialogue.language],false);
+      robot.audio.recognition.resultTag = "";
+      robot.audio.recognition.result="";
+      robot.audio.recognition.pause = false;
+    },
+
+    ///////////////////////////////////////////
+    robot.dialogue.WaitTimeout()|
+    robot.audio.recognition.pause = true|
+    robot.dialogue.BeepTimeout();
+    return "TIMEOUT";
+  };
+  
+  
+  
+    
+
+  function d_AskIfReadFacebookPosts()
+  {
+    robot.audio.recognition.pause = true;
+    robot.audio.recognition.resultTag="";
+    robot.audio.recognition.result="";
+    robot.audio.recognition.ResetGrammar;
+    if (robot.dialogue.language==0) robot.audio.recognition.LoadGrammar(_uFilesDir+"grammars/YesNoEN.grxml");
+    if (robot.dialogue.language==1) robot.audio.recognition.LoadGrammar(_uFilesDir+"grammars/YesNoPL.grxml"); 
+    if (robot.dialogue.language==2) robot.audio.recognition.LoadGrammar(_uFilesDir+"grammars/YesNoPT.grxml");  
+    // 
+    robot.log.Set("FACEBOOK: ASK IF READ POSTS",[]);
+    //
+    robot.dialogue.Say(robot.dialogue.speech_sequences[364+3.random][robot.dialogue.language],false);
+    robot.dialogue.ResetTimeout(-1);
+    robot.audio.recognition.pause = false;
+
+    at ((robot.audio.recognition.resultTag!="")&&(robot.audio.recognition.resultTag!="REPEAT"))
+    {
+      robot.dialogue.ResetTimeout(-1);
+      robot.audio.recognition.pause = true;
+      robot.dialogue.BeepSound();
+      return robot.audio.recognition.resultTag;
+    },
+
+    // REPEAT
+    at (robot.audio.recognition.resultTag=="REPEAT")
+    {
+      robot.dialogue.ResetTimeout(-1);
+      robot.audio.recognition.pause = true;
+      robot.dialogue.BeepSound();
+      robot.dialogue.Say(robot.dialogue.speech_sequences[364+3.random][robot.dialogue.language],false);
+      robot.audio.recognition.resultTag = "";
+      robot.audio.recognition.result="";
+      robot.audio.recognition.pause = false;
+    },
+    ///////////////////////////////////////////
+    robot.dialogue.WaitTimeout()|
+    robot.audio.recognition.pause = true|
+    robot.dialogue.BeepTimeout();
+    return "TIMEOUT";
+  };
+  
+  
+
+  function d_SayNoFacebookNotifications()
+  {
+    robot.log.Set("FACEBOOK: SAY NO NOTIFICATIONS",[]);
+    //
+    robot.dialogue.Say(robot.dialogue.speech_sequences[360+3.random][robot.dialogue.language],false);
+  }; 
+  
+  
+  function d_ReadFacebookNotifications()
+  {
+
+    var _messageMess = robot.network.facebook["user"].message.message;
+    var _messagefromName = robot.network.facebook["user"].message.fromName;
+    var _notificationTitle = robot.network.facebook["user"].notification.title;
+    var _notificationComments = robot.network.facebook["user"].comment.GetFromNotifications();
+    var _ev_say = "";
+    var _from_prev = "";
+
+    robot.log.Set("FACEBOOK: READ NOTIFICATIONS",[]);
+    
+    if (_messageMess.size>0) {
+      for (var i=(_messageMess.size-1);i>=0;i--){
+      
+	if (_from_prev != _messagefromName[i]) {
+	  _ev_say = _messagefromName[i]; 
+	  if ((_messagefromName[i].split(" ")[0][_messagefromName[i].split(" ")[0].size-1]=="a")&&(_messagefromName[i].split(" ")[0]!="Kuba"))
+	    _ev_say = _ev_say + ", " + robot.dialogue.speech_sequences[351+2.random][robot.dialogue.language] +"."
+	  else
+	    _ev_say = _ev_say + ", " + robot.dialogue.speech_sequences[353+2.random][robot.dialogue.language] +".";
+	  _from_prev = _messagefromName[i]; 
+	  
+	} else
+	  _ev_say ="";
+	  
+	_ev_say = _ev_say + " " + _messageMess[i] +".";
+	
+	robot.dialogue.Say(_ev_say ,false);
+      };
+    };
+    
+    if (_notificationTitle.size>0) {
+      if (_messageMess.size>0) robot.dialogue.Say(robot.dialogue.speech_sequences[357+2.random][robot.dialogue.language] ,false);
+      
+      for (var i=(_notificationTitle.size-1);i>=0;i--){
+	if (_notificationTitle[i].split(robot.dialogue.speech_sequences[371][robot.dialogue.language]).size>1) {
+	  _ev_say = _notificationTitle[i] + ". " + _notificationComments[i];
+	  robot.dialogue.Say(_ev_say ,false);
+	} else {
+	  robot.dialogue.Say(_notificationTitle[i] ,false);
+	};
+      };
+    };
+    return;
+  };
+
+
+  /////////////////////////////////////////////////////////
+  //	P H O T O
+  /////////////////////////////////////////////////////////
+
+ 
+
+  function d_AskWhatForPhoto()
+  {
+    robot.audio.recognition.pause = true;
+    robot.audio.recognition.resultTag="";
+    robot.audio.recognition.result="";
+    robot.audio.recognition.ResetGrammar;
+    if (robot.dialogue.language==0) robot.audio.recognition.LoadGrammar(_uFilesDir+"grammars/PhotoEN.grxml");
+    if (robot.dialogue.language==1) robot.audio.recognition.LoadGrammar(_uFilesDir+"grammars/PhotoPL.grxml"); 
+    if (robot.dialogue.language==2) robot.audio.recognition.LoadGrammar(_uFilesDir+"grammars/PhotoPT.grxml");  
+    //
+    robot.log.Set("PHOTO: ASK WHAT FOR PHOTO",[]);
+    //
+    robot.dialogue.Say(robot.dialogue.speech_sequences[340+3.random][robot.dialogue.language],false);
+    robot.dialogue.ResetTimeout(-1);
+    robot.audio.recognition.pause = false;
+
+    at ((robot.audio.recognition.resultTag!="")&&(robot.audio.recognition.resultTag!="REPEAT"))
+    {
+      robot.dialogue.ResetTimeout(-1);
+      robot.audio.recognition.pause = true;
+      robot.dialogue.BeepSound();
+      return robot.audio.recognition.resultTag;
+    },
+    
+    // REPEAT
+    at (robot.audio.recognition.resultTag=="REPEAT")
+    {
+      robot.dialogue.ResetTimeout(-1);
+      robot.audio.recognition.pause = true;
+      robot.dialogue.BeepSound();
+      robot.dialogue.Say(robot.dialogue.speech_sequences[340+3.random][robot.dialogue.language],false);
+      robot.audio.recognition.resultTag = "";
+      robot.audio.recognition.result="";
+      robot.audio.recognition.pause = false;
+    },
+    
+    ///////////////////////////////////////////
+    robot.dialogue.WaitTimeout()|
+    robot.audio.recognition.pause = true|
+    robot.dialogue.BeepTimeout();
+    return "TIMEOUT";
+  };
+  
+  
+  
+  /////////////////////////////////////////////////////////
+  //	M E S S A G E
+  /////////////////////////////////////////////////////////
+
+    
+  function d_ReadMessage()
+  {
+    var _content = robot.network.mail["user"].receive.Content;
+    var _from = robot.network.mail["user"].receive.From;
+    var _subject = robot.network.mail["user"].receive.Subject;
+    
+    robot.log.Set("MAIL: READ MESSAGE",[]);
+    //
+    
+    var _ev_say = robot.dialogue.speech_sequences[290][robot.dialogue.language] +" ";
+    _ev_say = _ev_say + _from.split("<")[0] +". ";
+    robot.dialogue.Say(_ev_say,false); 
+    
+    _ev_say = _subject +".";
+    //var isEnglish = robot.dialogue.CheckIfEnglish(_ev_say);
+    //if (isEnglish) 
+      //robot.dialogue.Say(_ev_say,false)
+    //else
+      robot.dialogue.Say(_ev_say,true);
+    
+    
+    _ev_say = _content.split("From:")[0].split("Od:")[0].replace("\r\n"," ").replace("\r","").replace("\n","");
+    
+    robot.dialogue.Say(_ev_say,true);
+
+    return;
+  };
+  
+  
+  function SayMessageSendError() 
+  {
+    robot.log.Set("MAIL: SAY MESSAGE SEND ERROR",[]);
+    //
+    robot.dialogue.Say(robot.dialogue.speech_sequences[295+3.random][robot.dialogue.language],false);
+  };
+  
+  function d_SayVoiceOrPhotoMustHave()
+  {
+    robot.log.Set("MAIL: SAY MUST ADD PHOTO OR VOICE",[]);
+    //
+    robot.dialogue.Say(robot.dialogue.speech_sequences[291+3.random][robot.dialogue.language],false);
+  };
+
+  function d_SayReadyForPhoto()
+  {
+    robot.log.Set("MAIL: SAY READY",[]);
+    //
+    robot.dialogue.Say(robot.dialogue.speech_sequences[260+3.random][robot.dialogue.language],false);
+  };
+  
+  function d_SayRecordStart()
+  {
+    robot.log.Set("MAIL: SAY RECORD START",[]);
+    //
+    robot.dialogue.Say(robot.dialogue.speech_sequences[263+3.random][robot.dialogue.language],false);
+  };
+  
+  
+  function d_SayMessageSend()
+  {
+    robot.log.Set("MAIL: SAY MESSAGE SEND",[]);
+    //
+    robot.dialogue.Say(robot.dialogue.speech_sequences[270+3.random][robot.dialogue.language],false);
+  };
+
+  function d_SayNoEmails()
+  {
+    robot.log.Set("MAIL: SAY NO NEW MAIL",[]);
+    //
+    robot.dialogue.Say(robot.dialogue.speech_sequences[273+3.random][robot.dialogue.language],false);
+  };  
+  
+  function d_SayDownloadingEmails()
+  {
+    robot.log.Set("MAIL: SAY DOWNLOADING",[]);
+    //
+    robot.dialogue.Say(robot.dialogue.speech_sequences[286+3.random][robot.dialogue.language],false);
+  };  
+
+  function d_SayHowManyEmails()
+  {
+    var _receiveNew = robot.network.mail["user"].receive.ID.size;
+    
+    var _ev_say = robot.dialogue.speech_sequences[280][robot.dialogue.language] +" ";
+   
+    if (_receiveNew < 5) _ev_say = _ev_say + robot.dialogue.speech_sequences[280+_receiveNew][robot.dialogue.language];
+    if (_receiveNew >= 5) _ev_say = _ev_say + _receiveNew.asString + " " + robot.dialogue.speech_sequences[285][robot.dialogue.language];
+ 
+    robot.log.Set("MAIL: SAY HOW MANY",[]);
+    //
+    robot.dialogue.Say(_ev_say,false);
+  };
+ 
+
+
+  function d_AskToWhoSendMessage()
+  {
+    robot.log.Set("MAIL: ASK TO WHO SEND",[]);
+    //
+    robot.dialogue.Say(robot.dialogue.speech_sequences[276+3.random][robot.dialogue.language],false);
+    robot.dialogue.ListenCustomList(robot.network.gcontact["user"].contact.title);
+  };
+  
+  
+
+  function d_AskIfTakePhoto()
+  {
+    robot.audio.recognition.pause = true;
+    robot.audio.recognition.resultTag="";
+    robot.audio.recognition.result="";
+    robot.audio.recognition.ResetGrammar;
+    if (robot.dialogue.language==0) robot.audio.recognition.LoadGrammar(_uFilesDir+"grammars/YesNoEN.grxml");
+    if (robot.dialogue.language==1) robot.audio.recognition.LoadGrammar(_uFilesDir+"grammars/YesNoPL.grxml"); 
+    if (robot.dialogue.language==2) robot.audio.recognition.LoadGrammar(_uFilesDir+"grammars/YesNoPT.grxml");  
+    //
+    robot.log.Set("MAIL: ASK IF TAKE PHOTO",[]);
+    //
+    robot.dialogue.Say(robot.dialogue.speech_sequences[240+3.random][robot.dialogue.language],false);
+    robot.dialogue.ResetTimeout(-1);
+    robot.audio.recognition.pause = false;
+
+
+    at ((robot.audio.recognition.resultTag!="")&&(robot.audio.recognition.resultTag!="REPEAT"))
+    {
+      robot.dialogue.ResetTimeout(-1);
+      robot.audio.recognition.pause = true;
+      robot.dialogue.BeepSound();
+      return robot.audio.recognition.resultTag;
+    },
+    
+    
+    // REPEAT
+    at (robot.audio.recognition.resultTag=="REPEAT")
+    {
+      robot.dialogue.ResetTimeout(-1);
+      robot.audio.recognition.pause = true;
+      robot.dialogue.BeepSound();
+      robot.dialogue.Say(robot.dialogue.speech_sequences[240+3.random][robot.dialogue.language],false);
+      robot.audio.recognition.resultTag = "";
+      robot.audio.recognition.result="";
+      robot.audio.recognition.pause = false;
+    },
+    ///////////////////////////////////////////
+    robot.dialogue.WaitTimeout()|
+    robot.audio.recognition.pause = true|
+    robot.dialogue.BeepTimeout();
+    return "TIMEOUT";
+  };
+    
+  function d_AskIfRecordVoice()
+  {
+    robot.audio.recognition.pause = true;
+    robot.audio.recognition.resultTag="";
+    robot.audio.recognition.result="";
+    robot.audio.recognition.ResetGrammar;
+    if (robot.dialogue.language==0) robot.audio.recognition.LoadGrammar(_uFilesDir+"grammars/YesNoEN.grxml");
+    if (robot.dialogue.language==1) robot.audio.recognition.LoadGrammar(_uFilesDir+"grammars/YesNoPL.grxml"); 
+    if (robot.dialogue.language==2) robot.audio.recognition.LoadGrammar(_uFilesDir+"grammars/YesNoPT.grxml");  
+    // 
+    robot.log.Set("MAIL: ASK IF RECORD VOICE",[]);
+    //
+    robot.dialogue.Say(robot.dialogue.speech_sequences[243+3.random][robot.dialogue.language],false);
+    robot.dialogue.ResetTimeout(-1);
+    robot.audio.recognition.pause = false;
+
+
+    at ((robot.audio.recognition.resultTag!="")&&(robot.audio.recognition.resultTag!="REPEAT"))
+    {
+      robot.dialogue.ResetTimeout(-1);
+      robot.audio.recognition.pause = true;
+      robot.dialogue.BeepSound();
+      return robot.audio.recognition.resultTag;
+    },
+    
+    // REPEAT
+    at (robot.audio.recognition.resultTag=="REPEAT")
+    {
+      robot.dialogue.ResetTimeout(-1);
+      robot.audio.recognition.pause = true;
+      robot.dialogue.BeepSound();
+      robot.dialogue.Say(robot.dialogue.speech_sequences[243+3.random][robot.dialogue.language],false);
+      robot.audio.recognition.resultTag = "";
+      robot.audio.recognition.result="";
+      robot.audio.recognition.pause = false;
+    },
+
+    ///////////////////////////////////////////
+    robot.dialogue.WaitTimeout()|
+    robot.audio.recognition.pause = true|
+    robot.dialogue.BeepTimeout();
+    return "TIMEOUT";
+  };
+  
+
+  function d_AskIfReadMessage()
+  {
+    robot.audio.recognition.pause = true;
+    robot.audio.recognition.resultTag="";
+    robot.audio.recognition.result="";
+    robot.audio.recognition.ResetGrammar;
+    if (robot.dialogue.language==0) robot.audio.recognition.LoadGrammar(_uFilesDir+"grammars/YesNoEN.grxml");
+    if (robot.dialogue.language==1) robot.audio.recognition.LoadGrammar(_uFilesDir+"grammars/YesNoPL.grxml"); 
+    if (robot.dialogue.language==2) robot.audio.recognition.LoadGrammar(_uFilesDir+"grammars/YesNoPT.grxml"); 
+    
+    robot.log.Set("MAIL: ASK IF READ",[]);
+    //
+    var _receiveNew = robot.network.mail["user"].receive.ID.size;
+    if (_receiveNew==1) 
+      robot.dialogue.Say(robot.dialogue.speech_sequences[256+2.random][robot.dialogue.language],false)
+    else
+      robot.dialogue.Say(robot.dialogue.speech_sequences[258+2.random][robot.dialogue.language],false);
+    robot.dialogue.ResetTimeout(-1);
+    robot.audio.recognition.pause = false;
+
+
+    at ((robot.audio.recognition.resultTag!="")&&(robot.audio.recognition.resultTag!="REPEAT"))
+    {
+      robot.dialogue.ResetTimeout(-1);
+      robot.audio.recognition.pause = true;
+      robot.dialogue.BeepSound();
+      return robot.audio.recognition.resultTag;
+    },
+    
+    
+    // REPEAT
+    at (robot.audio.recognition.resultTag=="REPEAT")
+    {
+      robot.dialogue.ResetTimeout(-1);
+      robot.audio.recognition.pause = true;
+      robot.dialogue.BeepSound();
+      if (noMessages==1) 
+	robot.dialogue.Say(robot.dialogue.speech_sequences[256+2.random][robot.dialogue.language],false)
+      else
+	robot.dialogue.Say(robot.dialogue.speech_sequences[258+2.random][robot.dialogue.language],false);
+      robot.audio.recognition.resultTag = "";
+      robot.audio.recognition.result="";
+      robot.audio.recognition.pause = false;
+    },
+
+    ///////////////////////////////////////////
+    robot.dialogue.WaitTimeout()|
+    robot.audio.recognition.pause = true|
+    robot.dialogue.BeepTimeout();
+    return "TIMEOUT";
+  };
+    
+  function d_AskIfReadNextMessage()
+  {
+    robot.audio.recognition.pause = true;
+    robot.audio.recognition.resultTag="";
+    robot.audio.recognition.result="";
+    robot.audio.recognition.ResetGrammar;
+    if (robot.dialogue.language==0) robot.audio.recognition.LoadGrammar(_uFilesDir+"grammars/YesNoEN.grxml");
+    if (robot.dialogue.language==1) robot.audio.recognition.LoadGrammar(_uFilesDir+"grammars/YesNoPL.grxml"); 
+    if (robot.dialogue.language==2) robot.audio.recognition.LoadGrammar(_uFilesDir+"grammars/YesNoPT.grxml");  
+    
+    robot.log.Set("MAIL: ASK IF READ NEXT",[]);
+    //
+    robot.dialogue.Say(robot.dialogue.speech_sequences[246+3.random][robot.dialogue.language],false);
+    robot.dialogue.ResetTimeout(-1);
+    robot.audio.recognition.pause = false;
+
+    at ((robot.audio.recognition.resultTag!="")&&(robot.audio.recognition.resultTag!="REPEAT"))
+    {
+      robot.dialogue.ResetTimeout(-1);
+      robot.audio.recognition.pause = true;
+      robot.dialogue.BeepSound();
+      return robot.audio.recognition.resultTag;
+    },
+    
+    // REPEAT
+    at (robot.audio.recognition.resultTag=="REPEAT")
+    {
+      robot.dialogue.ResetTimeout(-1);
+      robot.audio.recognition.pause = true;
+      robot.dialogue.BeepSound();
+      robot.dialogue.Say(robot.dialogue.speech_sequences[246+3.random][robot.dialogue.language],false);
+      robot.audio.recognition.resultTag = "";
+      robot.audio.recognition.result="";
+      robot.audio.recognition.pause = false;
+    },
+
+    ///////////////////////////////////////////
+    robot.dialogue.WaitTimeout()|
+    robot.audio.recognition.pause = true|
+    robot.dialogue.BeepTimeout();
+    return "TIMEOUT";
+  };
+  
+  
+  function d_AskIfAnswearMessage()
+  {
+    robot.audio.recognition.pause = true;
+    robot.audio.recognition.resultTag="";
+    robot.audio.recognition.result="";
+    robot.audio.recognition.ResetGrammar;
+    if (robot.dialogue.language==0) robot.audio.recognition.LoadGrammar(_uFilesDir+"grammars/YesNoEN.grxml");
+    if (robot.dialogue.language==1) robot.audio.recognition.LoadGrammar(_uFilesDir+"grammars/YesNoPL.grxml"); 
+    if (robot.dialogue.language==2) robot.audio.recognition.LoadGrammar(_uFilesDir+"grammars/YesNoPT.grxml");  
+    // 
+    robot.log.Set("MAIL: ASK IF ANSWEAR",[]);
+    //
+    robot.dialogue.Say(robot.dialogue.speech_sequences[253+3.random][robot.dialogue.language],false);
+    robot.dialogue.ResetTimeout(-1);
+    robot.audio.recognition.pause = false;
+
+
+    at ((robot.audio.recognition.resultTag!="")&&(robot.audio.recognition.resultTag!="REPEAT"))
+    {
+      robot.dialogue.ResetTimeout(-1);
+      robot.audio.recognition.pause = true;
+      robot.dialogue.BeepSound();
+      return robot.audio.recognition.resultTag;
+    },
+    
+    // REPEAT
+    at (robot.audio.recognition.resultTag=="REPEAT")
+    {
+      robot.dialogue.ResetTimeout(-1);
+      robot.audio.recognition.pause = true;
+      robot.dialogue.BeepSound();
+      robot.dialogue.Say(robot.dialogue.speech_sequences[253+3.random][robot.dialogue.language],false);
+      robot.audio.recognition.resultTag = "";
+      robot.audio.recognition.result="";
+      robot.audio.recognition.pause = false;
+    },
+
+    ///////////////////////////////////////////
+    robot.dialogue.WaitTimeout()|
+    robot.audio.recognition.pause = true|
+    robot.dialogue.BeepTimeout();
+    return "TIMEOUT";
+  };
+
+
+
+  function d_AskIfSureSendMessage(name)
+  {
+    robot.audio.recognition.pause = true;
+    robot.audio.recognition.resultTag="";
+    robot.audio.recognition.result="";
+    robot.audio.recognition.ResetGrammar;
+    if (robot.dialogue.language==0) robot.audio.recognition.LoadGrammar(_uFilesDir+"grammars/YesNoEN.grxml");
+    if (robot.dialogue.language==1) robot.audio.recognition.LoadGrammar(_uFilesDir+"grammars/YesNoPL.grxml"); 
+    if (robot.dialogue.language==2) robot.audio.recognition.LoadGrammar(_uFilesDir+"grammars/YesNoPT.grxml");  
+    //
+    robot.log.Set("MAIL: ASK TO CONFIRM ADDRESS",[]);
+    //
+    var _ev_say = robot.dialogue.speech_sequences[400+3.random][robot.dialogue.language]+" " +name +"?";
+    robot.dialogue.Say(_ev_say,false);
+    robot.dialogue.ResetTimeout(-1);
+    robot.audio.recognition.pause = false;
+
+    at ((robot.audio.recognition.resultTag!="")&&(robot.audio.recognition.resultTag!="REPEAT"))
+    {
+      robot.dialogue.ResetTimeout(-1);
+      robot.audio.recognition.pause = true;
+      robot.dialogue.BeepSound();
+      return robot.audio.recognition.resultTag;
+    },
+    
+    // REPEAT
+    at (robot.audio.recognition.resultTag=="REPEAT")
+    {
+      robot.dialogue.ResetTimeout(-1);
+      robot.audio.recognition.pause = true;
+      robot.dialogue.BeepSound();
+      robot.dialogue.Say(_ev_say,false);
+      robot.audio.recognition.resultTag = "";
+      robot.audio.recognition.result="";
+      robot.audio.recognition.pause = false;
+    },
+
+    ///////////////////////////////////////////
+    robot.dialogue.WaitTimeout()|
+    robot.audio.recognition.pause = true|
+    robot.dialogue.BeepTimeout();
+    return "TIMEOUT";
+  };
+  
+  
+  /////////////////////////////////////////////////////////
+  //	C A L E N D A R
+  /////////////////////////////////////////////////////////
+
+  
+  function d_SayHowManyEventsForOneDay()
+  {
+    var _eventsSize = robot.network.gcalendar["user"].event.summary.size;
+    var _startTime = robot.network.gcalendar["user"].event.startTime;
+    
+    var _dateNow = Date.now().asString.split(" ")[0];
+    var _dateEvent = _startTime[0].split(" ")[0];
+    
+    robot.log.Set("CALENDAR: SAY HOW MANY EVENTS/ONE DAY",[]);
+    //
+    if (_eventsSize>0){
+    
+      var tmp_day;	
+      if (_dateEvent == _dateNow)
+	// today
+	tmp_day = robot.dialogue.speech_sequences[87][robot.dialogue.language]
+      else
+	// name of the week
+	tmp_day = robot.dialogue.speech_sequences[50 + robot.network.GetDayOfTheWeek(_dateEvent)][robot.dialogue.language];
+	
+	
+      if (_eventsSize==1) 
+	// events
+	robot.dialogue.Say(tmp_day + " "+ robot.dialogue.speech_sequences[214][robot.dialogue.language]+".",false)
+      else if (_eventsSize<5)
+	// events
+	robot.dialogue.Say(tmp_day + " "+ _eventsSize.asString + " " + robot.dialogue.speech_sequences[215][robot.dialogue.language],false)
+      else 
+	// events
+	robot.dialogue.Say(tmp_day + " "+ _eventsSize.asString + " " + robot.dialogue.speech_sequences[216][robot.dialogue.language],false);
+    };
+    return;	  
+  };
+        
+  function d_ReadCalendarEventsForOneDay()
+  {
+    var eventsSize = robot.network.gcalendar["user"].event.summary.size;
+    var _startTime = robot.network.gcalendar["user"].event.startTime;
+    var _endTime = robot.network.gcalendar["user"].event.endTime;
+    var _summary = robot.network.gcalendar["user"].event.summary;
+    var _description = robot.network.gcalendar["user"].event.description;
+    var _location = robot.network.gcalendar["user"].event.location;
+    
+    robot.log.Set("CALENDAR: READ EVENTS FOR TODAY",[]);
+    //
+    if (eventsSize>0){
+      for (var i=0;i<eventsSize;i++){	
+	if (_startTime[i].split(" ").size==1)
+	{
+	  var _ev_say = 
+	  // this is all day event
+	  robot.dialogue.speech_sequences[217][robot.dialogue.language] +". " +
+	  _summary[i]+". " + _description[i] + ". "+ _location[i] + ". ";
+	  robot.dialogue.Say(_ev_say,false);
+	};
+	
+	if (_startTime[i].split(" ").size==2)
+	{
+	  var _ev_say = 
+	  // from
+	  robot.dialogue.speech_sequences[95][robot.dialogue.language] +
+	  robot.dialogue.speech_sequences[300+_startTime[i][11,13].asFloat][robot.dialogue.language] +" ";
+	  if (_startTime[i][14,16].asFloat!=0) _ev_say = _ev_say + _startTime[i][14,16];
+	  //to
+	  _ev_say = _ev_say + " "+ robot.dialogue.speech_sequences[96][robot.dialogue.language] + " "+
+	  
+	  robot.dialogue.speech_sequences[300+_endTime[i][11,13].asFloat][robot.dialogue.language] +" ";
+	  if (_endTime[i][14,16].asFloat!=0) _ev_say = _ev_say + _endTime[i][14,16] ;
+	  
+	   _ev_say = _ev_say + ". " + _summary[i] + ". " + _description[i] + ". " + _location[i] + ".";
+	  //echo(_ev_say);
+	  robot.dialogue.Say(_ev_say,false);
+	};	
+      };
+    };
+    return ;
+    
+  };
+  
+       
+  function d_AskCalendarEventsForNextDays()
+  {
+    robot.audio.recognition.pause = true;
+    robot.audio.recognition.resultTag="";
+    robot.audio.recognition.result="";
+    robot.audio.recognition.ResetGrammar;
+    if (robot.dialogue.language==0) robot.audio.recognition.LoadGrammar(_uFilesDir+"grammars/YesNoEN.grxml");
+    if (robot.dialogue.language==1) robot.audio.recognition.LoadGrammar(_uFilesDir+"grammars/YesNoPL.grxml"); 
+    if (robot.dialogue.language==2) robot.audio.recognition.LoadGrammar(_uFilesDir+"grammars/YesNoPT.grxml");  
+
+    robot.log.Set("CALENDAR: ASK TO READ NEXT DAY",[]);
+    //
+    robot.dialogue.Say(robot.dialogue.speech_sequences[224+3.random][robot.dialogue.language],false);
+    robot.dialogue.ResetTimeout(-1);
+    robot.audio.recognition.pause = false;
+
+    at ((robot.audio.recognition.resultTag!="")&&(robot.audio.recognition.resultTag!="REPEAT"))
+    {
+      robot.dialogue.ResetTimeout(-1);
+      robot.audio.recognition.pause = true;
+      robot.dialogue.BeepSound();
+      return robot.audio.recognition.resultTag;
+    },
+    
+    // REPEAT
+    at (robot.audio.recognition.resultTag=="REPEAT")
+    {
+      robot.dialogue.ResetTimeout(-1);
+      robot.audio.recognition.pause = true;
+      robot.dialogue.BeepSound();
+      robot.dialogue.Say(robot.dialogue.speech_sequences[224+3.random][robot.dialogue.language],false);
+      robot.audio.recognition.resultTag = "";
+      robot.audio.recognition.pause = false;
+    },
+
+    ///////////////////////////////////////////
+    robot.dialogue.WaitTimeout()|
+    robot.audio.recognition.pause = true|
+    robot.dialogue.BeepTimeout();
+    return "TIMEOUT";
+  };
+  
+  
+  function d_AskForNextPieceOfCalendarEvents()
+  {
+    robot.audio.recognition.pause = true;
+    robot.audio.recognition.resultTag="";
+    robot.audio.recognition.result="";
+    robot.audio.recognition.ResetGrammar;
+    if (robot.dialogue.language==0) robot.audio.recognition.LoadGrammar(_uFilesDir+"grammars/YesNoEN.grxml");
+    if (robot.dialogue.language==1) robot.audio.recognition.LoadGrammar(_uFilesDir+"grammars/YesNoPL.grxml"); 
+    if (robot.dialogue.language==2) robot.audio.recognition.LoadGrammar(_uFilesDir+"grammars/YesNoPT.grxml");  
+    // 
+    robot.log.Set("CALENDAR: ASK TO NEXT PIECE OF EVENTS",[]);
+    //
+    robot.dialogue.Say(robot.dialogue.speech_sequences[205+3.random][robot.dialogue.language],false);
+    robot.dialogue.ResetTimeout(-1);
+    robot.audio.recognition.pause = false;
+    
+    
+    at ((robot.audio.recognition.resultTag!="")&&(robot.audio.recognition.resultTag!="REPEAT"))
+    {
+      robot.dialogue.ResetTimeout(-1);
+      robot.audio.recognition.pause = true;
+      robot.dialogue.BeepSound();
+      return robot.audio.recognition.resultTag;
+    },
+    
+    // REPEAT
+    at (robot.audio.recognition.resultTag=="REPEAT")
+    {
+      robot.dialogue.ResetTimeout(-1);
+      robot.audio.recognition.pause = true;
+      robot.dialogue.BeepSound();
+      robot.dialogue.Say(robot.dialogue.speech_sequences[205+3.random][robot.dialogue.language],false);
+      robot.audio.recognition.resultTag = "";
+      robot.audio.recognition.result="";
+      robot.audio.recognition.pause = false;
+    },
+	
+    ///////////////////////////////////////////
+    robot.dialogue.WaitTimeout()|
+    robot.audio.recognition.pause = true|
+    robot.dialogue.BeepTimeout();
+    return "TIMEOUT";
+  };
+   
+  
+  
+  function d_SayNoEventsForToday()
+  {
+    robot.log.Set("CALENDAR: SAY NO EVENTS FOR TODAY",[]);
+    //
+    robot.dialogue.Say(robot.dialogue.speech_sequences[211+3.random][robot.dialogue.language],false);
+  };
+  
+  function d_SayNoMoreEventsForThisWeek()
+  {
+    robot.log.Set("CALENDAR: SAY NO EVENTS FOR THIS WEEK",[]);
+    //
+    robot.dialogue.Say(robot.dialogue.speech_sequences[227+3.random][robot.dialogue.language],false);
+  };
+ 
+    
+    
+  /////////////////////////////////////////////////////////
+  //	T V
+  /////////////////////////////////////////////////////////
+ 
+  
+    /*  
+  function d_SayNoMoreTV()
+  {
+    robot.dialogue.Say(robot.dialogue.speech_sequences[208+3.random][robot.dialogue.language],false);
+  };
+  
+  */
+
+  function d_ReadTV(tvNo)
+  {
+    
+    robot.log.Set("TV: READ ONE",[]);
+    if (tvNo >= robot.network.news.description.size) return;
+    robot.dialogue.Say(robot.network.news.title[tvNo],false);
+    
+  };
+  
+  
+  function d_ReadTVForToday(){
+  
+    var _tvSize = robot.network.news.title.size();
+    var _todayExist = false;
+    var _ev_say ="";
+    //
+    robot.log.Set("TV: READ FOR TODAY",[]);
+    //	
+    for (var i = _tvSize-1;i>0;i--) {
+      var _tvTitle = robot.network.news.title[i];
+      if (_tvTitle.split(",")[0] != "dzi\xc5\x9b") break;
+      _todayExist = true;
+      var _tmp = _tvTitle.split(":");
+      var _tmp2 = _tmp[0].split(" ").back;
+      var _tmp3 = _tmp.remove(_tmp[0]).join;
+      _ev_say = _tmp2 + ":" + _tmp3;
+      robot.dialogue.Say(_ev_say,false);
+    };
+  
+    if (!_todayExist) robot.dialogue.Say(robot.dialogue.speech_sequences[76+3.random][robot.dialogue.language],false); 
+  };
+  
+  
+  function d_ReadTVForNextDays(){
+  
+    var _days = ["jutro"=> robot.dialogue.speech_sequences[88][robot.dialogue.language], 
+		"Pn"=> robot.dialogue.speech_sequences[80][robot.dialogue.language],
+		"Wt"=> robot.dialogue.speech_sequences[81][robot.dialogue.language],
+		"\xc5\x9ar"=> robot.dialogue.speech_sequences[82][robot.dialogue.language],
+		"Cz"=> robot.dialogue.speech_sequences[83][robot.dialogue.language],
+		"Pt"=> robot.dialogue.speech_sequences[84][robot.dialogue.language],
+		"Sb"=> robot.dialogue.speech_sequences[85][robot.dialogue.language],
+		"Nd"=> robot.dialogue.speech_sequences[86][robot.dialogue.language]];
+    
+    var _tvSize = robot.network.news.title.size();
+    var _ev_say = "";
+    var _prevDay = "";
+    //
+    robot.log.Set("TV: READ FOR NEXT DAYS",[]);
+    //
+    for (var i = _tvSize-1;i>0;i--) {
+      var _tvTitle = robot.network.news.title[i];
+      var _tday = _tvTitle.split(",")[0];
+      if (_tday != "dzi\xc5\x9b"){
+	var _tmp = _tvTitle.split(":");
+	var _tmp2 = _tmp[0].split(" ").back;
+	var _tmp3 = _tmp.remove(_tmp[0]).join;
+	if (_prevDay != _tday ) _ev_say = _days[ _tday ]+ ". " else _ev_say ="";
+	_prevDay = _tday ;
+	_ev_say = _ev_say  + _tmp2 + ":" + _tmp3;
+	robot.dialogue.Say(_ev_say,false);
+      };
+    };
+  };
+    
+    
+  function d_AskTVForNextDays(){
+    robot.audio.recognition.pause = true;
+    robot.audio.recognition.resultTag="";
+    robot.audio.recognition.result="";
+    robot.audio.recognition.ResetGrammar;
+    if (robot.dialogue.language==0) robot.audio.recognition.LoadGrammar(_uFilesDir+"grammars/YesNoEN.grxml");
+    if (robot.dialogue.language==1) robot.audio.recognition.LoadGrammar(_uFilesDir+"grammars/YesNoPL.grxml"); 
+    if (robot.dialogue.language==2) robot.audio.recognition.LoadGrammar(_uFilesDir+"grammars/YesNoPT.grxml");  
+    //
+    robot.log.Set("TV: ASK IF READ FOR NEXT DAY",[]);
+    //
+    robot.dialogue.Say(robot.dialogue.speech_sequences[73+3.random][robot.dialogue.language],false);
+    robot.dialogue.ResetTimeout(-1);
+    robot.audio.recognition.pause = false;
+
+    at ((robot.audio.recognition.resultTag!="")&&(robot.audio.recognition.resultTag!="REPEAT"))
+    {
+      robot.dialogue.ResetTimeout(-1);
+      robot.audio.recognition.pause = true;
+      robot.dialogue.BeepSound();
+      return robot.audio.recognition.resultTag;
+    },
+	
+    // REPEAT
+    at (robot.audio.recognition.resultTag=="REPEAT")
+    {
+      robot.dialogue.ResetTimeout(-1);
+      robot.audio.recognition.pause = true;
+      robot.dialogue.BeepSound();
+      robot.dialogue.Say(robot.dialogue.speech_sequences[73+3.random][robot.dialogue.language],false);
+      robot.audio.recognition.resultTag = "";
+      robot.audio.recognition.result="";
+      robot.audio.recognition.pause = false;
+    },
+    
+    /////////////////////////////
+    robot.dialogue.WaitTimeout()|
+    robot.audio.recognition.pause = true|
+    robot.dialogue.BeepTimeout();
+    return "TIMEOUT";
+
+  };
+    
+  /////////////////////////////////////////////////////////
+  //	N E W S
+  /////////////////////////////////////////////////////////
+
+  
+  function d_SayNoMoreText()
+  {
+    //
+    robot.log.Set("NEWS: SAY NO MORE ITEMS",[]);
+    //
+    robot.dialogue.Say(robot.dialogue.speech_sequences[208+3.random][robot.dialogue.language],false);
+  };
+  
+
+     
+  function d_AskForNextPieceOfText()
+  {
+    robot.audio.recognition.pause = true;
+    robot.audio.recognition.resultTag="";
+    robot.audio.recognition.result="";
+    robot.audio.recognition.ResetGrammar;
+    if (robot.dialogue.language==0) robot.audio.recognition.LoadGrammar(_uFilesDir+"grammars/YesNoEN.grxml");
+    if (robot.dialogue.language==1) robot.audio.recognition.LoadGrammar(_uFilesDir+"grammars/YesNoPL.grxml"); 
+    if (robot.dialogue.language==2) robot.audio.recognition.LoadGrammar(_uFilesDir+"grammars/YesNoPT.grxml");  
+    //
+    robot.log.Set("NEWS: ASK IF READ NEXT",[]);
+    //
+    robot.dialogue.Say(robot.dialogue.speech_sequences[205+3.random][robot.dialogue.language],false);
+    robot.dialogue.ResetTimeout(-1);
+    robot.audio.recognition.pause = false;
+
+    at ((robot.audio.recognition.resultTag!="")&&(robot.audio.recognition.resultTag!="REPEAT"))
+    {
+      robot.dialogue.ResetTimeout(-1);
+      robot.audio.recognition.pause = true;
+      robot.dialogue.BeepSound();
+      return robot.audio.recognition.resultTag;
+    },
+	
+    // REPEAT
+    at (robot.audio.recognition.resultTag=="REPEAT")
+    {
+      robot.dialogue.ResetTimeout(-1);
+      robot.audio.recognition.pause = true;
+      robot.dialogue.BeepSound();
+      robot.dialogue.Say(robot.dialogue.speech_sequences[205+3.random][robot.dialogue.language],false);
+      robot.audio.recognition.resultTag = "";
+      robot.audio.recognition.result="";
+      robot.audio.recognition.pause = false;
+    },
+    
+    /////////////////////////////
+    robot.dialogue.WaitTimeout()|
+    robot.audio.recognition.pause = true|
+    robot.dialogue.BeepTimeout();
+    return "TIMEOUT";
+
+  };
+  
+  function d_AskWhatKindOfNews()
+  {
+    robot.audio.recognition.pause = true;
+    robot.audio.recognition.resultTag="";
+    robot.audio.recognition.result="";
+    robot.audio.recognition.ResetGrammar;
+    if (robot.dialogue.language==0) robot.audio.recognition.LoadGrammar(_uFilesDir+"grammars/NewsEN.grxml");
+    if (robot.dialogue.language==1) robot.audio.recognition.LoadGrammar(_uFilesDir+"grammars/NewsPL.grxml"); 
+    if (robot.dialogue.language==2) robot.audio.recognition.LoadGrammar(_uFilesDir+"grammars/NewsPT.grxml");  
+    //     
+    robot.log.Set("NEWS: ASK WHAT KIND OF NEWS",[]);
+    //
+    robot.dialogue.Say(robot.dialogue.speech_sequences[200+3.random][robot.dialogue.language],false);
+    robot.dialogue.ResetTimeout(-1);
+    robot.audio.recognition.pause = false;
+    
+	
+    at ((robot.audio.recognition.resultTag!="")&&(robot.audio.recognition.resultTag!="REPEAT"))
+    {
+      robot.dialogue.ResetTimeout(-1);
+      robot.audio.recognition.pause = true;
+      robot.dialogue.BeepSound();
+      return  robot.audio.recognition.resultTag;
+    },
+    
+    // REPEAT
+    at (robot.audio.recognition.resultTag=="REPEAT")
+    {
+      robot.dialogue.ResetTimeout(-1);
+      robot.audio.recognition.pause = true;
+      robot.dialogue.BeepSound();
+      robot.dialogue.Say(robot.dialogue.speech_sequences[200+3.random][robot.dialogue.language],false);
+      robot.audio.recognition.resultTag = "";
+      robot.audio.recognition.result="";
+      robot.audio.recognition.pause = false;
+    },
+    
+    //////////////////////////
+    robot.dialogue.WaitTimeout()|
+    robot.audio.recognition.pause = true|
+    robot.dialogue.BeepTimeout();
+    return "TIMEOUT";
+
+  };
+  
+  
+  function d_ReadNews(newsNo)
+  {
+    var _description = robot.network.news.description;
+    var _title = robot.network.news.title;
+    
+    if (newsNo >= _description.size) return;
+    //robot.dialogue.Say(_title[newsNo],false);
+    
+    var _ev_say = _description[newsNo];
+   
+    robot.log.Set("NEWS: READ ONE",[]);
+    //
+    robot.dialogue.Say(_ev_say ,false);
+
+    return;
+  };
+  
+  /////////////////////////////////////////////////////////
+  //	A L A R M
+  /////////////////////////////////////////////////////////
+
+  
+  function d_AskWhatTimeAlarm()
+  {
+    robot.audio.recognition.pause = true;
+    robot.audio.recognition.resultTag="";
+    robot.audio.recognition.result="";
+    robot.audio.recognition.ResetGrammar;
+    if (robot.dialogue.language==0) robot.audio.recognition.LoadGrammar(_uFilesDir+"grammars/TimeEN.grxml");
+    if (robot.dialogue.language==1) robot.audio.recognition.LoadGrammar(_uFilesDir+"grammars/TimePL.grxml"); 
+    if (robot.dialogue.language==2) robot.audio.recognition.LoadGrammar(_uFilesDir+"grammars/TimePT.grxml");  
+    //    
+    robot.log.Set("ALARM: ASK WHAT TIME",[]);
+    //
+    robot.dialogue.Say(robot.dialogue.speech_sequences[40+3.random][robot.dialogue.language],false);
+    robot.dialogue.ResetTimeout(-1);
+    robot.audio.recognition.pause = false;
+
+    at ((robot.audio.recognition.resultTag!="")&&(robot.audio.recognition.resultTag!="BACK")&&(robot.audio.recognition.resultTag!="REPEAT"))
+    {
+      robot.dialogue.ResetTimeout(-1);
+      robot.audio.recognition.pause = true;
+      robot.dialogue.BeepSound();
+      return  robot.audio.recognition.resultTag;
+    },
+    
+    // BACK
+    at (robot.audio.recognition.resultTag=="BACK")
+    {
+      robot.dialogue.ResetTimeout(-1);
+      robot.audio.recognition.pause = true;
+      robot.dialogue.BeepSound();
+      return "BACK";
+    },
+    
+    // REPEAT
+    at (robot.audio.recognition.resultTag=="REPEAT")
+    {
+      robot.dialogue.ResetTimeout(-1);
+      robot.audio.recognition.pause = true;
+      robot.dialogue.BeepSound();
+      robot.dialogue.Say(robot.dialogue.speech_sequences[40+3.random][robot.dialogue.language],false);
+      robot.audio.recognition.resultTag = "";
+      robot.audio.recognition.pause = false;
+    },
+    
+
+    ///////////////////////////////////////////
+    robot.dialogue.WaitTimeout()|
+    robot.audio.recognition.pause = true|
+    robot.dialogue.BeepTimeout();
+    return "TIMEOUT";
+  };
+
+  function d_AskSnoozeAlarm()
+  {
+    robot.audio.recognition.pause = true;
+    robot.audio.recognition.resultTag="";
+    robot.audio.recognition.result="";
+    robot.audio.recognition.ResetGrammar;
+    if (robot.dialogue.language==0) robot.audio.recognition.LoadGrammar(_uFilesDir+"grammars/YesNoEN.grxml");
+    if (robot.dialogue.language==1) robot.audio.recognition.LoadGrammar(_uFilesDir+"grammars/YesNoPL.grxml"); 
+    if (robot.dialogue.language==2) robot.audio.recognition.LoadGrammar(_uFilesDir+"grammars/YesNoPT.grxml");  
+    //   
+    robot.log.Set("ALARM: ASK IF SNOOZE 5 MIN",[]);
+    //
+    robot.dialogue.Say(robot.dialogue.speech_sequences[46+3.random][robot.dialogue.language],false);
+    robot.dialogue.ResetTimeout(-1);
+    robot.audio.recognition.pause = false;
+    
+    at ((robot.audio.recognition.resultTag!="")&&(robot.audio.recognition.resultTag!="REPEAT"))
+    {
+      robot.dialogue.ResetTimeout(-1);
+      robot.audio.recognition.pause = true;
+      robot.dialogue.BeepSound();
+      return robot.audio.recognition.resultTag;
+    },
+    
+    // REPEAT
+    at (robot.audio.recognition.resultTag=="REPEAT")
+    {
+      robot.dialogue.ResetTimeout(-1);
+      robot.audio.recognition.pause = true;
+      robot.dialogue.BeepSound();
+      robot.dialogue.Say(robot.dialogue.speech_sequences[46+3.random][robot.dialogue.language],false);
+      robot.audio.recognition.resultTag = "";
+      robot.audio.recognition.result="";
+      robot.audio.recognition.pause = false;
+    },
+
+    robot.dialogue.WaitTimeout()|
+    robot.audio.recognition.pause = true|
+    robot.dialogue.BeepTimeout();
+    return "TIMEOUT";
+    
+  };
+
+  function d_AskIfTimeIsCorrect(time_in)
+  {
+    robot.audio.recognition.pause = true;
+    robot.audio.recognition.resultTag="";
+    robot.audio.recognition.result="";
+    robot.audio.recognition.ResetGrammar;
+    if (robot.dialogue.language==0) robot.audio.recognition.LoadGrammar(_uFilesDir+"grammars/YesNoEN.grxml");
+    if (robot.dialogue.language==1) robot.audio.recognition.LoadGrammar(_uFilesDir+"grammars/YesNoPL.grxml"); 
+    if (robot.dialogue.language==2) robot.audio.recognition.LoadGrammar(_uFilesDir+"grammars/YesNoPT.grxml");  
+      
+    robot.log.Set("ALARM: ASK IF CORRECT",[time_in]);
+    //
+    var tmp_time_ = robot.dialogue.speech_sequences[300 + time_in.split(":")[0].asFloat][robot.dialogue.language] +" " +time_in.split(":")[1];
+    // The time is correct?
+    var ans_tmp = 3.random;
+    if ( ans_tmp==0) 
+      robot.dialogue.Say(robot.dialogue.speech_sequences[43][robot.dialogue.language] + " " + tmp_time_ + " ?",false)
+    else if ( ans_tmp==1) 
+      robot.dialogue.Say(robot.dialogue.speech_sequences[44][robot.dialogue.language] + " " + tmp_time_ + " ?",false)
+    else if ( ans_tmp==2) 
+      robot.dialogue.Say(tmp_time_ + " "+ robot.dialogue.speech_sequences[45][robot.dialogue.language],false);
+    
+    robot.dialogue.ResetTimeout(-1);
+    robot.audio.recognition.pause = false;
+
+
+    at ((robot.audio.recognition.resultTag!="")&&(robot.audio.recognition.resultTag!="REPEAT"))
+    {
+      robot.dialogue.ResetTimeout(-1);
+      robot.audio.recognition.pause = true;
+      robot.dialogue.BeepSound();
+      return robot.audio.recognition.resultTag;
+    },
+    
+    // REPEAT
+    at (robot.audio.recognition.resultTag=="REPEAT")
+    {
+      robot.dialogue.ResetTimeout(-1);
+      robot.audio.recognition.pause = true;
+      robot.dialogue.BeepSound();
+    
+      var tmp_time_ = robot.dialogue.speech_sequences[300 + time_in.split(":")[0].asFloat][robot.dialogue.language] +" " +time_in.split(":")[1];
+      // The time is correct?
+      var ans_tmp = 3.random;
+      if ( ans_tmp==0) 
+	robot.dialogue.Say(robot.dialogue.speech_sequences[43][robot.dialogue.language] + " " + tmp_time_ + " ?",false);
+      if ( ans_tmp==1) 
+	robot.dialogue.Say(robot.dialogue.speech_sequences[44][robot.dialogue.language] + " " + tmp_time_ + " ?",false);
+      if ( ans_tmp==2) 
+	robot.dialogue.Say("0 " + tmp_time_ + " "+ robot.dialogue.speech_sequences[45][robot.dialogue.language],false);
+      
+      robot.audio.recognition.resultTag = "";
+      robot.audio.recognition.result="";
+      robot.audio.recognition.pause = false;
+    },
+
+    ///////////////////////////////////////////
+    robot.dialogue.WaitTimeout()|
+    robot.audio.recognition.pause = true|
+    robot.dialogue.BeepTimeout();
+    return "TIMEOUT";
+  };
+  
+
+ /////////////////////////////////////////////////////////
+  //	W E A T H E R
+  /////////////////////////////////////////////////////////
+
+
+  function d_AskWeatherNextDays()
+  {
+    robot.audio.recognition.pause = true;
+    robot.audio.recognition.resultTag="";
+    robot.audio.recognition.result="";
+    robot.audio.recognition.ResetGrammar;
+    if (robot.dialogue.language==0) robot.audio.recognition.LoadGrammar(_uFilesDir+"grammars/YesNoEN.grxml");
+    if (robot.dialogue.language==1) robot.audio.recognition.LoadGrammar(_uFilesDir+"grammars/YesNoPL.grxml"); 
+    if (robot.dialogue.language==2) robot.audio.recognition.LoadGrammar(_uFilesDir+"grammars/YesNoPT.grxml");  
+    //  
+    robot.log.Set("WEATHER: ASK FOR NEXT DAYS",[]);
+    //
+    robot.dialogue.Say(robot.dialogue.speech_sequences[70+3.random][robot.dialogue.language],false);
+    robot.dialogue.ResetTimeout(-1);
+    robot.audio.recognition.pause = false;
+    
+    at ((robot.audio.recognition.resultTag!="")&&(robot.audio.recognition.resultTag!="REPEAT"))
+    {
+      robot.dialogue.ResetTimeout(-1);
+      robot.audio.recognition.pause = true;
+      robot.dialogue.BeepSound();
+      return robot.audio.recognition.resultTag;
+    },
+    
+    
+    // REPEAT
+    at (robot.audio.recognition.resultTag=="REPEAT")
+    {
+      robot.dialogue.ResetTimeout(-1);
+      robot.audio.recognition.pause = true;
+      robot.dialogue.BeepSound();
+      robot.dialogue.Say(robot.dialogue.speech_sequences[70+3.random][robot.dialogue.language],false);
+      robot.audio.recognition.resultTag = "";
+      robot.audio.recognition.result="";
+      robot.audio.recognition.pause = false;
+    },
+
+    ///////////////////////////////////////////
+    robot.dialogue.WaitTimeout()|
+    robot.audio.recognition.pause = true|
+    robot.dialogue.BeepTimeout();
+    return "TIMEOUT";
+  };
+    
+  
+  function d_SayWeather()
+  {
+    var _temperature = robot.network.weather.condition.temperature;
+    var _code = robot.network.weather.condition.code;
+
+    // Oh dear!, What a pitty,...
+    if (((_code>=0)&&(_code<=4))||((_code>=37)&&(_code<=39))) 
+      robot.dialogue.Say(robot.dialogue.speech_sequences[14+2.random][robot.dialogue.language],false)
+    // Excelent, Superb,...
+    else if (((_code>=13)&&(_code<=15))||((_code>=41)&&(_code<=43))) 
+    robot.dialogue.Say(robot.dialogue.speech_sequences[17+2.random][robot.dialogue.language],false)
+    // Oh dear!, What a pitty,...
+    else if (((_code>=5)&&(_code<=12))||((_code>=35)&&(_code<=36))) 
+    robot.dialogue.Say(robot.dialogue.speech_sequences[14+2.random][robot.dialogue.language],false);
+	
+    // The temperature outside is... and the weather is...
+    var tmp = robot.dialogue.speech_sequences[90][robot.dialogue.language] + " "+ _temperature.asString + " "+ robot.dialogue.speech_sequences[91][robot.dialogue.language] + " "+ robot.dialogue.speech_sequences[100+_code][robot.dialogue.language] +".";
+    robot.dialogue.Say(tmp,false);
+	
+    return;
+  };
+   
+  function d_SayWeatherNextDay()
+  {
+    var days = ["Sun"=> 0, "Mon"=> 1,"Tue"=> 2,"Wed"=> 3,"Thu"=> 4,"Fri"=> 5,"Sat"=> 6];
+    var tmp_rand=0;
+    var fday=[];
+    var tmp="";  
+    //
+    robot.log.Set("WEATHER: SAYR NEXT DAYS",[]);
+    //
+    
+    /////////////////////////////////////////////////////////////////////////////
+    // DAY 1
+    // ex. ["Mon", "17 Nov 2014", 7, 12, "Cloudy", 26]
+    fday = robot.network.weather.forecast.day2;
+    if (fday.size==6){
+      tmp_rand = 2.random;
+      // tomorrow temperature 
+      tmp = robot.dialogue.speech_sequences[88][robot.dialogue.language] +". " + robot.dialogue.speech_sequences[92][robot.dialogue.language] + " ";
+      if (tmp_rand==0){
+	// between.. and.. deg. C
+	tmp = tmp + " "+ robot.dialogue.speech_sequences[93][robot.dialogue.language] + " "+ fday[2] + " " + robot.dialogue.speech_sequences[94][robot.dialogue.language] + " " + fday[3];
+      };
+      if (tmp_rand==1){
+	// from.. to.. deg. C
+	tmp = tmp + " "+ robot.dialogue.speech_sequences[95][robot.dialogue.language] + " "+ fday[2] + " "+ robot.dialogue.speech_sequences[96][robot.dialogue.language] + " "+ fday[3];
+      };
+      tmp = tmp + " "+ robot.dialogue.speech_sequences[97][robot.dialogue.language] + ". " + robot.dialogue.speech_sequences[100 + fday[5]][robot.dialogue.language]+".";
+      robot.dialogue.Say(tmp,false);
+    };
+    
+    /////////////////////////////////////////////////////////////////////////////
+    // DAY 2
+    fday = robot.network.weather.forecast.day3;
+    if (fday.size==6){
+      tmp_rand = 2.random;
+      // tomorrow temperature 
+      tmp = robot.dialogue.speech_sequences[89][robot.dialogue.language] +". " + robot.dialogue.speech_sequences[92][robot.dialogue.language] + " ";
+      if (tmp_rand==0){
+	// between.. and.. deg. C
+	tmp = tmp + " "+ robot.dialogue.speech_sequences[93][robot.dialogue.language]+ " " + fday[2]+ " " + robot.dialogue.speech_sequences[94][robot.dialogue.language]+ " " + fday[3];
+      };
+      if (tmp_rand==1){
+	// from.. to.. deg. C
+	tmp = tmp + " "+ robot.dialogue.speech_sequences[95][robot.dialogue.language] + " "+ fday[2]+ " " + robot.dialogue.speech_sequences[96][robot.dialogue.language] + " "+ fday[3];
+      };
+      
+      tmp = tmp + " "+ robot.dialogue.speech_sequences[97][robot.dialogue.language] +". "  + robot.dialogue.speech_sequences[100+ fday[5] ][robot.dialogue.language]+".";
+      robot.dialogue.Say(tmp,false);
+    };
+    /////////////////////////////////////////////////////////////////////////////
+    // DAY 3
+    fday = robot.network.weather.forecast.day4;
+    if (fday.size==6){
+      tmp_rand = 2.random;
+      // (day of the week) temperature 
+      tmp = robot.dialogue.speech_sequences[50 + days[fday[0]]][robot.dialogue.language] +". " + robot.dialogue.speech_sequences[92][robot.dialogue.language] + " ";
+      if (tmp_rand==0){
+	// between.. and.. deg. C
+	tmp = tmp + " "+ robot.dialogue.speech_sequences[93][robot.dialogue.language] + " "+ fday[2]+ " " + robot.dialogue.speech_sequences[94][robot.dialogue.language] + " "+ fday[3];
+      };
+      if (tmp_rand==1){
+	// from.. to.. deg. C
+	tmp = tmp + " "+ robot.dialogue.speech_sequences[95][robot.dialogue.language] + " "+ fday[2] + " "+ robot.dialogue.speech_sequences[96][robot.dialogue.language]+ " " + fday[3];
+      };
+      
+      tmp = tmp + " "+ robot.dialogue.speech_sequences[97][robot.dialogue.language] +". " + robot.dialogue.speech_sequences[100+ fday[5] ][robot.dialogue.language]+".";
+      robot.dialogue.Say(tmp,false);
+    };
+    /////////////////////////////////////////////////////////////////////////////
+    // DAY 4
+    fday = robot.network.weather.forecast.day5;
+    if (fday.size==6){
+      tmp_rand = 2.random;
+      // (day of the week) temperature 
+      tmp = robot.dialogue.speech_sequences[50 + days[fday[0]]][robot.dialogue.language] +"." + robot.dialogue.speech_sequences[92][robot.dialogue.language] + " ";
+      if (tmp_rand==0){
+	// between.. and.. deg. C
+	tmp = tmp + " "+ robot.dialogue.speech_sequences[93][robot.dialogue.language] + " "+ fday[2] + " "+ robot.dialogue.speech_sequences[94][robot.dialogue.language] + " "+ fday[3];
+      };
+      if (tmp_rand==1){
+	// from.. to.. deg. C
+	tmp = tmp + ". " + robot.dialogue.speech_sequences[95][robot.dialogue.language] + " "+ fday[2] + " "+ robot.dialogue.speech_sequences[96][robot.dialogue.language] + " "+ fday[3];
+      };
+      
+      tmp = tmp + " "+ robot.dialogue.speech_sequences[97][robot.dialogue.language] +". " + robot.dialogue.speech_sequences[100 + fday[5] ][robot.dialogue.language]+".";
+      robot.dialogue.Say(tmp,false);
+    };
+    
+    robot.dialogue.Say(robot.dialogue.speech_sequences[208+3.random][robot.dialogue.language],false);
+    return;
+  };
+
+  /////////////////////////////////////////////////////////
+  //	M U S I C,   R A D I O
+  /////////////////////////////////////////////////////////
+
+  
+  function d_AskWhatKindOfMusic()
+  {
+    robot.audio.recognition.pause = true;
+    robot.audio.recognition.resultTag="";
+    robot.audio.recognition.result="";
+    robot.audio.recognition.ResetGrammar;
+    if (robot.dialogue.language==0) robot.audio.recognition.LoadGrammar(_uFilesDir+"grammars/MusicEN.grxml");
+    if (robot.dialogue.language==1) robot.audio.recognition.LoadGrammar(_uFilesDir+"grammars/MusicPL.grxml"); 
+    if (robot.dialogue.language==2) robot.audio.recognition.LoadGrammar(_uFilesDir+"grammars/MusicPT.grxml");  
+    //  
+    robot.log.Set("RADIO: ASK WHAT KIND OF",[]);
+    //
+    robot.dialogue.Say(robot.dialogue.speech_sequences[20+3.random][robot.dialogue.language],false);
+    robot.dialogue.ResetTimeout(-1);
+    robot.audio.recognition.pause = false;
+
+	
+    at ((robot.audio.recognition.resultTag!="")&&(robot.audio.recognition.resultTag!="REPEAT"))
+    {
+      robot.dialogue.ResetTimeout(-1);
+      robot.audio.recognition.pause = true;
+      robot.dialogue.BeepSound();
+      return  robot.audio.recognition.resultTag;
+    },
+   
+    
+    // REPEAT
+    at (robot.audio.recognition.resultTag=="REPEAT")
+    {
+      robot.dialogue.ResetTimeout(-1);
+      robot.audio.recognition.pause = true;
+      robot.dialogue.BeepSound();
+      robot.dialogue.Say(robot.dialogue.speech_sequences[20+3.random][robot.dialogue.language],false);
+      robot.audio.recognition.resultTag = "";
+      robot.audio.recognition.result="";
+      robot.audio.recognition.pause = false;
+    },
+    
+
+    ///////////////////////////////////////////
+    robot.dialogue.WaitTimeout()|
+    robot.audio.recognition.pause = true|
+    robot.dialogue.BeepTimeout();
+    return "TIMEOUT";
+  };
+ 
+
+
+  
+  /////////////////////////////////////////////////////////
+  //	C U S T O M   L I S T, 
+  /////////////////////////////////////////////////////////
+
+ 
+  function d_ListenCustomList(phrasesList)
+  {
+ 
+    var _l_tmp;
+    if (robot.dialogue.language==0) _l_tmp = "en-US";
+    if (robot.dialogue.language==1) _l_tmp = "pl-PL";
+    if (robot.dialogue.language==2) _l_tmp = "pt-PT";
+      
+    robot.audio.recognition.SetGrammar(phrasesList,_l_tmp);
+    robot.dialogue.ResetTimeout(-1);
+    robot.audio.recognition.pause = false;
+
+    at (robot.audio.recognition.resultTag!="")
+    {
+      robot.dialogue.ResetTimeout(-1);
+      robot.audio.recognition.pause = true;
+      robot.dialogue.BeepSound();
+      return robot.audio.recognition.resultTag;
+    },
+
+    ///////////////////////////////////////////
+    robot.dialogue.WaitTimeout()|
+    robot.audio.recognition.pause = true|
+    robot.dialogue.BeepTimeout();
+    return "TIMEOUT";
+  };
+  
+  
+  /////////////////////////////////////////////////////////
+  //	Y E S,  N O,  O K,  W E L C O M E,   E R R O R
+  /////////////////////////////////////////////////////////
+
+  function d_ListenBasic()
+  {
+    robot.audio.recognition.pause = true;
+    robot.audio.recognition.resultTag="";
+    robot.audio.recognition.result="";
+    robot.audio.recognition.ResetGrammar;
+    if (robot.dialogue.language==0) robot.audio.recognition.LoadGrammar(_uFilesDir+"grammars/BasicEN.grxml");
+    if (robot.dialogue.language==1) robot.audio.recognition.LoadGrammar(_uFilesDir+"grammars/BasicPL.grxml"); 
+    if (robot.dialogue.language==2) robot.audio.recognition.LoadGrammar(_uFilesDir+"grammars/BasicPT.grxml");  
+    robot.audio.recognition.pause = false;
+
+    waituntil (robot.audio.recognition.resultTag!="");
+    //
+    robot.log.Set("OTHER: HEAR ACTION",[robot.audio.recognition.resultTag]);
+    //
+    robot.audio.recognition.pause = true;
+    robot.dialogue.BeepSound();
+    return robot.audio.recognition.resultTag;
+
+  };
+
+  function d_SayNetworkError()
+  {
+    
+    robot.log.Set("OTHER: SAY NETWORK ERROR",[]);
+    //
+    robot.dialogue.Say(robot.dialogue.speech_sequences[60+3.random][robot.dialogue.language],false);
+  };
+  
+  function d_SayConfirmation()
+  {
+    robot.log.Set("OTHER: SAY CONFIRMATION",[]);
+    //
+    robot.dialogue.Say(robot.dialogue.speech_sequences[10+3.random][robot.dialogue.language],false);
+  };
+  
+  function d_SayOK()
+  {
+    robot.log.Set("OTHER: SAY OK",[]);
+    //
+    robot.dialogue.Say(robot.dialogue.speech_sequences[10][robot.dialogue.language],false);
+  };
+  
+  function d_SayWelcome()
+  {
+    robot.log.Set("OTHER: SAY WELCOME",[]);
+    //
+    robot.dialogue.Say(robot.dialogue.speech_sequences[1+5.random][robot.dialogue.language],false);
+  };
+  
+  function d_SayGetUp()
+  {
+    robot.dialogue.Say(robot.dialogue.speech_sequences[7+3.random][robot.dialogue.language],false);
+  };
+  
+  function d_SaySatisfied()
+  {
+    robot.log.Set("OTHER: SAY SATISFIED",[]);
+    //
+    robot.dialogue.Say(robot.dialogue.speech_sequences[17+2.random][robot.dialogue.language],false);				
+  };
+  
+  function d_SayDissatisfied() 
+  {
+    robot.log.Set("OTHER: SAY DISSATISFIED",[]);
+    //
+    robot.dialogue.Say(robot.dialogue.speech_sequences[14+2.random][robot.dialogue.language],false);			
+  };
+    
+    
+  function d_SayCantSeeAnybody()
+  {
+    robot.log.Set("OTHER: SAY CAN NOT SEE ANYBODY",[]);
+    //
+    robot.dialogue.Say(robot.dialogue.speech_sequences[30+3.random][robot.dialogue.language],false);			
+  };
+     
+  function d_SayCantSeeSilhouette()
+  {
+    robot.log.Set("OTHER: SAY CAN NOT SEE SILHOUETTE",[]);
+    //
+    robot.dialogue.Say(robot.dialogue.speech_sequences[35+3.random][robot.dialogue.language],false);			
+  }; 
+  
+  function d_SayTime()
+  {
+    robot.log.Set("OTHER: SAY TIME",[]);
+    //
+    var _ev_say = Date.now.asString.split(" ")[1].split(":")[0]+":"+Date.now.asString.split(" ")[1].split(":")[1];
+    robot.dialogue.Say(_ev_say,false);			
+  };  
+  
+   
+  function d_SayDate()
+  {
+    robot.log.Set("OTHER: SAY DATE",[]);
+    //
+    var _ev_say = Date.now.day.asString+"-"+Date.now.month.asString+"-"+Date.now.year.asString+". " + 
+	robot.dialogue.speech_sequences[79 + robot.network.GetDayOfTheWeek(Date.now.asString.split(" ")[0])][robot.dialogue.language];
+    robot.dialogue.Say( _ev_say ,false);			
+  };  
+    
+  function d_SayBored()
+  {
+    robot.log.Set("OTHER: SAY BORED",[]);
+    //
+    loop{
+      var tmp = 120+120.random;
+      sleep(tmp); 
+      robot.dialogue.Say(robot.dialogue.speech_sequences[600+4.random][robot.dialogue.language],false);	
+    }, 
+  }; 
+  
+  
+  
+  /////////////////////////////////////////////////////////
+  //	SPEECH TOOLS
+  /////////////////////////////////////////////////////////
+  
+  function d_CheckIfEnglish(phrase)
+  {
+  
+    //////////////////////////////////
+    // remove signs
+    var tmp = phrase.replace(",","").replace(".","").replace("?","").replace("!","").replace(":","").replace(";","").split(" ").remove(" ");
+    //////////////////////////////////
+    // remove short words
+    for(var _short:tmp) { if (_short.size<3) tmp.remove(_short);};
+    
+    var tmp_size = tmp.size;
+    var counter = 0;
+    
+    if(tmp_size <= 2) return false; 
+    
+    if(tmp_size>20) tmp_size = 20;
+    
+    for (var i=0; i < tmp_size; i++) {if (WordNet.GetResults(tmp[i], 0)) counter = counter+1;};
+    if (counter/tmp_size >= 0.5) return true else false;
+  };	
+   
+  
+  
+  
+  function d_SetEmotion(emot, intensity)
+  {
+
+    if (!hasSlot("t_speech1")) var Global.t_speech1=Tag.new() else { Global.t_speech1.unfreeze| Global.t_speech1.stop; };
+    if (!hasSlot("t_speech2")) var Global.t_speech2=Tag.new() else { Global.t_speech2.unfreeze| Global.t_speech2.stop; };
+    switch (emot)
+    {
+      case "happy": {
+	t_speech1: robot.audio.speech.volume = (_Speech_volume + intensity*(100-_Speech_volume)/40) smooth:1,
+	t_speech2: robot.audio.speech.rate = (intensity/5) smooth:1,	//2
+	robot.audio.speech.pitch = (intensity/5); 	//2
+      };
+      case "sad": {
+	t_speech1: robot.audio.speech.volume = (_Speech_volume - intensity*(100-_Speech_volume)/65) smooth:1,
+	t_speech2: robot.audio.speech.rate = (-intensity/2) smooth:1,	//-5
+	robot.audio.speech.pitch = (intensity/2);	//6
+      };
+      case "fear": {
+	t_speech1: robot.audio.speech.volume = (_Speech_volume - intensity*(100-_Speech_volume)/65) smooth:1,
+	t_speech2: robot.audio.speech.rate = (intensity/5) smooth:1,	//3.33
+	robot.audio.speech.pitch = (intensity/2);	//5
+      };
+      case "disgust": {
+	t_speech1: robot.audio.speech.volume = (_Speech_volume) smooth:1,
+	t_speech2: robot.audio.speech.rate = (-intensity/2) smooth:1,	//-5
+	robot.audio.speech.pitch = (-intensity/1.25);//-8
+      };
+      case "surprise": {
+	t_speech1: robot.audio.speech.volume = (_Speech_volume + intensity*(100-_Speech_volume)/40) smooth:1,
+	t_speech2: robot.audio.speech.rate = (intensity/5) smooth:1,	//2
+	robot.audio.speech.pitch=0;
+      };
+      case "angry": {
+	t_speech1: robot.audio.speech.volume = (_Speech_volume + intensity*(100-_Speech_volume)/10) smooth:1,
+	t_speech2: robot.audio.speech.rate = (intensity/5) smooth:1,	//2
+	robot.audio.speech.pitch = (-intensity);	//-10
+      };
+      case "neutral": {
+	t_speech1: robot.audio.speech.volume = (_Speech_volume) smooth:1,
+	t_speech2: robot.audio.speech.rate = (0) smooth:1,
+	robot.audio.speech.pitch = (0);	
+      };
+    };
+  };
+  
+  
+  function d_Say(text, check_lang)
+  {
+    var isEnglish = false;
+    if ((check_lang)&&(robot.dialogue.language!=0)) isEnglish = robot.dialogue.CheckIfEnglish(text);
+    
+    text = text.replace("<","").replace(">","");
+    text = text + "\0";
+    
+    var _s_emot = 0;
+    if (robot.hasLocalSlot("emotion")) _s_emot = robot.emotion.movingSpeed/4;
+    
+    if (isEnglish) 
+      robot.body.neck.head.Say(text,5+_s_emot,0)
+    else
+      robot.body.neck.head.Say(text,5+_s_emot,robot.dialogue.language);
+
+  };
+  
+  
+   
+  function d_BeepSound()
+  {
+    //robot.audio.player.Play(_uFilesDir+"sounds/samples/beep.mp3");
+    robot.audio.player.Play(_uFilesDir+"sounds/samples/heard_sound.mp3");
+  };
+  
+  function d_BeepTimeout()
+  {
+    robot.audio.player.Play(_uFilesDir+"sounds/samples/down_double_beep.mp3");
+  };
+  
+  function d_WaitTimeout()
+  {
+    every(1s) robot.dialogue.timeOut--,
+    waituntil (robot.dialogue.timeOut<=0);
+    robot.log.Set("TIMEOUT",[]);
+    //
+    return;
+  };
+  
+  function d_ResetTimeout(_time)
+  {
+    if (_time<0)
+      robot.dialogue.timeOut = robot.dialogue.defaultTimeOutValue
+    else
+      robot.dialogue.timeOut = _time;
+    
+    return;
+  };
+  
+  echo("OK: EMYS dialogs added.");
+
+};

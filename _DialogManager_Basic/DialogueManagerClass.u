@@ -1,0 +1,311 @@
+// v1.4 [working] extend to work with 2 people
+// v1.3 add Kinect looking at
+// v1.2 Arranged to work with 2 speech recogs setup
+// TODO: still uses only the first recognizer
+// v1.1 Fillable Grammars
+// 
+// v1.0 Start
+
+class DialogueManager {
+  
+	var debug = true;
+  var fromEndfactor = 0.25|;
+  var enableShouldIAct= true;
+	
+	var language = 1|; //polish
+	var timeOut = 0|;
+	var defaultTimeOutValue = 12|;
+	var grammarsDir = "../grammars/" |;
+	var enableSounds = false;
+	/*
+	function ResetTimeout(_time) 
+  function BeepSound() { ;}|;
+	function BeepTimeout() { ;}|;
+  
+	function WaitTimeout() 
+	function GetGrammarPath(grammar)
+	function FillGrammar(grammar,fillers)
+	function Print(str)
+	function AskQuestion(question, answerGrammar, enableRepeat) 
+	function AskQuestionFill(question, answers, answerGrammar, enableRepeat) 
+  */
+	
+  //TODO: Chech prerequisites and throw error
+	
+	function ResetTimeout(_time = -1) {
+    if (_time<0)
+    timeOut = defaultTimeOutValue
+    else
+    timeOut = _time;
+  }|;
+  
+  function WaitTimeout() {
+    every(1s) timeOut--,
+    waituntil (timeOut<=0);
+  }|;
+  
+  function BeepSound() {
+    //robot.audio.player.Play(_uFilesDir+"sounds/samples/beep.mp3");
+    if (enableSounds)
+    robot.audio.player.Play(_uFilesDir+"sounds/samples/heard_sound.mp3");
+  };
+  
+  function BeepTimeout() {
+    if (enableSounds)
+    robot.audio.player.Play(_uFilesDir+"sounds/samples/down_double_beep.mp3");
+  };
+  
+  // function BeepSound() { ;}|;
+  // function BeepTimeout() { ;}|;
+  
+  function GetGrammarPath(grammar){
+    return grammarsDir + grammar + "PL.grxml";
+  }|;
+  
+  // Fills a prepared grammar with given fillers 
+  // in place of REPLACE_TEXT_0 up to REPLACE_TEXT_{fillers.size-1}
+  // creates a _tmpLANG.grxml file in grammars dir
+  function FillGrammar(grammar,fillers){
+    var file = GetGrammarPath(grammar);
+    var str = "";
+    {
+      var i = InputStream.new(File.new(file));
+      var x;
+      while (!(x = i.getChar.acceptVoid).isVoid)
+      str += x;
+      i.close;
+    };
+    
+    for(var i: fillers.size){
+      str = str.replace("REPLACE_TEXT_"+i, fillers[i] )|;
+    };
+    
+    {
+      var o = OutputStream.new(File.create(
+      grammarsDir + "_tmp" +
+      file[file.length -8, file.length]
+      ))|;
+      o << str;
+      o.close;
+    };
+  }|;
+  
+  
+  function PrintResult(user){
+    var str = ("[Dialogue][%s]: RESULT: " % user) +
+    robot.audio.recognition[user].result + 
+    "  , confidence: " + robot.audio.recognition[user].confidence	+
+    " ,S: "+ robot.audio.recognition[user].semantics |;
+    echo(str.utf);
+  }|;
+  
+  function Speak(str){
+    //TODO: add robot.log 
+    str.utf.split("\n")
+    .each(function(s){ echo("[Dialogue][R]: SPEAK: "+s);});
+    robot.audio.speech.Speak(str);
+  }|;
+  
+  function ShoudIActFromFeatures(ft) {
+    
+    // CALCULATE ADDITIONAL FEATURES
+    //TODO:CLEANUP, size0
+    // % time lookingAt
+    // cout << ft["isLookingAtList"];
+    var sum = 0; for(var e in ft["isLookingAtList"]) if(e) sum++;
+    var timeLookingAt = sum/ft["isLookingAtList"].size;
+    // echo(sum/ft["isLookingAtList"].size);
+    // % time lookingAtEnd
+    var startIndex = ((1-fromEndfactor)* ft["isLookingAtList"].size).floor;
+    var isLookingAtListEnd = ft["isLookingAtList"].range( startIndex, ft["isLookingAtList"].size );
+    // cout << isLookingAtListEnd;
+    var sumEnd = 0; for(var e in isLookingAtListEnd) if(e) sumEnd++;
+    var timeLookingAtEnd = sumEnd/isLookingAtListEnd.size;
+    // echo(sumEnd/isLookingAtListEnd.size);
+    
+    //TODO: DECIDE
+    var decision = (timeLookingAtEnd > 0.5); 
+    
+    echo("[DIALOGUE][%s] Should Act?: %s" % [ ft["user"], decision]);
+    // echo("Data: " + ft);
+    return decision;
+    
+  }|;
+  
+  function AskQuestion(question, answerGrammar, users) {
+    // TODO: fix language, set it as a dialog property
+    //*** if (robot.dialogue.language==0) robot.audio.recognition[0].LoadGrammar(_uFilesDir+"grammars/" + answerGrammar + "EN.grxml");
+    //*** robot.audio.recognition[0].LoadGrammar("grammars/" + answerGrammar + "PL.grxml");
+    
+    //note: should be like this, but c++ msp wont let load multiple grammars
+    //TODO: is it possible to load multiple grammars?
+    // if (enableRepeat) robot.audio.recognition[0].LoadGrammar("grammars/Repeat" + "PL.grxml");
+    
+    // robot.log.Set("LEARNING: ASK WHAT KIND OF GAME",[]);
+    //robot.dialogue.Say( robot.dialogue.speech_sequences[500+4.random][robot.dialogue.language], false);
+    
+    
+    //LOAD UP ANSWER GRAMMAR
+    for(var user : users){
+      robot.audio.recognition[user].Pause;
+      robot.audio.recognition[user].ResetGrammar;
+      //load in background to speed up
+      robot.audio.recognition[user].LoadGrammar(GetGrammarPath(answerGrammar)),
+    };
+    Speak(question);
+    ResetTimeout;
+    
+    
+    for(var user : users){
+      robot.audio.recognition[user].ClearResult;
+      robot.audio.recognition[user].Unpause;
+    };
+    // LISTEN FOR THE ANSWER
+    var listen = Tag.scope;
+    
+    var faceTrackWorked = [false, false];
+    var isLookingAtList = [[], []];
+    var isBodyFacingList = [[], []];
+    for(var user : users){
+      echo("setting user %s" % user);
+      
+      //TODO: move it to audio.u
+      listen:
+      at(!robot.audio.recognition[user].semantics.empty){
+        robot.audio.recognition[user].semantics["User"] = user;
+      };
+      
+      listen:
+      at (robot.audio.recognition[user].isListening){
+        echo("[DIALOGUE][%s] Started speaking" % user);
+        faceTrackWorked[user] = false;
+        isLookingAtList[user] = [];
+        isBodyFacingList[user] = [];
+      } onleave {
+        echo("[DIALOGUE][%s] Ended speaking" % user);
+        //INFO: recognition events are coming in order: START->END->RESULT(optional)
+        // END sets the resultTag to "". We wait up to ~100ms for resultTag to appear.
+        // Typically its delayed 1ms-60ms, ~6ms on average
+        //TODO: can be cleaner with at + timeout?
+        //can be cleaned by moving it out of this 'at' to separate 'at (result)'
+        // this one collects data, the other sends result. 
+        for(20){
+          if(robot.audio.recognition[user].resultTag!="") break;
+          sleep(5ms)
+        };
+        if(robot.audio.recognition[user].resultTag!=""){
+          echo("[DIALOGUE][%s] Result tag: %s" % [user, robot.audio.recognition[user].resultTag] );
+          //NOTE: We will just send the list and evaluate features later (in their own function)
+          //TODO: Dont know if its the right approach, but lets fix that later
+          var ft = Dictionary.new;
+          ft["user"] = user;
+          ft["faceTrackWorked"] = faceTrackWorked[user];
+          ft["isLookingAtList"] = isLookingAtList[user];
+          ft["isBodyFacingList"] = isBodyFacingList[user];
+          //ft duration speech
+          // ft["isLookingAt"]; //now
+          // ft["questionType"];
+          // ft["previousSpeaker"];
+          // fw yaw difference body List (mean/end mean)
+          // fw yaw difference face List (mean/end mean)
+          PrintResult(user);
+          if(!enableShouldIAct) return robot.audio.recognition[user].semantics;
+          if(ShoudIActFromFeatures(ft)) return robot.audio.recognition[user].semantics;
+          
+        };
+      };
+      
+      listen:
+      whenever(robot.audio.recognition[user].isListening) {
+        // echo("cont. speaking");
+        faceTrackWorked[user] = faceTrackWorked[user] || robot.video.humanDetector[user].head.faceIsTracking;
+        isLookingAtList[user] << robot.video.humanDetector[user].head.oriented;
+        isBodyFacingList[user] << robot.video.humanDetector[user].oriented;
+        sleep(10ms);
+      };
+      
+    };
+    
+    robot.dialogue.WaitTimeout()|
+    BeepTimeout()|
+    return ["Tag" => "TIMEOUT"];
+  }|;
+  
+  function AskQuestionFill(question, answers, answerGrammar, users) {
+    FillGrammar(answerGrammar,answers);
+    AskQuestion(question,"_tmp", users);
+  }|;
+  
+  
+  function CalibrateOnQuestion(question, answerGrammar){
+    //monitor direction of speaking
+    var soundDirection = [];
+    Tag.scope:
+    at ( robot.audio.recognition[0].isListening || robot.audio.recognition[1].isListening  ){
+      soundDirection = [];
+    } ;
+    
+    Tag.Scope:
+    whenever( robot.audio.recognition[0].isListening || robot.audio.recognition[1].isListening  ){
+      if(Kinect.audioSourceConfidence > 0.2) soundDirection << Kinect.audioSourceAngle;
+      sleep(5ms);
+    };
+    
+    
+    //ask question without ShouldIAct
+    enableShouldIAct = false;
+    var res = AskQuestion(question,answerGrammar,[0,1]);
+    enableShouldIAct = true;
+    //we should rather ask a single person (but we dont know the proper Recog)
+    // var res = AskQuestion(question,answerGrammar,[0]);
+    
+    var userResponed = res["User"];
+    var userOther = (userResponed +1) %2;
+    
+    //mean sound  direction
+    var dir=0; 
+    for(var d : soundDirection) dir +=d;
+    dir /= soundDirection.size;  
+    
+    //find out best fit
+    
+    //
+    if( !robot.video.humanDetector[0].visible && !robot.video.humanDetector[1].visible ){
+      echo("ERROR: nobody detecter here");
+      return res;
+    };
+    
+    if( robot.video.humanDetector[0].visible && robot.video.humanDetector[1].visible ) {
+      var yaw1 = robot.video.humanDetector[userResponed].orientation[0]; 
+      var yaw2 = robot.video.humanDetector[userOther].orientation[0]; 
+      if( abs(yaw2 - dir) < abs(yaw1 - dir) ) SwapRecogs;
+    };
+    
+    if(!robot.video.humanDetector[userResponed].visible) SwapRecogs;
+    
+    return res;
+    
+    
+  };
+  
+  function SwapRecogs(){
+    
+    echo("[DIALOGUE]: Recogs swapped on calibrate");
+    //swap Recogs
+    var tmp = Recogs[0];
+    Recogs[0] = Recogs[1];
+    Recogs[1] = tmp;
+    
+    //swap robot.audio.recognition
+    tmp = robot.audio.recognition[0];
+    robot.audio.recognition[0] = robot.audio.recognition[1];
+    robot.audio.recognition[1] = tmp;
+    
+  };
+  
+  
+  
+  
+  
+  
+}|; // *********** END DIALOGUE ****************

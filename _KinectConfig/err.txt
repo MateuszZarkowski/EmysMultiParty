@@ -1,0 +1,4 @@
+[00014635:error] !!! E:\_Emys\URBI\_KinectConfig\..\urbi_scripts\Video.u:654.47-56: []: invalid index: 0
+[00014635:error] !!!    called from: E:\_Emys\URBI\_KinectConfig\..\urbi_scripts\Video.u:654.36-65: each
+[00014635:error] !!!    called from: E:\_Emys\URBI\_KinectConfig\..\urbi_scripts\Video.u:569.19-33: VideoRun
+[00014635:error] !!!    called from: _start.u:27.1-17: Run

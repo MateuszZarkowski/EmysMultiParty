@@ -1,0 +1,61 @@
+// Example
+loadModule("URecog_MSP");
+
+// var recog=URecog.new("InProc",0 , 0);
+var Recog=URecog.new("InProc",2 , 3);
+URecog.AvailableRecognizers;
+URecog.AvailableInputs;
+Recog.debug = true;
+
+// Recog.SetDictationState(1);
+// new grammar with semantics
+// Recog.LoadGrammar("EX_simple_mtags.grxml");
+// Recog.LoadGrammar("NumberPL.grxml");
+// Recog.LoadGrammar("YesNoPL.grxml");
+// Recog.LoadGrammar("../grammars/WildcardPL.grxml");
+Recog.LoadGrammar("../grammars/WakeUpPL.grxml");
+// Recog.LoadGrammar("../grammars/YesNoPL.grxml");
+// Recog.LoadGrammar("RepeatPL.grxml");
+// Recog.LoadGrammar("ToFill_QuizGameAnswersPL.grxml");
+// old grammar for compatibility
+// Recog.LoadGrammar("EX_movement_literal.grxml");
+
+
+loop { 
+  Recog.Poll(false);
+},
+
+every(1s){
+  echo("****" + Recog.resultTag);
+  echo("****" + Recog.semantics);
+},
+
+function WaitQuizResponse() {
+	Recog.ClearResult;
+
+	Tag.scope: 
+	at (Recog.resultTag)
+	{
+	  // resp_tag.stop;
+		echo("test");
+		// echo(Recog.semantics);
+	  return Recog.resultTag;
+	};
+
+
+
+	sleep(40s)|
+	return "TIMEOUT";
+} |{};
+
+
+
+echo("START!");
+
+t:loop { 
+  echo(WaitQuizResponse());
+  echo(Recog.semantics);
+ 
+},
+
+

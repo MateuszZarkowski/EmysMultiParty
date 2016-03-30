@@ -1,0 +1,21 @@
+// loadModule("USpeech_SAPI");
+// var speech=USpeech.new();
+// speech.&visemeTrig.notifyChange( closure() {robot.setMouth(speech.visemeId,speech.visemeTime);});
+// or just
+// speech.&visemeTrig.notifyChange( closure() {echo("viseme no. "+speech.visemeId+" exec. time "+speech.visemeTime);});
+
+
+robot.audio.speech.AvailableVoices;
+Speech;
+
+// speech.voiceNo=6|;
+// speech.voiceNo=0|; // Kate
+// speech.Speak("Hello world! Suck my donkey balls.")|;
+
+
+
+Speech.voiceNo=4|; // Krzynia
+// speech.voiceNo=7|; // Zosia
+// speech.volume=100|;
+// speech.pitch=10|;
+Speech.Speak("Cześć! Nazywam się flasz.")|;

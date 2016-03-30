@@ -1,0 +1,47 @@
+// loading my modules
+var pwd = Path.cwd|;
+Path.new("../modules/").cd|;
+loadModule("../modules/UKeyboard");
+pwd.cd|;
+//***************************
+
+
+
+var Keyboard = UKeyboard.new|;
+Keyboard.StartCapturing,
+
+var running =true|;
+at(Keyboard.unreadPress) {
+	switch(Keyboard.modKey) {
+		case "a": running = true;
+		case "s": running = false;
+	};
+};
+
+
+
+
+
+
+// var log = [];
+every(1000ms) {
+	if(!running) continue;
+	echo("************************************************************");
+	echo("Kinect: " + Kinect.fps)|
+	echo("IDS: " + Kinect.skeletonTrackedIDs)|
+ 	echo("Faces: " + Kinect.faceIsTracking);
+  
+  for(var user:2) {
+    echo("%%%%%%%%%%%%%%%%%%%%%%%%%");
+    echo("Tracking" + user + ": " + robot.video.humanDetector[user].head.faceIsTracking);	
+    if (robot.video.humanDetector[user].head.position != []) {
+      echo("Head Pos: " + robot.video.humanDetector[user].head.position.range(0,3));
+      echo("Head Orient: " + robot.video.humanDetector[user].head.orientation);
+      echo("Head  facing: " + robot.video.humanDetector[user].head.facing);
+      echo("Torso facing: " + robot.video.humanDetector[user].facing);
+      echo("Head isFacing: " + robot.video.humanDetector[user].head.oriented);
+      echo("Torso isFacing: " + robot.video.humanDetector[user].oriented);
+    };	
+	};
+  
+},

@@ -1,0 +1,52 @@
+// EXAMPLE 1
+//
+loadModule("URecog_MSP");
+//var recog=URecog.new("InProc",1 , 0);
+//recog.LoadGrammar("_QuizGameAnswersPL.grxml");
+var recog=URecog.new("InProc",0 , 0);
+recog.LoadGrammar("EX_simple_mtags.grxml");
+recog.debug = true;
+
+loop { 
+  sleep(100ms);	
+  recog.Poll(false);
+},
+
+function WaitQuizResponse() {
+	recog.resultTag="";
+	recog.result="";
+
+	//robot.dialogue.ResetTimeout(-1);
+	//robot.audio.recognition.pause = false;
+	 
+	resp_tag: at (recog.resultTag!="")
+	{
+	  resp_tag.stop;
+		echo("test");
+		echo(recog.semantics);
+	  return recog.resultTag;
+	},
+
+
+	
+	///////////////////////////////////////////
+	//robot.dialogue.WaitTimeout()|
+	//robot.audio.recognition.pause = true|
+	//robot.dialogue.BeepTimeout();
+	
+	sleep(4s)|
+	resp_tag.stop|
+	return "TIMEOUT";
+} |{};
+
+
+
+echo("START!");
+
+t:loop { 
+  echo(WaitQuizResponse());
+  echo(recog.semantics);
+ 
+},
+
+

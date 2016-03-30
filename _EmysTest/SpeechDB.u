@@ -1,0 +1,188 @@
+// loading robot environment
+// load("_CONFIG_.u");
+// load("../urbi_scripts/_ROBOT_.u");
+// var pwd = Path.cwd|;
+// Path.new("../modules/").cd|;
+// ROBOT();
+// pwd.cd|;
+//***************************
+
+
+load("Tools.u");
+
+
+
+class SpeechEntry {
+  var set;
+  var lex;
+  function init (_set,_lex = []){
+    set = _set;
+    lex = _lex;
+  };
+  
+  // fills string with input 
+  // using proper number noun declination based on language
+  // unfortunatelly only in denominator
+  // IDEA: plugin to lookup proper form online?
+  function Get(input = [], lang="EN"){
+    if (input.protos.head !== List ){
+      //TODO: error how?
+      echo("ERROR: SpeechEntry.Get input should be a List");
+      return set[set.size.random];
+    };    
+    
+    // fill standard {0}
+    var s = set[set.size.random] ^ input;
+    
+    // fill with lex {0L0} 
+    if(!lex) return s;
+    var which = getSlot("which" + lang);
+    s = s.split("{").map(function(s){ s.split("}");});
+    for(var i=1; i<s.size; i++ ){
+      [var left, var right] = s[i][0].split("L").map(function(str){ str.asFloat });
+      s[i][0] = lex[right][which(input[left])].asString ^ [input[left]] ; 
+    };
+    s.map(function(x){x.join}).join;
+    
+  }|;
+  
+  //which number form to choose from lex based on count
+  function whichEN(i){
+    i = i.abs;
+    if (i==1) return 0
+    else return 1;
+  }|;
+  
+  function whichPL(i){
+    i = i.abs;
+    if (i==1) return 0;
+    if (i==2) return 1; // needed:  dwa punkty, dwie frytki
+    if (i in [3,4]) return 2
+    else return 3;
+  }|;
+  
+  function asString() {
+    "(" + lang+ ", " + set + ", " + lex + ")";    
+  }
+  
+}|;
+// Example:
+// var s = SpeechEntry.new([
+// "Masz {0} i {1L0}."
+// ],[[
+// "jedną nową wiadomość",
+// "dwie nowe wiadomości",
+// "{0} nowe wiadomości",
+// "{0} nowych wiadomości"
+// ]]);
+// s.Get(["raka", 0],"PL").utf;
+// s.Get(["raka", 1],"PL").utf;
+// s.Get(["raka", 2],"PL").utf;
+// s.Get(["raka", 3],"PL").utf;
+// s.Get(["raka", 7],"PL").utf;
+
+
+var speechDB = Dictionary.new|;
+//extend slots
+//it behaves like a class inherited from Dictionary
+// IDEA: maybe these should be moved to Dialogue Manager?
+// robot.dialogue.GetSpeech("GREET");
+var speechDB.language = "PL"|;
+function speechDB.Get(key, input = []){
+  this[language][key].Get(input, language);
+}|;
+
+//IDEA: can add probabilites of choosing some entry in such way
+// not sure if needed
+// speechDB["PL"]["CONFIRM"] = SpeechEntry.new([
+// ["Dobrze.", 1],
+// ["OK.",4]
+// ])|;
+
+
+// ***********************  POLISH SPEECH  *****************
+speechDB["PL"] = Dictionary.new|;
+
+
+speechDB["PL"]["GREET"] = SpeechEntry.new([
+"Cześć!",
+"Witaj!",
+"Hej!",
+"No siema!"
+])|;
+
+speechDB["PL"]["INTRODUCE"] = SpeechEntry.new([
+"Jestem robot EMYS.",
+"Nazywam się EMYS i jestem robotem.",
+"To ja! Robot Emys!"
+])|;
+
+speechDB["PL"]["CONFIRM"] = SpeechEntry.new([
+"Dobrze.",
+"OK.",
+"Jasne.",
+"Zrozumiałem.",
+"Nie ma sprawy."
+])|;
+
+
+
+// ******************** QUIZ GAME **************************
+
+speechDB["PL"]["CORRECT_ANSWER"] = SpeechEntry.new([
+"Dobra odpowiedź."
+])|;
+speechDB["PL"]["WRONG_ANSWER"] = SpeechEntry.new([
+"Niestety nie."
+])|;
+
+// ["A","B","C"][2];
+speechDB["PL"]["CORRECT_ANSWER_IS_LETTER_ANSWER_"] = SpeechEntry.new([
+"Poprawna odpowiedź to {0}. {1}."
+])|;
+
+// Do tej pory udało się Tobie/wam zdobyć x punktów
+// Do tej pory udało się Tobie/wam zebrać x punktów
+// masz/Macie 5 poprawnych odpowiedzi
+// Aktualny wynik to x punktów
+
+
+
+
+
+
+// ***********************  EXAMPLES  *********************
+
+speechDB["PL"]["WEEKDAY_0"] = SpeechEntry.new(["niedziela"])|;
+speechDB["PL"]["WEEKDAY_1"] = SpeechEntry.new(["poniedziłek"])|;
+speechDB["PL"]["WEEKDAY_2"] = SpeechEntry.new(["wtorek"])|;
+speechDB["PL"]["WEEKDAY_3"] = SpeechEntry.new(["środa"])|;
+speechDB["PL"]["WEEKDAY_4"] = SpeechEntry.new(["czwartek"])|;
+speechDB["PL"]["WEEKDAY_5"] = SpeechEntry.new(["piątek"])|;
+speechDB["PL"]["WEEKDAY_6"] = SpeechEntry.new(["sobota"])|;
+speechDB["PL"]["WEEKDAY_7"] = SpeechEntry.new(["niedziela"])|;
+//You can access them in such way
+//var day = 3;
+// speechDB.Get("WEEKDAY_"+day).utf;
+
+
+speechDB["PL"]["MEETING_ON_"] = SpeechEntry.new([
+"Dzień spotkania to {0}."
+])|;
+// You can build based on earlier definitions
+// speechDB.Get("MEETING_ON_",[speechDB.Get("WEEKDAY_"+3)]).utf;
+
+
+
+speechDB["PL"]["YOU_HAVE_X_NEW_MESSAGES_"] = SpeechEntry.new([
+"Masz {0L0}."
+],[[
+"jedną nową wiadomość",
+"dwie nowe wiadomości",
+"{0} nowe wiadomości",
+"{0} nowych wiadomości"
+]])|;
+// speechDB.Get("YOU_HAVE_X_NEW_MESSAGES_",[4]).utf;
+
+var day =2;
+speechDB.Get("YOU_HAVE_X_NEW_MESSAGES_",[4]).utf;

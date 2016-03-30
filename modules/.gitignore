@@ -1,0 +1,10 @@
+# FILES
+out.html
+*.txt
+Thumbs.db
+
+saved/*.jpg
+saved/*.wav
+saved/*.mp3
+
+# FOLDERS

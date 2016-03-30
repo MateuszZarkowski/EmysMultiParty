@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<grammar version="1.0" xml:lang="pl-PL" root="rootWakeUpRule" tag-format="semantics/1.0-literals" xmlns="http://www.w3.org/2001/06/grammar">
+  
+	<rule id="rootWakeUpRule">
+    <!-- <one-of> --->
+    <item>
+      <tag>WAKEUP</tag>
+      <one-of>
+        <item>emys wstawaj</item>
+        <item>emys obudź się</item>
+        <item>emys start</item>
+        <item>emys zaczynamy</item>
+      </one-of>
+    </item>
+    <!--
+      <item>
+      <tag>x</tag>
+      <item repeat="0-5"> <ruleref special="GARBAGE" /> </item>
+      
+      </item>
+      
+      </one-of>
+    ---> 
+  </rule>
+  
+  </grammar>

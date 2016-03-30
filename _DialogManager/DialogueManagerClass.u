@@ -1,0 +1,550 @@
+// v1.4 [working] extend to work with 2 people
+// v1.3 add Kinect looking at
+// v1.2 Arranged to work with 2 speech recogs setup
+// TODO: still uses only the first recognizer
+// v1.1 Fillable Grammars
+// 
+// v1.0 Start
+
+class DialogueManager {
+  
+  var LogData = [];
+  
+	var debug = true;
+  var fromEndfactor = 0.25|;
+  var enableShouldIAct= true;
+	
+	var language = 1|; //polish
+	var timeOut = 0|;
+	var defaultTimeOutValue = 12|;
+	var grammarsDir = "../grammars/" |;
+	var enableSounds = false;
+  var makeStupid = false;
+	/*
+	function ResetTimeout(_time) 
+  function BeepSound() { ;}|;
+	function BeepTimeout() { ;}|;
+  
+	function WaitTimeout() 
+	function GetGrammarPath(grammar)
+	function FillGrammar(grammar,fillers)
+	function Print(str)
+	function AskQuestion(question, answerGrammar, enableRepeat) 
+	function AskQuestionFill(question, answers, answerGrammar, enableRepeat) 
+  */
+	
+  //TODO: Chech prerequisites and throw error
+  function init(){
+    TrackFloorInit; 
+    
+    //makeStupid
+    TrackOneInit;
+  };
+  
+  function other(u){
+    (u+1)%2    
+  };
+  
+  //*******Track Floor
+  var trackFloorTag;
+  var trackMoveSpeed = 40;
+  var trackedUser = 0;
+  var lastSwitchTime = time;
+  var switchPeriod = 5s;
+  var lastTrackTime = time;
+  
+  function TrackFloorInit(){
+    trackFloorTag = Tag.new;
+    trackFloorTag.freeze;
+    detach({
+      trackFloorTag : loop{
+        
+        if (robot.video.humanDetector[0].head.visible 
+        || robot.video.humanDetector[1].head.visible){
+          
+          // 1 GUY
+          if (!robot.video.humanDetector[trackedUser].head.visible 
+          && robot.video.humanDetector[other(trackedUser)].head.visible){
+            trackedUser = other(trackedUser);
+          };
+          
+          // 2 GUYS
+          if (robot.video.humanDetector[trackedUser].head.visible 
+          && robot.video.humanDetector[other(trackedUser)].head.visible){
+            //WHEN SMBD IS SPEAKING
+            //tracking is used not to prioritise one user over the other
+            //but stay with who first started
+            //continue tracking who is speaking
+            if (robot.audio.recognition[trackedUser].isListening){
+              //do nothing
+              lastSwitchTime = time;
+            } else if (robot.audio.recognition[other(trackedUser)].isListening){
+              //start tracking other it can be beacause he is talking, or should respond
+              trackedUser = other(trackedUser);
+            } else{ //NOBODY SPEAKING
+              if( time - lastSwitchTime  > switchPeriod ){
+                trackedUser = other(trackedUser);
+                lastSwitchTime = time;
+              };
+            };
+          };
+          
+          if(robot.video.humanDetector[trackedUser].head.orientation){
+            [var yaw, var pitch] =  robot.video.humanDetector[trackedUser].head.orientation|
+            robot.body.neck.head.MoveAtSpeed(yaw, pitch, trackMoveSpeed),
+          };
+        } else {   // NO GUYS
+          
+        },
+        sleep(150ms);
+        
+      }; //***** end track floor
+    });
+  };
+  
+  //*******Track One Guy
+  // uses the same tag to ease things up
+  var trackOneTag;
+  function TrackOneInit(){
+    trackOneTag = Tag.new;
+    trackOneTag.freeze;
+    detach({
+      trackOneTag : loop{
+        
+        if (robot.video.humanDetector[0].head.visible
+        &&robot.video.humanDetector[0].head.orientation){
+          [var yaw, var pitch] =  robot.video.humanDetector[0].head.orientation|
+          robot.body.neck.head.MoveAtSpeed(yaw, pitch, 40),
+        },
+        sleep(100ms);
+      }; //***** end track loop
+    });
+  };
+  
+  
+  
+  function ResetTimeout(_time = -1) {
+    if (_time<0)
+    timeOut = defaultTimeOutValue
+    else
+    timeOut = _time;
+  }|;
+  
+  function WaitTimeout() {
+    every(1s) timeOut--,
+    waituntil (timeOut<=0);
+  }|;
+  
+  function Sync(){
+    BeepSound,
+    LogData << ("[TIME: %s] !!! BEEP Sync Start!" % [time]);
+    return
+  };
+  
+  function BeepSound() {
+    //robot.audio.player.Play(_uFilesDir+"sounds/samples/beep.mp3");
+    if (enableSounds)
+    robot.audio.player.Play(_uFilesDir+"sounds/samples/heard_sound.mp3");
+  };
+  
+  function BeepTimeout() {
+    if (enableSounds)
+    robot.audio.player.Play(_uFilesDir+"sounds/samples/down_double_beep.mp3");
+  };
+  
+  // function BeepSound() { ;}|;
+  // function BeepTimeout() { ;}|;
+  
+  function GetGrammarPath(grammar){
+    return grammarsDir + grammar + "PL.grxml";
+  }|;
+  
+  // Fills a prepared grammar with given fillers 
+  // in place of REPLACE_TEXT_0 up to REPLACE_TEXT_{fillers.size-1}
+  // creates a _tmpLANG.grxml file in grammars dir
+  function FillGrammar(grammar,fillers){
+    var file = GetGrammarPath(grammar);
+    var str = "";
+    {
+      var i = InputStream.new(File.new(file));
+      var x;
+      while (!(x = i.getChar.acceptVoid).isVoid)
+      str += x;
+      i.close;
+    };
+    
+    for(var i: fillers.size){
+      str = str.replace("REPLACE_TEXT_"+i, fillers[i] )|;
+    };
+    
+    {
+      var o = OutputStream.new(File.create(
+      grammarsDir + "_tmp" +
+      file[file.length -8, file.length] //locale.grxml
+      ))|;
+      o << str;
+      o.close;
+    };
+  }|;
+  
+  
+  function PrintResult(user){
+    var str = ("[Dialogue][%s]: RESULT: " % user) +
+    robot.audio.recognition[user].result + 
+    "  , confidence: " + robot.audio.recognition[user].confidence	+
+    " ,S: "+ robot.audio.recognition[user].semantics |;
+    echo(str.utf),
+  }|;
+  
+  var defaultSpeakRate = -2;
+  function Speak(str,rate = defaultSpeakRate){
+    //TODO: add robot.log 
+    // detach({
+    str.utf.split("\n")
+    .each(function(s){ echo("[Dialogue][R]: SPEAK: "+s) }),
+    // });
+    // TODO: lang should be as "PL", "EN" set in config
+    robot.audio.speech.rate = rate;
+    robot.body.neck.head.Say(str, 10, 0);
+    // robot.audio.speech.Speak(str);
+  }|;
+  
+  function WaitForSilence(waitTime = 500ms){
+    if(makeStupid) return;
+    
+    var lastTimeQuiet = time;
+    Tag.scope:
+    whenever(robot.audio.recognition[0].isListening || robot.audio.recognition[1].isListening){
+      lastTimeQuiet = time;
+      sleep(20ms);
+    }; 
+    while (time - lastTimeQuiet < waitTime) sleep(20ms);
+  }|;
+  
+  function ShoudIActFromFeatures(ft) {
+    
+    // CALCULATE ADDITIONAL FEATURES
+    //TODO:CLEANUP, size 0 TODO TODO TODO
+    // % time lookingAt
+    // cout << ft["isLookingAtList"];
+    var sum = 0; for(var e in ft["isLookingAtList"]) if(e) sum++;
+    var timeLookingAt = sum/ft["isLookingAtList"].size;
+    // echo(sum/ft["isLookingAtList"].size);
+    // % time lookingAtEnd
+    var startIndex = ((1-fromEndfactor)* ft["isLookingAtList"].size).floor;
+    var isLookingAtListEnd = ft["isLookingAtList"].range( startIndex, ft["isLookingAtList"].size );
+    // cout << isLookingAtListEnd;
+    var sumEnd = 0; for(var e in isLookingAtListEnd) if(e) sumEnd++;
+    var timeLookingAtEnd = sumEnd/isLookingAtListEnd.size;
+    // echo(sumEnd/isLookingAtListEnd.size);
+    
+    //TODO: DECIDE
+    var decision = (timeLookingAtEnd > 0.5); 
+    
+    echo("[DIALOGUE][%s] Should Act?: %s" % [ ft["user"], decision]),
+    // echo("Data: " + ft);
+    return decision;
+    
+  }|;
+  
+  var canBeInterrupted = false;
+  function AskQuestion(question, answerGrammar, users, info = nil) {
+    // TODO: fix language, set it as a dialog property
+    //*** if (robot.dialogue.language==0) robot.audio.recognition[0].LoadGrammar(_uFilesDir+"grammars/" + answerGrammar + "EN.grxml");
+    //*** robot.audio.recognition[0].LoadGrammar("grammars/" + answerGrammar + "PL.grxml");
+    
+    //note: should be like this, but c++ msp wont let load multiple grammars
+    //TODO: is it possible to load multiple grammars?
+    // if (enableRepeat) robot.audio.recognition[0].LoadGrammar("grammars/Repeat" + "PL.grxml");
+    
+    // robot.log.Set("LEARNING: ASK WHAT KIND OF GAME",[]);
+    //robot.dialogue.Say( robot.dialogue.speech_sequences[500+4.random][robot.dialogue.language], false);
+    
+    //TODO: Pauses should be moved to c++
+    
+    //LOAD UP ANSWER GRAMMAR
+    for(var user : users){
+      robot.audio.recognition[user].Pause;
+      robot.audio.recognition[user].ResetGrammar;
+      //load in background to speed up
+      var x=time;
+      robot.audio.recognition[user].LoadGrammar(GetGrammarPath(answerGrammar));
+    };
+    
+    if(makeStupid){
+      robot.audio.recognition[2].Pause;
+      robot.audio.recognition[2].ResetGrammar;
+      robot.audio.recognition[2].LoadGrammar(GetGrammarPath(answerGrammar));
+    };
+    
+    if(makeStupid) Speak(question);
+    if(!makeStupid) Speak(question),
+    if(!makeStupid) waituntil (Speech.progress > 0.6);
+    // if(!makeStupid && !canBeInterrupted) waituntil (Speech.progress > 0.8);
+    
+    ResetTimeout;
+    var questionStartTime = time;
+    
+    for(var user : users){
+      robot.audio.recognition[user].ClearResult;
+      robot.audio.recognition[user].Unpause;
+    };
+    // LISTEN FOR THE ANSWER
+    var listen = Tag.scope;
+    
+    
+    if(makeStupid){
+      robot.audio.recognition[2].ClearResult;
+      robot.audio.recognition[2].Unpause;
+      
+      
+      listen: 
+      at(!robot.audio.recognition[2].semantics.empty){
+        var res = robot.audio.recognition[2].semantics.clone;
+        PrintResult(2);
+        return res;
+      };
+    };
+    
+    var resPrevious = nil;
+    
+    //features     
+    var faceTrackWorked = [false, false];
+    var isLookingAtList = [[], []];
+    var isBodyFacingList = [[], []];
+    var faceYawList = [[], []];
+    var bodyYawList = [[], []];  
+    var OtherisLookingAtList = [[], []];
+    var OtherisBodyFacingList = [[], []];
+    var OtherfaceYawList = [[], []];
+    var OtherbodyYawList = [[], []];
+    var OtherSpeaking = [[], []];
+    for(var user : users){
+      echo("setting user %s" % user),
+      
+      //TODO: move it to audio.u
+      listen:
+      at(!robot.audio.recognition[user].semantics.empty){
+        robot.audio.recognition[user].semantics["User"] = user;
+      };
+      
+      listen:
+      at (robot.audio.recognition[user].isListening){
+        echo("[DIALOGUE][%s] Started speaking" % user),
+        faceTrackWorked[user] = false;
+        isLookingAtList[user] = [];
+        isBodyFacingList[user] = [];
+        faceYawList[user] = [];
+        bodyYawList[user] = [];       
+        OtherisLookingAtList[user] = [];
+        OtherisBodyFacingList[user] = [];
+        OtherfaceYawList[user] = [];
+        OtherbodyYawList[user] = [];
+        OtherSpeaking[user] = [];
+        
+      } onleave {
+        echo("[DIALOGUE][%s] Ended speaking" % user),
+        //INFO: recognition events are coming in order: START->END->RESULT(optional)
+        // END sets the resultTag to "". We wait up to ~100ms for resultTag to appear.
+        // Typically its delayed 1ms-60ms, ~6ms on average
+        //TODO: can be cleaner with at + timeout?
+        //can be cleaned by moving it out of this 'at' to separate 'at (result)'
+        // this one collects data, the other sends result.
+        var startWatch = time;
+        timeout(100ms)  waituntil(robot.audio.recognition[user].semantics);
+        if(robot.audio.recognition[user].semantics){
+          var res = robot.audio.recognition[user].semantics.clone;
+          var stopWatch = time - startWatch;
+          echo("[DIALOGUE][%s] Result tag: %s" % [user, res["Tag"]] ),
+          echo("[DIALOGUE][%s] time: %s" % [user, stopWatch] ),
+          //NOTE: We will just send the list and evaluate features later (in their own function)
+          //TODO: Dont know if its the right approach, but lets fix that later
+          var ft = Dictionary.new;
+          ft["user"] = user;
+          ft["faceTrackWorked"] = faceTrackWorked[user];
+          ft["isLookingAtList"] = isLookingAtList[user];
+          ft["isBodyFacingList"] = isBodyFacingList[user];
+          ft["faceYawList"] = faceYawList[user];
+          ft["bodyYawList"] = bodyYawList[user];        
+          ft["OtherisLookingAtList"] =  OtherisLookingAtList[user];
+          ft["OtherisBodyFacingList"] =  OtherisBodyFacingList[user];
+          ft["OtherfaceYawList"] =  OtherfaceYawList[user];
+          ft["OtherbodyYawList"] =  OtherbodyYawList[user];
+          ft["OtherSpeaking"] = OtherSpeaking[user] ;
+          
+          ft["timeSinceQuestion"] = time - questionStartTime;
+          if (info) ft["questionType"] = info["Type"];
+          //ft duration speech
+          // ft["isLookingAt"]; //now
+          // ft["questionType"];
+          // ft["previousSpeaker"];
+          // fw yaw difference body List (mean/end mean)
+          // fw yaw difference face List (mean/end mean)
+          //TODO: Log features here, (pass additional data by info dict)
+          
+          
+          LogData << ("[TIME: %s] ### %s" % [time, ft]);
+          PrintResult(user);
+          if(!makeStupid){
+            resPrevious = res;
+            if (res["Confidence"].asFloat > 0.01){
+              if(!enableShouldIAct || info && info["Type"]=="instant") return res;
+              if(ShoudIActFromFeatures(ft)) return res;
+            };
+          };
+        };
+      };
+      
+      listen:
+      whenever(robot.audio.recognition[user].isListening) {
+        // echo("cont. speaking");
+        faceTrackWorked[user] = faceTrackWorked[user] || robot.video.humanDetector[user].head.faceIsTracking;
+        isLookingAtList[user] << robot.video.humanDetector[user].head.oriented;
+        isBodyFacingList[user] << robot.video.humanDetector[user].oriented;
+        
+        if (robot.video.humanDetector[user].head.orientation) faceYawList[user] << robot.video.humanDetector[user].head.orientation[0]
+        else faceYawList[user] << 90;
+        if (robot.video.humanDetector[user].orientation) bodyYawList[user] << robot.video.humanDetector[user].orientation[0]
+        else bodyYawList[user] << 90;       
+        
+        OtherisLookingAtList[user] << robot.video.humanDetector[other(user)].head.oriented;
+        OtherisBodyFacingList[user] << robot.video.humanDetector[other(user)].oriented;
+        
+        if (robot.video.humanDetector[other(user)].head.orientation) OtherfaceYawList[user] << robot.video.humanDetector[other(user)].head.orientation[0]
+        else OtherfaceYawList[user] << 90;
+        if (robot.video.humanDetector[other(user)].orientation) OtherbodyYawList[user] << robot.video.humanDetector[other(user)].orientation[0]
+        else OtherbodyYawList[user] << 90;
+        
+        OtherSpeaking[user] << robot.audio.recognition[other(user)].isListening;
+        
+        
+        sleep(20ms);
+      };
+    };
+    
+    
+    var lastSpeakingTime = time;
+    listen:
+    whenever(robot.audio.recognition[0].isListening 
+    ||robot.audio.recognition[1].isListening){
+      lastSpeakingTime = time;
+      sleep(50ms);
+    };
+    
+    var bothQuiet = false;
+    every(100ms){
+      bothQuiet = ( (time - lastSpeakingTime) > 500ms );
+    },
+    
+    listen:
+    at(resPrevious 
+    && bothQuiet
+    && robot.video.humanDetector[0].head.oriented
+    && robot.video.humanDetector[1].head.oriented){
+      LogData << ("[TIME: %s] $$$ Silence and both looking");
+      
+      echo("[DIALOGUE][%s] silence and both looking, passing the answer %s" % ["both", resPrevious]),
+      if(!makeStupid) return resPrevious;  
+    };
+    
+    // listen:
+    // at( !makeStupid && resPrevious 
+    // && !robot.audio.recognition[0].isListening
+    // && !robot.audio.recognition[1].isListening
+    // && robot.video.humanDetector[0].head.oriented
+    // && robot.video.humanDetector[1].head.oriented){
+    // echo("[DIALOGUE][%s] silence and both looking, passing the answer %s" % ["both", resPrevious]),
+    // return resPrevious;  
+    // };
+    
+    
+    
+    robot.dialogue.WaitTimeout()|
+    BeepTimeout()|
+    return ["Tag" => "TIMEOUT"];
+  }|;
+  
+  function AskQuestionFill(question, answers, answerGrammar, users, info = nil) {
+    FillGrammar(answerGrammar,answers);
+    AskQuestion(question,"_tmp", users, info);
+  }|;
+  
+  //Also sets trackedUser
+  function CalibrateOnQuestion(question, answerGrammar){
+    //monitor direction of speaking
+    var soundDirection = [];
+    Tag.scope:
+    at ( robot.audio.recognition[0].isListening || robot.audio.recognition[1].isListening  ){
+      soundDirection = [];
+    } ;
+    
+    Tag.Scope:
+    whenever( robot.audio.recognition[0].isListening || robot.audio.recognition[1].isListening  ){
+      if(Kinect.audioSourceConfidence > 0.2) soundDirection << Kinect.audioSourceAngle;
+      sleep(5ms);
+    };
+    
+    
+    //ask question without ShouldIAct
+    enableShouldIAct = false;
+    var res = AskQuestion(question,answerGrammar,[0,1]);
+    enableShouldIAct = true;
+    //we should rather ask a single person (but we dont know the proper Recog)
+    // var res = AskQuestion(question,answerGrammar,[0]);
+    
+    var userResponed = res["User"];
+    var userOther = (userResponed +1) %2;
+    
+    if (hasSlot("trackedUser")) trackedUser = userResponed;
+    
+    //mean sound  direction
+    var dir=0; 
+    for(var d : soundDirection) dir +=d;
+    dir /= soundDirection.size;  
+    
+    //find out best fit
+    
+    //
+    if( !robot.video.humanDetector[0].visible && !robot.video.humanDetector[1].visible ){
+      echo("ERROR: nobody detected here"),
+      return nil;
+    };
+    
+    if( robot.video.humanDetector[0].visible && robot.video.humanDetector[1].visible ) {
+      var yaw1 = robot.video.humanDetector[userResponed].orientation[0]; 
+      var yaw2 = robot.video.humanDetector[userOther].orientation[0]; 
+      if( abs(yaw2 - dir) < abs(yaw1 - dir) ) SwapRecogs;
+    };
+    
+    if(!robot.video.humanDetector[userResponed].visible) SwapRecogs;
+    
+    return res;
+    
+    
+  };
+  
+  function SwapRecogs(){
+    
+    echo("[DIALOGUE]: Recogs swapped on calibrate"),
+    //also swap user
+    if (hasSlot("trackedUser")) trackedUser = other(trackedUser);
+    
+    //swap Recogs
+    var tmp = Recogs[0];
+    Recogs[0] = Recogs[1];
+    Recogs[1] = tmp;
+    
+    //swap robot.audio.recognition
+    tmp = robot.audio.recognition[0];
+    robot.audio.recognition[0] = robot.audio.recognition[1];
+    robot.audio.recognition[1] = tmp;
+    
+  };
+  
+  
+  
+  
+  
+  
+  
+}|; // *********** END DIALOGUE ****************

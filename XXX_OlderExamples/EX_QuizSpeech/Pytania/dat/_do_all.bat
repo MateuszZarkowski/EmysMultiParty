@@ -1,0 +1,1 @@
+for %%f in (*.dat) do cp %%f in.dat & _MilionerzyKonwerter.exe & cp out.txt %%f.txt

@@ -1,0 +1,940 @@
+/*
+ * MSI_Keys: Main graph implementation.
+ *
+ * Load this file in your server to run the graph.
+ *
+ * Created: Pn 1. cze 11:56:11 2015
+ *      by: Gostai Studio 2.7
+ *
+ * WARNING! All changes made in this file will be lost!
+ */
+
+
+// Load urbiscript file.
+/*
+ * Copyright (C) 2009-2012, Gostai S.A.S.
+ *
+ * This software is provided "as is" without warranty of any kind,
+ * either expressed or implied, including but not limited to the
+ * implied warranties of fitness for a particular purpose.
+ *
+ * See the LICENSE file for more information.
+ */
+
+/**
+ * Finite State Machine urbiscript 2 implementation.
+ *
+ * The idea is to put as much stuff as possible into a generic urbiscript
+ * fsm engine, with a clean interaction and instantiation API.
+ *
+ *  TODO:
+ *    - Provide tags to freeze/stop a State and all its children.
+ *    - Communication API with urbi-live.
+ *
+ *
+ *
+ * INSTANTIATION quick-sheet for not-pro mode(one of the many possible ways):
+ * var someNode = fsm.State.create(nodeName,
+ *                                 parentNode,
+ *                                 workCode,
+ *                                 isStartNode);
+ * var someTrans = fsm.Transition.create(fsmRootNode, nodeSrc, nodeDst, cond);
+ *
+ * workCode can be a String that will be evaled, or Code or Executable.
+ *
+ */
+
+{
+  var currentFsmVersion = 1.4;
+  if (!(Global.hasLocalSlot("fsm")
+     && Global.fsm.hasLocalSlot("version")
+     && Global.fsm.version == currentFsmVersion))
+  {
+    if (Global.hasLocalSlot("fsm"))
+      if (Object.hasLocalSlot("removeLocalSlot"))
+        Global.removeLocalSlot("fsm")
+      else
+        Global.removeSlot("fsm");
+
+    class Global.fsm
+    {
+      var debug = false;
+      var version = currentFsmVersion;
+    };
+
+    /***************************
+    * FSM State and Transition *
+    ***************************/
+
+    /** Transition class.
+     *
+     *  Usage:
+     *     - implement setup(ownerstate, ev) so that it emits ev(this)
+     *       when the transition triggers.
+     *     - implement exit if you need. Default: "stop tag".
+     *
+     *  The correct code to setup 'setup' from an expression %s is:
+     *  var t = Transition.new();
+     *  t.setup = function(state, ev) { var tag = tag|
+     *       do (state) {tag: at(%s) emit ev(this)}}
+     */
+    class fsm.Transition
+    {
+      addProto(fsm);
+      // Callable, setup the transition so that it emits ev(this)
+      // when triggering.
+      function setup(state, ev) {};
+      // Exit the transition, unsetup it.
+      function exit() {tag.stop};
+      var tag = Tag.new;
+      // Source node
+      var '$id' = -1;
+      // We keep a string copy of functions, to be able to import them into
+      // Gostai Studio
+      var condStr = "";
+
+      function init()
+      {
+        tag = Tag.new;
+      };
+      // Create and connect a new transition, from node srcId to dstId on
+      // cond
+      function create_(root, srcId, dstId, cond, nameIn="")
+      {
+        var states = root.allStates_ |
+        var res = fsm.Transition.new |
+        var res.nSrc = root.toState_(srcId) |
+        var nDst = root.toState_(dstId) |
+        var res.'$id' = State.'$next_uid'.asString |
+        var res.name = nameIn|
+        var res.condStr = cond|
+        State.'$next_uid'++;
+        res.setup = eval
+          (
+            "function(state, ev)"
+            "{"
+            "  this.state = state |"
+            "  var tag = tag |"
+            "  var trans = this |"
+            "  do (state)"
+            "  { tag: at (%s\n) ev!(trans) }"
+            "};"
+            % [cond]
+          );
+        res.target = nDst |
+        res.nSrc.'$transitions' += [res] |
+        res
+      };
+      function asString()
+      {
+        "Transition: " + '$id'
+      };
+      function getParameter(paramName)
+      {
+        nSrc.getParameter(paramName)
+      };
+      // Target state
+      var target = nil;
+      // Source state I think
+      var state = nil;
+    };
+
+    /** State class.
+     */
+    class fsm.State
+    {
+      addProto(fsm);
+      // Uid of this state
+      var '$id' = "";
+      // Display name of this state
+      var name = "<unnamed>";
+      // Parent state or nil
+      var parent = nil;
+      // Root node of the graph
+      var rootNode = nil;
+      // Start node of our child fsm
+      var '$startChild' = nil;
+      // List of our direct child states
+      var '$children' = [];
+      // Dict of all child states,  by id maintained at the toplevel
+      var '$allStates_' = nil;
+      // Tag applied to user work code
+      var '$workTag' = Tag.new;
+      // Tag applied to transition code
+      var '$transitionTag' = Tag.new;
+      // Tag applied to the transition triggering function
+      var '$transitionTriggerTag' = Tag.new;
+      // Callable, user code to execute on entering the node before creating
+      // transitions.
+      var '$onEnterFunc' = function(){};
+      // Stop execution when entering the node
+      var breakpoint = false;
+      // Callable, user code to execute on leaving the node before following the
+      // transition.
+      var '$onLeaveFunc' = function(){};
+      // Callable, user code of the state
+      var '$work' = function(){};
+      // Emited when an outgoing transition triggers
+      var '$trigger' = Event.new;
+      // Transitions to activate when entering this state
+      // Do not change while the state is active.
+      var '$transitions' = [];
+      // DEPRECATED: kept only for backward compatibility
+      var workEnded = Event.new;
+      // Emited indefinitedly when '$work' ended.
+      var done = Event.new;
+      // Emited when the sub-graph in this node finished executing.
+      var subGraphDone = Event.new;
+      // True if the state is active
+      var active = false;
+      // Event, notify user that current node is entering.
+      var entering;
+      // Event, notify user that current node is entering.
+      var leaving;
+      // Root-node Event, notify user that arg1 node is entering.
+      var enteringNode;
+      // Root-node Event, notify user that arg1 node is leaving.
+      var leavingNode;
+      // Root-node Event, notify user that a transition from arg1 node to arg2
+      // node is occuring.
+      var transiting;
+      //Event that is called when freezing the graph through a breakpoint
+      var graphFrozen;
+      // True if an exit transition was already triggered.
+      var '$exiting' = false;
+      // Next free uid in graph
+      var '$next_uid' = 0;
+      // A dictionary of parameters that can be used by the node or its
+      // '$children'.
+      var '$params_dict' = [=>];
+      // A pair of values to place the state in a visual graph
+      var '$graphPosition' = [];
+      // We keep a string copy of functions, to be able to import them into
+      // Gostai Studio
+      var '$workStr' = "";
+      var '$onEnterStr' = "";
+      var '$onLeaveStr' = "";
+
+      // Accessor to allStates, stored at the toplevel State
+      function allStates_()
+      {
+        var boss = rootNode |
+        if (boss.'$allStates_'.isNil)
+          boss.'$allStates_' = Dictionary.new |
+        boss.'$allStates_'
+      };
+      allStates_->constant = true;
+
+      // Called to block all subnodes
+      function setExiting_(val = true)
+      {
+        '$exiting' = val|
+        '$workTag'.stop|
+        for| (var c: '$children')
+        {
+          c.setExiting_(val)|
+          if (val)
+          {
+            c.'$transitionTriggerTag'.stop|
+            c.'$transitionTag'.stop
+          }
+        }
+      };
+      setExiting_->constant = true;
+
+      // Initialize outgoing transitions
+      function setupTransitions_()
+      {
+        rootTransitionTag: '$transitionTag': at ('$trigger'?(var t))
+        {
+          '$transitionTriggerTag':
+          {
+            var callLeave;
+            {
+              nonInterruptible|
+              callLeave = false;
+              // Prevent multiple transition trigger at the same level.
+              if (!'$exiting')
+              {
+                setExiting_(true)|
+                callLeave = true
+              }
+            };
+            if (callLeave)
+            {
+              // Immediately leave from our '$children' to prevent a child
+              // transition from triggering.
+              if (fsm.debug)
+                echo("Trigger on " + name + " to activate " + t + "!, transmiting...") |
+              rootNode.transit_(this, t);
+
+              // Authorize new exit calls
+              setExiting_(false);
+            }
+          }
+        };
+        for| (var t: '$transitions')
+        {
+          if (fsm.debug)
+            echo("Setting up a transition...") |
+          rootTransitionTag: '$transitionTag': t.setup(this, '$trigger')
+        }
+      };
+      setupTransitions_->constant = true;
+
+      // look in the dictionary
+      function getParameter(paramName)
+      {
+        if (paramName in '$params_dict')
+          '$params_dict'[paramName]
+        else if (parent)
+          parent.getParameter(paramName)
+        else
+          0
+      };
+      getParameter->constant = true;
+
+      function emitDone_()
+      {
+        if ('$transitions'.empty && parent)
+          parent.subGraphDone! ~ inf,
+        done! ~ inf
+      };
+      emitDone_->constant = true;
+
+      // Called to enter in the state. Blocks
+      function enter_(startStartChild = true)
+      {
+        if (fsm.debug)
+          echo("entering %s(%s)" % [this.name, this.'$id']) |
+        entering.syncEmit |
+        rootNode.enteringNode.syncEmit(this) |
+        active = true |
+        if (breakpoint)
+        {
+          rootWorkTag.freeze|
+          rootNode.graphFrozen!
+        }|
+        rootWorkTag: '$workTag': '$onEnterFunc' |
+        setupTransitions_|
+        if ('$startChild' && startStartChild)
+          detach('$startChild'.enter_(true)) |
+        rootWorkTag: '$workTag': {
+          '$work' |
+          {
+            workEnded! ~ inf,
+            if ('$startChild' && startStartChild)
+            {
+              waituntil (subGraphDone?)|
+              emitDone_
+            }
+            else
+              emitDone_
+          }
+        }
+      };
+      enter_->constant = true;
+
+      // Called when leaving the state. Recurses to active '$children'.
+      function leave_()
+      {
+        for| (var c: '$children')
+          if (c.active)
+            c.leave_|
+        if (fsm.debug)
+          echo("leaving %s(%s)" % [this.name, this.'$id']) |
+        leaving! |
+        rootNode.leavingNode!(this) |
+        active = false |
+        rootWorkTag: '$workTag': '$onLeaveFunc' |
+        for| (var t: '$transitions')
+          t.exit |
+        '$transitionTag'.stop |
+        '$workTag'.stop
+      };
+      leave_->constant = true;
+
+      function asString()
+      {
+        "State: " + name
+      };
+      asString->constant = true;
+
+      function init(Pname, Pparent=nil, uid=nil)
+      {
+        '$id' = {if (uid) uid else (fsm.State.'$next_uid'++).asString}|
+        name = Pname|
+        parent = Pparent|
+        '$id'->constant = true|
+        name->constant = true|
+        parent->constant = true|
+
+        if (parent)
+        {
+          var this.rootWorkTag = parent.rootWorkTag |
+          var this.rootTransitionTag = parent.rootTransitionTag |
+          rootNode = parent.rootNode |
+          parent.'$children' += [this]
+        }
+        else
+        {
+          var this.rootWorkTag = Tag.new |
+          var this.rootTransitionTag = Tag.new |
+          rootNode = this |
+        }|
+        rootNode->constant = true|
+        allStates_['$id'.asString] = this |
+        '$workTag' = Tag.new |
+        '$transitionTag' = Tag.new|
+        '$transitionTriggerTag' = Tag.new|
+        '$trigger' = Event.new|
+        entering = Event.new |
+        leaving = Event.new |
+        if (!Pparent)
+        {
+          enteringNode = Event.new |
+          leavingNode = Event.new |
+          transiting = Event.new |
+          graphFrozen = Event.new
+        }|
+        '$transitions' = []|
+        '$children' = [] |
+        workEnded = Event.new|
+        done = Event.new|
+        subGraphDone = Event.new |
+        active = false|
+        '$exiting' = false
+      };
+      init->constant = true;
+
+      // Return the list of our ancestors.
+      function ancestors_()
+      {
+        var res = []|
+        var cur = parent |
+        while (cur)
+        {
+          res += [cur] |
+          cur = cur.parent
+        } |
+        res
+      };
+      ancestors_->constant = true;
+
+      function toState_(x)
+      {
+        if (x.isA(String))
+          allStates_[x]
+        else if (x.isA(fsm.State))
+          x
+        else
+          nil
+      };
+      toState_->constant = true;
+
+      function toFunction_(x)
+      {
+        if (x.isNil)
+          function() {}
+        else if (x.isA(String))
+          eval("function() {%s};" %  [x])
+        else
+          x
+      };
+      toFunction_->constant = true;
+
+      // create a State and plug it
+      function create_(name,
+                      parentID,
+                      workString = nil,
+                      startNode = false,
+                      uid = nil,
+                      onEnterFuncString = nil,
+                      onLeaveFuncString = nil,
+                      breakpoint = false,
+                      position = [0, 0])
+      {
+        var parent = toState_(parentID) |
+        var res = State.new(name, parent, uid) |
+        res.'$work' = toFunction_(workString) |
+        res.'$onEnterFunc' = toFunction_(onEnterFuncString) |
+        res.'$onLeaveFunc' = toFunction_(onLeaveFuncString) |
+        res.'$workStr' = workString|
+        res.'$onEnterStr' = onEnterFuncString|
+        res.'$onLeaveStr' = onLeaveFuncString|
+        res.breakpoint = breakpoint|
+        res.'$graphPosition' = position|
+        if (startNode && parent)
+          res.parent.'$startChild' = res |
+        res
+      };
+      create_->constant = true;
+
+      function transitionTo_(dst, cond, onTransition=nil)
+      {
+        rootNode.owner.addTransition(this, dst, cond, onTransition)
+      };
+      transitionTo_->constant = true;
+
+      // Transmission point, to get rid of previous tags when entering
+      // somewhere.
+      function transit_(state, trans)
+      {
+        transiting!(state, trans) |
+        if (debug)
+          echo("applyTransition from " + state.name + " to "
+               + trans.target.name +" rn=" + state.rootNode)|
+        // Tag with ancestor.'$workTag' so that applyTransition gets killed if
+        // parent exits.
+        var path = computePath(state, trans.target) |
+        // get common parent
+        var ancestor = path.down.back.parent|
+        { if (ancestor) ancestor.'$workTag' else Tag.new}:
+          applyTransition(state, trans.target, path)
+      };
+      transit_->constant = true;
+    };
+    /***********************
+    * Transition procedure *
+    ***********************/
+    do (fsm)
+    {
+      function pruneCommonBeginning(var l1, var l2)
+      {
+        while ((l1.head == l2.head) && !l1.empty && !l2.empty)
+        {
+          l1.removeFront |
+          l2.removeFront
+        }
+      };
+
+      function computePath(var src, var dst)
+      {
+        var l1 = ([src] + src.ancestors_).reverse |
+        var l2 = ([dst] + dst.ancestors_).reverse |
+        if (fsm.debug)
+          echo("path are %s" % [[l1, l2]]);
+        pruneCommonBeginning(l1, l2)|
+        if (fsm.debug)
+          echo("pruned path are %s" % [[l1, l2]]);
+        // Return it in the order we will crawl it.
+        class path {var down = l1.reverse; var up = l2}
+      };
+
+      function applyTransition(var src, var dst, var path=nil)
+      {
+        if (path.isNil)
+          path = computePath(src, dst) |
+        var last = path.up.removeBack  |
+        if (fsm.debug)
+          echo("transition sequence: %s" % [[path.down, path.up]])|
+        path.down.back.leave_ |
+        for| (var s: path.up)
+          detach(s.enter_(false)) |
+        detach(last.enter_(true))
+      }
+    }
+  }
+}|;
+
+
+//#line 16 "MSI_KeysGostai Studio 2.7"
+
+/*************************
+ * Create the root state *
+ *************************/
+
+//Clean previous code
+if (hasLocalSlot("_root_MSI_Keys_1"))
+  if (Object.hasLocalSlot("removeLocalSlot"))
+    removeLocalSlot("_root_MSI_Keys_1")
+  else
+    removeSlot("_root_MSI_Keys_1");
+
+var _root_MSI_Keys_1 = fsm.State.new("_root_MSI_Keys_1");
+_root_MSI_Keys_1.'$params_dict' = Dictionary.new();
+var _root_MSI_Keys_1._nodes_ = Object.new;
+
+/**********************
+ * States declaration *
+ **********************/
+
+//Key_pressing state declaration
+var _root_MSI_Keys_1._nodes_.Key_pressing = fsm.State.create_("_root_MSI_Keys_1._nodes_.Key_pressing", _root_MSI_Keys_1,
+function() {
+//#push 1 "Key_pressing"
+//*  Author: Pawel Kaczmarek
+//*  Date: 01.06.2015
+//*  Ver:  1.0 (from MSI)
+
+keyMoveParams.newParams = 1;
+robot.body.neck.head.BehaveNormal(2);
+//#pop
+}
+, true
+, 3
+, function() {
+//#push 1 "Key_pressing.enter"
+//Code executed before entering the node
+
+
+
+if (!hasSlot("tran")) 		var Global.tran ="" 	  else Global.tran ="";
+if (!hasSlot("state")) 	var Global.state =""  else Global.state ="";
+if (!hasSlot("startTimer")) 	var Global.startTimer =0  else Global.startTimer =0;
+if (!hasSlot("timer")) 	var Global.timer = 0  else Global.timer =0;
+if (!hasSlot("waiting")) var Global.waiting = 0 else Global.waiting = 0;
+if (!hasSlot("additionalTime")) var Global.additionalTime = 8 else Global.additionalTime = 8;
+
+if (!hasSlot("randomBehaviours")) var Global.randomBehaviours = 0 else Global.randomBehaviours = 0;
+
+if (!hasSlot("sleepState")) var Global.sleepState = 0 else Global.sleepState = 0;
+
+if (!hasSlot("keyMoveParams")) {
+	var Global.keyMoveParams = Object.new();
+
+var keyMoveParams.newParams=0;
+
+var keyMoveParams.p1LookingIntens=7;
+var keyMoveParams.p2LookingInterval=3;
+var keyMoveParams.p3StopTime=1;
+var keyMoveParams.p4DiskIntens=6;
+var keyMoveParams.p5DiskTime=3;
+var keyMoveParams.p6BlinkInterval=40;
+var keyMoveParams.p7BlinkTime=0.8;
+} else {
+keyMoveParams.newParams=0;
+
+keyMoveParams.p1LookingIntens=7;
+keyMoveParams.p2LookingInterval=3;
+keyMoveParams.p3StopTime=1;
+keyMoveParams.p4DiskIntens=6;
+keyMoveParams.p5DiskTime=3;
+keyMoveParams.p6BlinkInterval=40;
+keyMoveParams.p7BlinkTime=0.8;
+};
+//intenstywnosc rozgladania
+//czas rozgladania
+//czas co jaki staje 
+//intensywnosc ruchu duskow
+//czas co jaki rusza 
+//max czas miedzy mrugnieciami
+//czas mrugniecia
+
+
+if (!hasSlot("_alive_")) var Global._alive_=Tag.new() else { Global._alive_.unfreeze | Global._alive_.stop;};
+if (!hasSlot("_aliveMove_")) var Global._aliveMove_=Tag.new() else { Global._aliveMove_.unfreeze | Global._aliveMove_.stop;};
+if (!hasSlot("_showEmots_")) var Global._showEmots_=Tag.new() else { Global._showEmots_.unfreeze | Global._showEmots_.stop;};
+if (!hasSlot("_timer_")) var Global._timer_=Tag.new() else { Global._timer_.unfreeze | Global._showEmots_.stop;};
+if (!hasSlot("_randomBehaviours_")) var Global._randomBehaviours_=Tag.new() else { Global._randomBehaviours_.unfreeze | Global._randomBehaviours_.stop;};
+if (!hasSlot("_sleeping_")) var Global._sleeping_=Tag.new() else { Global._sleeping_.unfreeze | Global._sleeping_.stop;};
+
+
+
+if (!hasSlot("KeySetParams"))
+{
+do (Global)
+{
+function KeySetParams(p1,p2,p3,p4,p5,p6,p7)
+{
+keyMoveParams.p1LookingIntens=p1;
+keyMoveParams.p2LookingInterval=p2;
+keyMoveParams.p3StopTime=p3;
+keyMoveParams.p4DiskIntens=p4;
+keyMoveParams.p5DiskTime=p5;
+keyMoveParams.p6BlinkInterval=p6;
+keyMoveParams.p7BlinkTime=p7;
+};
+};
+};
+//#pop
+}
+, function() {
+//#push 1 "Key_pressing.leave"
+//Code executed after leaving the node
+
+//#pop
+}, false, [347.989, 317.102]);
+
+//Start state declaration
+var _root_MSI_Keys_1._nodes_.Start = fsm.State.create_("_root_MSI_Keys_1._nodes_.Start", _root_MSI_Keys_1._nodes_.Key_pressing,
+function() {
+//#push 1 "Start"
+robot.body.stop;
+robot.competency.BehaveNormal();
+//#pop
+}
+, true
+, 4
+, function() {
+//#push 1 "Start.enter"
+//Code executed before entering the node
+
+//#pop
+}
+, function() {
+//#push 1 "Start.leave"
+//Code executed after leaving the node
+
+//#pop
+}, false, [-276.399, -11.0885]);
+
+//Main state declaration
+var _root_MSI_Keys_1._nodes_.Main = fsm.State.create_("_root_MSI_Keys_1._nodes_.Main", _root_MSI_Keys_1._nodes_.Key_pressing,
+function() {
+//#push 1 "Main"
+at (keyMoveParams.newParams == 1)
+{
+echo("alive");
+keyMoveParams.newParams = 0;
+Global._alive_:robot.body.neck.head.ActAlive(keyMoveParams.p1LookingIntens,keyMoveParams.p2LookingInterval,keyMoveParams.p3StopTime,keyMoveParams.p4DiskIntens,keyMoveParams.p5DiskTime,keyMoveParams.p6BlinkInterval,keyMoveParams.p7BlinkTime),
+Global.startTimer = 1;
+},
+
+
+at (Global.startTimer == 1)
+{
+//each time robot waits longer
+Global.additionalTime +=8;
+//no more than 120s
+if (Global.additionalTime>120)
+Global.additionalTime = 120;
+
+Global.startTimer =0;
+Global._timer_.stop;
+Global.timer = 0;
+Global._timer_:Global.timer = 100 time: (Global.additionalTime+15.random),
+},
+
+
+Global._randomBehaviours_: at (Global.timer == 100)
+{
+Global._alive_.stop;
+Global.state = "randomBehaviour";
+robot.competency.BehaveRandomly(keySpeaking);
+//reset parameters to their defaults
+KeySetParams(5,5,1,6,3,50,0.8);
+Global.state = "wait";
+Global.randomBehaviours+=1;
+if (Global.randomBehaviours<4)
+keyMoveParams.newParams = 1;
+},
+
+at (Global.randomBehaviours == 4)
+{
+Global.sleepState = 1;
+echo("sleeping");
+Global._alive_.stop;
+Global._sleeping_: robot.competency.ActGoSleep(),
+},
+//#pop
+}
+, false
+, 5
+, function() {
+//#push 1 "Main.enter"
+//Code executed before entering the node
+Global.state = "wait";
+//#pop
+}
+, function() {
+//#push 1 "Main.leave"
+//Code executed after leaving the node
+
+//#pop
+}, false, [72.2927, -0.214384]);
+
+//Wait state declaration
+var _root_MSI_Keys_1._nodes_.Wait = fsm.State.create_("_root_MSI_Keys_1._nodes_.Wait", _root_MSI_Keys_1._nodes_.Main,
+function() {
+//#push 1 "Wait"
+while(Global.tran!="next")
+{
+if((Keyboard.unreadPress == 1) && (Keyboard.lastKey !="?"))
+{
+Global.tran="next";
+};
+sleep(20ms);
+};
+//#pop
+}
+, true
+, 6
+, function() {
+//#push 1 "Wait.enter"
+//Code executed before entering the node
+Global.tran = "";
+Global.state = "wait";
+//#pop
+}
+, function() {
+//#push 1 "Wait.leave"
+//Code executed after leaving the node
+
+//#pop
+}, false, [-139.794, 82.314]);
+
+//Execute_emotions state declaration
+var _root_MSI_Keys_1._nodes_.Execute_emotions = fsm.State.create_("_root_MSI_Keys_1._nodes_.Execute_emotions", _root_MSI_Keys_1._nodes_.Main,
+function() {
+//#push 1 "Execute_emotions"
+Global._timer_.stop;
+
+while(Global.state != "wait")
+{
+Global.waiting = 1;
+sleep(100ms)
+};
+Global.state = "execution";
+
+if(Global.waiting)
+{
+Global.waiting =0;
+sleep(1s);
+};
+
+Global.additionalTime = 8;
+
+if(Global.sleepState == 1)
+{
+Global.sleepState = 0;
+robot.body.neck.head.BehaveNormal(1.5s);
+};
+
+switch (Keyboard.lastKey)
+{
+case Global.keyHappy:
+	{
+	Global._alive_.stop;
+	Global._showEmots_.stop;
+	Global._sleeping_.stop;
+	Global._showEmots_:robot.competency.BehaveHappy(keySpeaking);
+	sleep(100ms);
+	Global._showEmots_.stop;
+	KeySetParams(8,2,0,-10,2,30,0.5);
+	keyMoveParams.newParams = 1;
+	Global.randomBehaviours = 0;
+	
+};
+	
+case Global.keySad:
+	{
+	Global._alive_.stop;
+	Global._showEmots_.stop;
+	Global._sleeping_.stop;
+	Global._showEmots_:robot.competency.BehaveSad(keySpeaking);
+	sleep(100ms);
+	Global._showEmots_.stop;
+	KeySetParams(3,5,2,4,4,50,1);
+  keyMoveParams.newParams = 1;
+  Global.randomBehaviours = 0;
+	};	
+
+case Global.keyFear:
+	{
+	Global._alive_.stop;
+	Global._showEmots_.stop;
+	Global._sleeping_.stop;
+	Global._showEmots_:robot.competency.BehaveFear(keySpeaking);
+	sleep(100ms);
+	Global._showEmots_.stop;
+	KeySetParams(6,3,0,10,3,40,0.7);
+  keyMoveParams.newParams = 1;
+	Global.randomBehaviours = 0;
+	};
+	
+case Global.keyDisgust:
+	{
+	Global._alive_.stop;
+	Global._showEmots_.stop;
+	Global._sleeping_.stop;
+	Global._showEmots_:robot.competency.BehaveDisgust(keySpeaking);
+	sleep(100ms);
+	Global._showEmots_.stop;
+	
+	KeySetParams(4,5,2,4,5,40,0.7);
+  keyMoveParams.newParams = 1;
+	Global.randomBehaviours = 0;
+	};
+	
+case Global.keySurprise:
+	{
+	Global._alive_.stop;
+	Global._showEmots_.stop;
+	Global._sleeping_.stop;
+	Global._showEmots_:robot.competency.BehaveSurprise(keySpeaking);
+	sleep(100ms);
+	Global._showEmots_.stop;
+	
+	KeySetParams(7,2,0,-7,2,30,0.5);
+  keyMoveParams.newParams = 1;
+	Global.randomBehaviours = 0;
+};
+
+case Global.keyAngry:
+	{
+	Global._alive_.stop;
+	Global._showEmots_.stop;
+	Global._sleeping_.stop;
+	Global._showEmots_:robot.competency.BehaveAngry(keySpeaking);
+	sleep(100ms);
+	Global._showEmots_.stop;
+		
+	KeySetParams(8,1.5,1,7,3,40,0.5);
+  keyMoveParams.newParams = 1;
+	Global.randomBehaviours = 0;
+};	
+	
+default:
+	{
+	;
+	};	
+	
+};
+Keyboard.modKey = "";
+Keyboard.lastKey = "";
+Keyboard.unreadPress = 0;
+
+//#pop
+}
+, false
+, 7
+, function() {
+//#push 1 "Execute_emotions.enter"
+//Code executed before entering the node
+Global.tran="";
+
+//#pop
+}
+, function() {
+//#push 1 "Execute_emotions.leave"
+//Code executed after leaving the node
+
+//#pop
+}, false, [129.374, -61.6]);
+
+/***************************
+ * Transitions declaration *
+ ***************************/
+fsm.Transition.create_(_root_MSI_Keys_1._nodes_.Main, _root_MSI_Keys_1._nodes_.Wait, _root_MSI_Keys_1._nodes_.Execute_emotions, "(Global.tran==\"next\")", "_root_MSI_Keys_1._nodes_.Transition_2");
+fsm.Transition.create_(_root_MSI_Keys_1._nodes_.Main, _root_MSI_Keys_1._nodes_.Execute_emotions, _root_MSI_Keys_1._nodes_.Wait, "done?", "_root_MSI_Keys_1._nodes_.Transition_3");
+fsm.Transition.create_(_root_MSI_Keys_1._nodes_.Key_pressing, _root_MSI_Keys_1._nodes_.Start, _root_MSI_Keys_1._nodes_.Main, "done?", "_root_MSI_Keys_1._nodes_.Transition");
+
+
+var _root_MSI_Keys_1.enterChan = Channel.new("enteringNode");
+var _root_MSI_Keys_1.enterChan.lobby = getSlot("lobby");
+at(_root_MSI_Keys_1.enteringNode?(var id)) _root_MSI_Keys_1.enterChan << ["_root_MSI_Keys_1", id.name];
+var _root_MSI_Keys_1.leaveChan = Channel.new("leavingNode");
+var _root_MSI_Keys_1.leaveChan.lobby = getSlot("lobby");
+at(_root_MSI_Keys_1.leavingNode?(var id)) _root_MSI_Keys_1.leaveChan << ["_root_MSI_Keys_1", id.name];
+var _root_MSI_Keys_1.transitingChan = Channel.new("transiting");
+var _root_MSI_Keys_1.transitingChan.lobby = getSlot("lobby");
+at(_root_MSI_Keys_1.transiting?(var node, var trans)) _root_MSI_Keys_1.transitingChan << ["_root_MSI_Keys_1", trans.name];
+var _root_MSI_Keys_1.freezeChan = Channel.new("frozen");
+var _root_MSI_Keys_1.freezeChan.lobby = getSlot("lobby");
+at(_root_MSI_Keys_1.graphFrozen?()) _root_MSI_Keys_1.freezeChan << "_root_MSI_Keys_1";
+// Start code.
+detach(_root_MSI_Keys_1.enter_());
+
+// End of graph implementation `_root_MSI_Keys_1'.
+

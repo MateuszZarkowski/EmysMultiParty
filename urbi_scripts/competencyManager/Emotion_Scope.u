@@ -1,0 +1,100 @@
+
+if (!hasSlot("UImageTool")) loadModule("UImageTool");
+if (!hasSlot("Scope1")) var Global.Scope1 = UImageTool.new();
+if (!hasSlot("Scope2")) var Global.Scope2 = UImageTool.new();
+if (!hasSlot("Scope3")) var Global.Scope3 = UImageTool.new();
+
+if (!hasSlot("scope_period")) 		var Global.scope_period=0 else Global.scope_period=0;
+if (!hasSlot("scope_tmp")) 		var Global.scope_tmp=0 else Global.scope_tmp=0;
+if (!hasSlot("scope_gain1")) 		var Global.scope_gain1=0 else Global.scope_gain1=0;
+if (!hasSlot("scope_gain2")) 		var Global.scope_gain2=0 else Global.scope_gain2=0;
+if (!hasSlot("scope_gain3")) 		var Global.scope_gain3=0 else Global.scope_gain3=0;
+if (!hasSlot("scope_old1")) 		var Global.scope_old1=0 else Global.scope_old1=0;
+if (!hasSlot("scope_old2")) 		var Global.scope_old2=0 else Global.scope_old2=0;
+if (!hasSlot("scope_old3")) 		var Global.scope_old3=0 else Global.scope_old3=0;
+if (!hasSlot("scope_t")) 		var Global.scope_t=0 else Global.scope_t=0;
+if (!hasSlot("scope_emote1")) 		var Global.scope_emote1="--" else Global.scope_emote1="--";
+if (!hasSlot("scope_emote2")) 		var Global.scope_emote2="--" else Global.scope_emote2="--";
+
+Scope1.autoUpdate = true;
+Scope2.autoUpdate = true;
+Scope3.autoUpdate = true;
+Scope1.createImage(700, 200, 255, 255, 255); 
+Scope2.createImage(700, 200, 255, 255, 255); 
+Scope3.createImage(700, 200, 255, 255, 255);
+Scope1.putLine(0, 100, 699, 100, 0, 0, 160, 1);
+Scope2.putLine(0, 100, 699, 100, 0, 0, 160, 1);
+Scope3.putLine(0, 100, 699, 100, 0, 0, 160, 1);
+
+
+Global.scope_period = 500ms;
+Global.scope_period->rangemax=1s;
+Global.scope_period->rangemin=1ms;
+Global.scope_tmp = 0;
+Global.scope_gain1 = 100;
+Global.scope_gain2 = 100;
+Global.scope_gain3 = 100;
+Global.scope_old1 = 0;
+Global.scope_old2 = 0;
+Global.scope_old3 = 0;
+Global.scope_emote1 = "--";
+Global.scope_emote2 = "--";
+Global.scope_t = 0;
+
+
+if (!hasSlot("scope_set_time")) {
+  do(Global) {
+    function scope_set_time{
+	    var out = PAD.output;
+	    Global.scope_t=Global.scope_t+1;
+	    Scope2.putString("t"+Global.scope_t, Global.scope_tmp-20, 95- out[1]*Global.scope_gain2, 5, 1, 0, 0, 0, 1);
+    }|{};
+  };
+};
+
+
+if (hasSlot("_jk_time")) _jk_time.stop;
+_jk_time:
+{
+  loop{
+    var out = PAD.output;
+    var tmp1 = 100 - out[0]*scope_gain1;
+    var tmp2 = 100 - out[1]*scope_gain2;
+    var tmp3 = 100 - out[2]*scope_gain3;
+    
+    if (tmp1>200) tmp1=200;
+    if (tmp1<0)   tmp1=0;
+    
+    if (tmp2>200) tmp2=200;
+    if (tmp2<0)   tmp2=0;
+    
+    if (tmp3>200) tmp3=200;
+    if (tmp3<0)   tmp3=0;
+    
+    Scope1.putLine(scope_tmp, scope_old1, scope_tmp+1, tmp1, 150,150, 0 ,2);
+    Scope2.putLine(scope_tmp, scope_old2, scope_tmp+1, tmp2,   0,200, 0 ,2);
+    Scope3.putLine(scope_tmp, scope_old3, scope_tmp+1, tmp3, 200,  0,90 ,2);
+  
+    Global.scope_old1 = tmp1;
+    Global.scope_old2 = tmp2;
+    Global.scope_old3 = tmp3;
+  
+    Global.scope_tmp=Global.scope_tmp+1;
+    
+    if (Global.scope_tmp>=699) { 
+    
+      Global.scope_tmp=0;
+      Scope1.createImage(700, 200, 255, 255, 255); 
+      Scope2.createImage(700, 200, 255, 255, 255); 
+      Scope3.createImage(700, 200, 255, 255, 255); 
+      Scope1.putLine(0, 100, 699, 100, 0, 0, 160, 1);
+      Scope2.putLine(0, 100, 699, 100, 0, 0, 160, 1);
+      Scope3.putLine(0, 100, 699, 100, 0, 0, 160, 1);
+      Global.scope_t=0;
+    };
+    Global.scope_emote1 = robot.emotion.Get()[0];
+    Global.scope_emote2 = robot.emotion.Get()[1];
+    sleep(Global.scope_period);
+  },
+},
+

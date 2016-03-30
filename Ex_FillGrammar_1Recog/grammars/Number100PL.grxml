@@ -1,0 +1,122 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<grammar version="1.0" xml:lang="pl-PL" root="NumberRule" tag-format="semantics/1.0-literals" xmlns="http://www.w3.org/2001/06/grammar">
+
+	<rule id="NumberRule">
+	
+    <ruleref special="GARBAGE" />
+		<one-of>
+		<item><ruleref uri="RepeatPL.grxml"/></item>
+		
+<item>0 <tag> 0 </tag></item> 
+<item>raz <tag> 1 </tag></item> 
+<item>jedno <tag> 1 </tag></item> 
+
+<item>1 <tag>1</tag></item> 
+<item>2 <tag>2</tag></item> 
+<item>3 <tag>3</tag></item> 
+<item>4 <tag>4</tag></item> 
+<item>5 <tag>5</tag></item> 
+<item>6 <tag>6</tag></item> 
+<item>7 <tag>7</tag></item> 
+<item>8 <tag>8</tag></item> 
+<item>9 <tag>9</tag></item> 
+<item>10 <tag>10</tag></item> 
+<item>11 <tag>11</tag></item> 
+<item>12 <tag>12</tag></item> 
+<item>13 <tag>13</tag></item> 
+<item>14 <tag>14</tag></item> 
+<item>15 <tag>15</tag></item> 
+<item>16 <tag>16</tag></item> 
+<item>17 <tag>17</tag></item> 
+<item>18 <tag>18</tag></item> 
+<item>19 <tag>19</tag></item> 
+<item>20 <tag>20</tag></item> 
+<item>21 <tag>21</tag></item> 
+<item>22 <tag>22</tag></item> 
+<item>23 <tag>23</tag></item> 
+<item>24 <tag>24</tag></item> 
+<item>25 <tag>25</tag></item> 
+<item>26 <tag>26</tag></item> 
+<item>27 <tag>27</tag></item> 
+<item>28 <tag>28</tag></item> 
+<item>29 <tag>29</tag></item> 
+<item>30 <tag>30</tag></item> 
+<item>31 <tag>31</tag></item> 
+<item>32 <tag>32</tag></item> 
+<item>33 <tag>33</tag></item> 
+<item>34 <tag>34</tag></item> 
+<item>35 <tag>35</tag></item> 
+<item>36 <tag>36</tag></item> 
+<item>37 <tag>37</tag></item> 
+<item>38 <tag>38</tag></item> 
+<item>39 <tag>39</tag></item> 
+<item>40 <tag>40</tag></item> 
+<item>41 <tag>41</tag></item> 
+<item>42 <tag>42</tag></item> 
+<item>43 <tag>43</tag></item> 
+<item>44 <tag>44</tag></item> 
+<item>45 <tag>45</tag></item> 
+<item>46 <tag>46</tag></item> 
+<item>47 <tag>47</tag></item> 
+<item>48 <tag>48</tag></item> 
+<item>49 <tag>49</tag></item> 
+<item>50 <tag>50</tag></item> 
+<item>51 <tag>51</tag></item> 
+<item>52 <tag>52</tag></item> 
+<item>53 <tag>53</tag></item> 
+<item>54 <tag>54</tag></item> 
+<item>55 <tag>55</tag></item> 
+<item>56 <tag>56</tag></item> 
+<item>57 <tag>57</tag></item> 
+<item>58 <tag>58</tag></item> 
+<item>59 <tag>59</tag></item> 
+<item>60 <tag>60</tag></item> 
+<item>61 <tag>61</tag></item> 
+<item>62 <tag>62</tag></item> 
+<item>63 <tag>63</tag></item> 
+<item>64 <tag>64</tag></item> 
+<item>65 <tag>65</tag></item> 
+<item>66 <tag>66</tag></item> 
+<item>67 <tag>67</tag></item> 
+<item>68 <tag>68</tag></item> 
+<item>69 <tag>69</tag></item> 
+<item>70 <tag>70</tag></item> 
+<item>71 <tag>71</tag></item> 
+<item>72 <tag>72</tag></item> 
+<item>73 <tag>73</tag></item> 
+<item>74 <tag>74</tag></item> 
+<item>75 <tag>75</tag></item> 
+<item>76 <tag>76</tag></item> 
+<item>77 <tag>77</tag></item> 
+<item>78 <tag>78</tag></item> 
+<item>79 <tag>79</tag></item> 
+<item>80 <tag>80</tag></item> 
+<item>81 <tag>81</tag></item> 
+<item>82 <tag>82</tag></item> 
+<item>83 <tag>83</tag></item> 
+<item>84 <tag>84</tag></item> 
+<item>85 <tag>85</tag></item> 
+<item>86 <tag>86</tag></item> 
+<item>87 <tag>87</tag></item> 
+<item>88 <tag>88</tag></item> 
+<item>89 <tag>89</tag></item> 
+<item>90 <tag>90</tag></item> 
+<item>91 <tag>91</tag></item> 
+<item>92 <tag>92</tag></item> 
+<item>93 <tag>93</tag></item> 
+<item>94 <tag>94</tag></item> 
+<item>95 <tag>95</tag></item> 
+<item>96 <tag>96</tag></item> 
+<item>97 <tag>97</tag></item> 
+<item>98 <tag>98</tag></item> 
+<item>99 <tag>99</tag></item> 
+<item>100 <tag>100</tag></item> 
+ 
+
+
+		</one-of>
+    <ruleref special="GARBAGE" />
+		
+  </rule>
+	
+</grammar>

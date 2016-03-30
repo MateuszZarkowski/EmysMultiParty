@@ -1,0 +1,369 @@
+// loading robot environment
+// load("_CONFIG_.u");
+// load("../urbi_scripts/_ROBOT_.u");
+// var pwd = Path.cwd|;
+// Path.new("../modules/").cd|;
+// ROBOT();
+// pwd.cd|;
+//***************************
+
+
+load("Tools.u");
+
+
+
+class SpeechEntry {
+  var set;
+  var lex;
+  function init (_set,_lex = []){
+    set = _set;
+    lex = _lex;
+  };
+  
+  // fills string with input 
+  // using proper number noun declination based on language
+  // unfortunatelly only in denominator
+  // IDEA: plugin to lookup proper form online?
+  function Get(input = [], lang="EN"){
+    if (input.protos.head !== List ){
+      //TODO: error how?
+      echo("ERROR: SpeechEntry.Get input should be a List");
+      return set[set.size.random];
+    };    
+    
+    // fill standard {0}
+    var s = set[set.size.random] ^ input;
+    
+    // fill with lex {0L0} 
+    if(!lex) return s;
+    var which = getSlot("which" + lang);
+    s = s.split("{").map(function(s){ s.split("}");});
+    for(var i=1; i<s.size; i++ ){
+      [var left, var right] = s[i][0].split("L").map(function(str){ str.asFloat });
+      s[i][0] = lex[right][which(input[left])].asString ^ [input[left]] ; 
+    };
+    s.map(function(x){x.join}).join;
+    
+  }|;
+  
+  //which number form to choose from lex based on count
+  function whichEN(i){
+    i = i.abs;
+    if (i==1) return 0
+    else return 1;
+  }|;
+  
+  function whichPL(i){
+    i = i.abs;
+    if (i==1) return 0;
+    if (i==2) return 1; // needed:  dwa punkty, dwie frytki
+    if (i in [3,4]) return 2
+    else return 3;
+  }|;
+  
+  function asString() {
+    "(" + lang+ ", " + set + ", " + lex + ")";    
+  }
+  
+}|;
+// Example:
+// var s = SpeechEntry.new([
+// "Masz {0} i {1L0}."
+// ],[[
+// "jedną nową wiadomość",
+// "dwie nowe wiadomości",
+// "{0} nowe wiadomości",
+// "{0} nowych wiadomości"
+// ]]);
+// s.Get(["raka", 0],"PL").utf;
+// s.Get(["raka", 1],"PL").utf;
+// s.Get(["raka", 2],"PL").utf;
+// s.Get(["raka", 3],"PL").utf;
+// s.Get(["raka", 7],"PL").utf;
+
+
+var SpeechDB = Dictionary.new|;
+//extend slots
+//it behaves like a class inherited from Dictionary
+// IDEA: maybe these should be moved to Dialogue Manager?
+// robot.dialogue.GetSpeech("GREET");
+var SpeechDB.language = "PL"|;
+function SpeechDB.Get(key, input = []){
+  this[language][key].Get(input, language);
+}|;
+
+//IDEA: can add probabilites of choosing some entry in such way
+// not sure if needed
+// SpeechDB["PL"]["CONFIRM"] = SpeechEntry.new([
+// ["Dobrze", 1],
+// ["OK",4]
+// ])|;
+
+
+// ***********************  POLISH SPEECH  *****************
+SpeechDB["PL"] = Dictionary.new|;
+
+
+SpeechDB["PL"]["GREET"] = SpeechEntry.new([
+"Cześć!",
+"Witaj!",
+"Hej!",
+"No siema!"
+])|;
+
+SpeechDB["PL"]["INTRODUCE"] = SpeechEntry.new([
+"Jestem robot EMYS",
+"Nazywam się EMYS i jestem robotem",
+"To ja! Robot Emys!"
+])|;
+
+SpeechDB["PL"]["CONFIRM"] = SpeechEntry.new([
+"Dobrze",
+"OK!",
+"Jasne",
+"Zrozumiałem",
+"Nie ma sprawy"
+])|;
+
+
+
+// ******************** QUIZ GAME **************************
+SpeechDB["PL"]["QUIZ_INTRODUCTION"] = SpeechEntry.new([
+"Cześć! Nazywam się Emys. i jestem robotem. Potrafię mówić i robić miny. Widzę Was, ale tylko w wyznaczonym polu. Umiem Was słuchać, ale, niestety, nie zawsze rozumiem. Jeśli czegoś nie zrozumiem, proszę powtórzcie głośniej lub innymi słowami. Zagramy razem w grę w pytania. Waszym zadaniem jest wspólnie wskazać poprawną odpowiedź. Zachęcam, abyście skonsultowali ją ze sobą."
+])|;
+SpeechDB["PL"]["SAY_START_WHEN_YOU_ARE_READY"] = SpeechEntry.new([
+"OK! Kiedy będziecie gotowi powiedzcie, zaczynajmy"
+])|;
+
+
+SpeechDB["PL"]["QUESTION_NUMBER_"] = SpeechEntry.new([
+"Pytanie numer {0}",
+"Pytanie {1}",
+"{1} pytanie."
+])|;
+
+
+SpeechDB["PL"]["DO_YOU_WANT_TO_CHOSE_LETTER_ANSWER_"] = SpeechEntry.new([
+"Czy chcecie zaznaczyć .{0}.. {1}",
+"Czy chcecie zaznaczyć odpowiedź .{0}.. {1}",
+"Czy na pewno zaznaczyć .{0}.. {1}",
+"Czy na pewno zaznaczyć odpowiedź {0}.. {1}",
+"Czy wybieracie odpowiedź .{0}.. {1}",
+])|;
+
+
+SpeechDB["PL"]["THEN_I_WILL_REPEAT"] = SpeechEntry.new([
+"Rozumiem. Powtórzę pytanie",
+"OK! W takim razie powtórzę",
+"OK! Powtórzę, a Wy się zastanówcie",
+])|;
+
+
+SpeechDB["PL"]["WHAT_IS_THE_ANSWER_THEN"] = SpeechEntry.new([
+"W takim razie jaka jest odpowiedź?",
+"Więc jaka jest odpowiedź?",
+"Co mam zaznaczyć?",
+])|;
+
+
+
+SpeechDB["PL"]["CORRECT_ANSWER"] = SpeechEntry.new([
+"Dobra odpowiedź",
+"Dobrze!",
+"Bardzo dobrze",
+"To jest poprawna odpowiedź",
+"O to chodziło!",
+"Super!",
+"Ekstra!",
+"Wspaniale",
+])|;
+SpeechDB["PL"]["WRONG_ANSWER"] = SpeechEntry.new([
+"Niestety nie",
+"Przykro mi, ale nie",
+"Niestety, to błędna odpowiedź",
+"Przykro mi, jest to zła odpowiedź",
+])|;
+
+// ["A","B","C"][2];
+SpeechDB["PL"]["CORRECT_ANSWER_IS_LETTER_ANSWER_"] = SpeechEntry.new([
+"Poprawna odpowiedź to ..{0}.. {1}",
+"Dobra odpowiedź to ..{0}.. {1}",
+"Właściwa odpowiedź to ..{0}.. {1}",
+"Chodziło o ..{0}.. {1}"
+])|;
+
+
+SpeechDB["PL"]["YOU_NOW_HAVE_X_POINTS_"] = SpeechEntry.new([
+"Zdobyliście już {0L0}",
+"Zdobyliście {0L0}",
+"Macie już {0L0}",
+"Macie już {0L1}",
+"Do tej pory zebraliście {0L0}",
+"Do tej pory zebraliście {0L1}",
+"Wasz wynik to {0L0}",
+"Zebraliście już {0L0}",
+"Udzieliliście już {0L1}",
+"Daliście już {0L1}",
+],[[
+"{0} punkt",
+"{0} punkty",
+"{0} punkty",
+"{0} punktów",
+],[
+"jedną poprawną odpowiedź",
+"dwie poprawne odpowiedzi",
+"{0} poprawne odpowiedzi",
+"{0} poprawnych odpowiedzi",
+]])|;
+
+
+SpeechDB["PL"]["DID_YOU_KNOW_TRIVIA_"] = SpeechEntry.new([
+"Czy wiedzieliście że, {0}",
+"Czy wiedzieliście że, {0}",
+"Ciekawy fakt, {0}",
+"Ciekawostka,  {0}",
+"{0}",
+"{0}",
+"{0}",
+"{0}",
+])|;
+
+
+SpeechDB["PL"]["QUIZ_ALL_QUESTIONS_ASKED"] = SpeechEntry.new([
+"To były już wszystkie pytania."
+])|;
+
+SpeechDB["PL"]["YOUR_SCORE_IS_X_OUT_OF_Y_"] = SpeechEntry.new([
+"Podsumowując. Wasz wynik to {0L0} na {1L1}",
+],[[
+"jedna poprawna odpowiedź",
+"dwie poprawne odpowiedzi",
+"{0} poprawne odpowiedzi",
+"{0} poprawnych odpowiedzi",
+],[
+"jedno pytanie",
+"{0} pytania",
+"{0} pytania",
+"{0} pytań",
+]])|;
+
+SpeechDB["PL"]["QUIZ_SCORE_OPINION_PERFECT"] = SpeechEntry.new([
+"Super! To perfekcyjny wynik! Czapki z głów",
+])|;
+SpeechDB["PL"]["QUIZ_SCORE_OPINION_VERYGOOD"] = SpeechEntry.new([
+"Rewelacyjny wynik! Moje gratulacje, poradziliście sobie wyśmienicie",
+])|;
+SpeechDB["PL"]["QUIZ_SCORE_OPINION_GOOD"] = SpeechEntry.new([
+"Świetny wyniki. Nawet te trudniejsze pytania nie były Wam straszne",
+])|;
+SpeechDB["PL"]["QUIZ_SCORE_OPINION_MEDIOCRE"] = SpeechEntry.new([
+"Dobry wynik! Niektóre pytania sprawiły Wam trudność, ale dzielnie daliście sobie radę",
+])|;
+SpeechDB["PL"]["QUIZ_SCORE_OPINION_POOR"] = SpeechEntry.new([
+"Uff, nie najlepszy wynik. Musieliście wylosować naprawdę trudne pytania",
+])|;
+SpeechDB["PL"]["QUIZ_SCORE_OPINION_BAD"] = SpeechEntry.new([
+"Ha Ha Ha. Chyba się w ogóle nie staraliście",
+])|;
+
+
+
+SpeechDB["PL"]["QUIZ_THIS_IS_IT"] = SpeechEntry.new([
+"To już jest koniec",
+])|;
+SpeechDB["PL"]["HAVE_YOU_ENJOYED_IT"] = SpeechEntry.new([
+"Czy podobała Wam się gra",
+])|;
+SpeechDB["PL"]["I_TOO_HAD_A_GOOD_TIME"] = SpeechEntry.new([
+"Mi też! Świetnie się z Wami grało",
+])|;
+SpeechDB["PL"]["SORRY_I_GAVE_MY_BEST"] = SpeechEntry.new([
+"Przykro mi,, starałem się jak mogłem",
+])|;
+SpeechDB["PL"]["GOOD_NIGHT_AND_GOOD_LUCK"] = SpeechEntry.new([
+"Było mi bardzo miło spędzić czas z Wami! Pozostańcie proszę na swoich miejscach. A ja idę teraz spać. Do zobaczenia!",
+])|;
+
+
+
+
+SpeechDB["PL"]["ORDINAL_F_0"] = SpeechEntry.new(["zerowe"])|;
+SpeechDB["PL"]["ORDINAL_F_1"] = SpeechEntry.new(["pierwsze"])|;
+SpeechDB["PL"]["ORDINAL_F_2"] = SpeechEntry.new(["drugie"])|;
+SpeechDB["PL"]["ORDINAL_F_3"] = SpeechEntry.new(["trzecie"])|;
+SpeechDB["PL"]["ORDINAL_F_4"] = SpeechEntry.new(["czwarte"])|;
+SpeechDB["PL"]["ORDINAL_F_5"] = SpeechEntry.new(["piąte"])|;
+SpeechDB["PL"]["ORDINAL_F_6"] = SpeechEntry.new(["szóste"])|;
+SpeechDB["PL"]["ORDINAL_F_7"] = SpeechEntry.new(["siódme"])|;
+SpeechDB["PL"]["ORDINAL_F_8"] = SpeechEntry.new(["ósme"])|;
+SpeechDB["PL"]["ORDINAL_F_9"] = SpeechEntry.new(["dziewiąte"])|;
+SpeechDB["PL"]["ORDINAL_F_10"] = SpeechEntry.new(["dziesiąte"])|;
+SpeechDB["PL"]["ORDINAL_F_11"] = SpeechEntry.new(["jedenaste"])|;
+SpeechDB["PL"]["ORDINAL_F_12"] = SpeechEntry.new(["dwunaste"])|;
+SpeechDB["PL"]["ORDINAL_F_13"] = SpeechEntry.new(["trzynaste"])|;
+SpeechDB["PL"]["ORDINAL_F_14"] = SpeechEntry.new(["czternaste"])|;
+SpeechDB["PL"]["ORDINAL_F_15"] = SpeechEntry.new(["piętnaste"])|;
+SpeechDB["PL"]["ORDINAL_F_16"] = SpeechEntry.new(["szesnaste"])|;
+SpeechDB["PL"]["ORDINAL_F_17"] = SpeechEntry.new(["siedemnaste"])|;
+SpeechDB["PL"]["ORDINAL_F_18"] = SpeechEntry.new(["osiemnaste"])|;
+SpeechDB["PL"]["ORDINAL_F_19"] = SpeechEntry.new(["dzięwiętnaste"])|;
+
+SpeechDB["PL"]["ORDINAL_F_20"] = SpeechEntry.new(["dwudzieste"])|;
+SpeechDB["PL"]["ORDINAL_F_30"] = SpeechEntry.new(["trzydzieste"])|;
+SpeechDB["PL"]["ORDINAL_F_40"] = SpeechEntry.new(["czterdzieste"])|;
+SpeechDB["PL"]["ORDINAL_F_50"] = SpeechEntry.new(["pięćdziesiąte"])|;
+SpeechDB["PL"]["ORDINAL_F_60"] = SpeechEntry.new(["sześćdziesiąte"])|;
+SpeechDB["PL"]["ORDINAL_F_70"] = SpeechEntry.new(["siedemdziesiąte"])|;
+SpeechDB["PL"]["ORDINAL_F_80"] = SpeechEntry.new(["osiemdziesiąte"])|;
+SpeechDB["PL"]["ORDINAL_F_90"] = SpeechEntry.new(["dziewięćdziesiąte"])|;
+
+for(var x=2; x < 10; x++){
+  for(var i=1; i < 10; i++){
+    SpeechDB["PL"]["ORDINAL_F_"+x+i] = SpeechEntry.new([
+    SpeechDB.Get("ORDINAL_F_"+x+0) + " " + SpeechDB.Get("ORDINAL_F_"+i)
+    ])|;
+  };
+};
+
+
+
+
+
+
+
+
+// ***********************  EXAMPLES  *********************
+
+SpeechDB["PL"]["WEEKDAY_0"] = SpeechEntry.new(["niedziela"])|;
+SpeechDB["PL"]["WEEKDAY_1"] = SpeechEntry.new(["poniedziłek"])|;
+SpeechDB["PL"]["WEEKDAY_2"] = SpeechEntry.new(["wtorek"])|;
+SpeechDB["PL"]["WEEKDAY_3"] = SpeechEntry.new(["środa"])|;
+SpeechDB["PL"]["WEEKDAY_4"] = SpeechEntry.new(["czwartek"])|;
+SpeechDB["PL"]["WEEKDAY_5"] = SpeechEntry.new(["piątek"])|;
+SpeechDB["PL"]["WEEKDAY_6"] = SpeechEntry.new(["sobota"])|;
+SpeechDB["PL"]["WEEKDAY_7"] = SpeechEntry.new(["niedziela"])|;
+//You can access them in such way
+//var day = 3;
+// SpeechDB.Get("WEEKDAY_"+day).utf;
+
+
+SpeechDB["PL"]["MEETING_ON_"] = SpeechEntry.new([
+"Dzień spotkania to {0}."
+])|;
+// You can build based on earlier definitions
+// SpeechDB.Get("MEETING_ON_",[SpeechDB.Get("WEEKDAY_"+3)]).utf;
+
+
+
+SpeechDB["PL"]["YOU_HAVE_X_NEW_MESSAGES_"] = SpeechEntry.new([
+"Masz {0L0}."
+],[[
+"jedną nową wiadomość",
+"dwie nowe wiadomości",
+"{0} nowe wiadomości",
+"{0} nowych wiadomości"
+]])|;
+// SpeechDB.Get("YOU_HAVE_X_NEW_MESSAGES_",[4]).utf;
+
+// var day =2;
+// SpeechDB.Get("YOU_HAVE_X_NEW_MESSAGES_",[4]).utf;

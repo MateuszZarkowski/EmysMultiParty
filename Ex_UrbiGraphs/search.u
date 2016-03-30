@@ -1,0 +1,402 @@
+/*
+ * search: Main graph implementation.
+ *
+ * Load this file in your server to run the graph.
+ *
+ * Created: Œr 2. mar 09:11:00 2016
+ *      by: Gostai Studio 2.7
+ *
+ * WARNING! All changes made in this file will be lost!
+ */
+
+
+// Load urbiscript file.
+load("urbi/fsm.u");
+
+//#line 16 "searchGostai Studio 2.7"
+
+/*************************
+ * Create the root state *
+ *************************/
+
+//Clean previous code
+if (hasLocalSlot("_root_search_1"))
+  if (Object.hasLocalSlot("removeLocalSlot"))
+    removeLocalSlot("_root_search_1")
+  else
+    removeSlot("_root_search_1");
+
+var _root_search_1 = fsm.State.new("_root_search_1");
+_root_search_1.'$params_dict' = Dictionary.new();
+var _root_search_1._nodes_ = Object.new;
+
+/**********************
+ * States declaration *
+ **********************/
+
+//Init state declaration
+var _root_search_1._nodes_.Init = fsm.State.create_("_root_search_1._nodes_.Init", _root_search_1,
+function() {
+//#push 1 "Init"
+//Clean the rootNode
+for(var i in ["worldData", "startValue", "searchedObject",
+              "position", "move"])
+{
+  if (rootNode.hasLocalSlot(i))
+    rootNode.removeLocalSlot(i)
+};
+
+//Initialise data describing our world
+var rootNode.worldData = Object.new();
+var rootNode.worldData.width = 15;
+var rootNode.worldData.height = 15;
+var rootNode.worldData.startRange = 10;
+var rootNode.worldData.maxMove = 10;
+
+//Create variables global to the graph.
+var rootNode.startValue = 0;
+var rootNode.searchedObject = Object.new();
+var rootNode.searchedObject.x = 0;
+var rootNode.searchedObject.y = 0;
+var rootNode.position = Object.new();
+var rootNode.position.x = 0;
+var rootNode.position.y = 0;
+var rootNode.move = Object.new();
+var rootNode.move.xDir = 0;
+var rootNode.move.yDir = 0;
+var rootNode.move.dist = 0;
+
+//#pop
+}
+, true
+, 3
+, function() {
+//#push 1 "Init.enter"
+//Code executed before entering the node
+
+//#pop
+}
+, function() {
+//#push 1 "Init.leave"
+//Code executed after leaving the node
+
+//#pop
+}, false, [207.864, 135.136]);
+
+//start_cycle state declaration
+var _root_search_1._nodes_.start_cycle = fsm.State.create_("_root_search_1._nodes_.start_cycle", _root_search_1,
+function() {
+//#push 1 "start_cycle"
+
+//#pop
+}
+, false
+, 4
+, function() {
+//#push 1 "start_cycle.enter"
+//Code executed before entering the node
+
+//#pop
+}
+, function() {
+//#push 1 "start_cycle.leave"
+//Code executed after leaving the node
+
+//#pop
+}, false, [710.149, 657.205]);
+
+//try_start state declaration
+var _root_search_1._nodes_.try_start = fsm.State.create_("_root_search_1._nodes_.try_start", _root_search_1._nodes_.start_cycle,
+function() {
+//#push 1 "try_start"
+var tryStart = random(rootNode.worldData.startRange);
+if (tryStart == rootNode.startValue)
+{
+  workSucceeded!; 
+}
+else
+{
+  workFailed!;
+}
+
+//#pop
+}
+, true
+, 5
+, function() {
+//#push 1 "try_start.enter"
+//Code executed before entering the node
+if (!this.hasLocalSlot("workFailed"))
+  var this.workFailed = Event.new;
+if (!this.hasLocalSlot("workSucceeded"))
+  var this.workSucceeded = Event.new;
+//#pop
+}
+, function() {
+//#push 1 "try_start.leave"
+//Code executed after leaving the node
+
+//#pop
+}, false, [-102.389, -90.1428]);
+
+//start_failed state declaration
+var _root_search_1._nodes_.start_failed = fsm.State.create_("_root_search_1._nodes_.start_failed", _root_search_1._nodes_.start_cycle,
+function() {
+//#push 1 "start_failed"
+sleep(750ms);
+
+//#pop
+}
+, false
+, 6
+, function() {
+//#push 1 "start_failed.enter"
+//Code executed before entering the node
+
+//#pop
+}
+, function() {
+//#push 1 "start_failed.leave"
+//Code executed after leaving the node
+
+//#pop
+}, false, [73.2084, 82.205]);
+
+//search_cycle state declaration
+var _root_search_1._nodes_.search_cycle = fsm.State.create_("_root_search_1._nodes_.search_cycle", _root_search_1,
+function() {
+//#push 1 "search_cycle"
+
+//#pop
+}
+, false
+, 9
+, function() {
+//#push 1 "search_cycle.enter"
+//Code executed before entering the node
+
+//#pop
+}
+, function() {
+//#push 1 "search_cycle.leave"
+//Code executed after leaving the node
+
+//#pop
+}, false, [1282.14, 531.643]);
+
+//Init_search state declaration
+var _root_search_1._nodes_.Init_search = fsm.State.create_("_root_search_1._nodes_.Init_search", _root_search_1._nodes_.search_cycle,
+function() {
+//#push 1 "Init_search"
+//define our position
+rootNode.position.x = random(rootNode.worldData.width);
+rootNode.position.y = random(rootNode.worldData.height);
+echo("Started at position: " + rootNode.position.x + " - " + rootNode.position.y);
+
+rootNode.move.xDir = 0;
+rootNode.move.yDir = 0;
+rootNode.move.dist = 0;
+
+//#pop
+}
+, true
+, 10
+, function() {
+//#push 1 "Init_search.enter"
+//Code executed before entering the node
+
+//#pop
+}
+, function() {
+//#push 1 "Init_search.leave"
+//Code executed after leaving the node
+
+//#pop
+}, false, [-115.487, 87.4545]);
+
+//move state declaration
+var _root_search_1._nodes_.move = fsm.State.create_("_root_search_1._nodes_.move", _root_search_1._nodes_.search_cycle,
+function() {
+//#push 1 "move"
+while (rootNode.move.dist > 0)
+{
+  rootNode.position.x += rootNode.move.xDir;
+  rootNode.position.y += rootNode.move.yDir;
+  echo("moved to position: " + rootNode.position.x + " - " + rootNode.position.y);
+  if ((rootNode.position.x == rootNode.searchedObject.x) && (rootNode.position.y == rootNode.searchedObject.y))
+  {
+    workSucceeded!;
+    return;
+  };
+  //Make sure we don't cross the limit of the world
+  if (((rootNode.position.x + rootNode.move.xDir) < 0)
+      ||((rootNode.position.x + rootNode.move.xDir) >= rootNode.worldData.width)
+      ||((rootNode.position.y + rootNode.move.yDir) < 0)
+      ||((rootNode.position.y + rootNode.move.yDir) >= rootNode.worldData.height))
+  {
+    workFailed!;
+    return;
+  };
+  rootNode.move.dist--;
+};
+workFailed!;
+
+//#pop
+}
+, false
+, 11
+, function() {
+//#push 1 "move.enter"
+//Code executed before entering the node
+if (!this.hasLocalSlot("workFailed"))
+  var this.workFailed = Event.new;
+if (!this.hasLocalSlot("workSucceeded"))
+  var this.workSucceeded = Event.new;
+//#pop
+}
+, function() {
+//#push 1 "move.leave"
+//Code executed after leaving the node
+
+//#pop
+}, false, [-68.2769, -112.555]);
+
+//decide_move state declaration
+var _root_search_1._nodes_.decide_move = fsm.State.create_("_root_search_1._nodes_.decide_move", _root_search_1._nodes_.search_cycle,
+function() {
+//#push 1 "decide_move"
+//Decide in which direction we want to move
+var xDirMax = 1;
+var xDirMin = -1;
+var yDirMax = 1;
+var yDirMin = -1;
+//If we are at the limit of the world, it is not possible to choose a direction that would cross the limit
+if (rootNode.position.x == 0)
+{
+  xDirMin = 0;
+}
+else if (rootNode.position.x == rootNode.worldData.width - 1)
+{
+  xDirMax = 0;
+};
+rootNode.move.xDir = random(1 + xDirMax - xDirMin) + xDirMin;
+
+if (rootNode.position.y == 0)
+{
+   yDirMin = 0;
+}
+else if (rootNode.position.y == rootNode.worldData.height - 1)
+{
+  yDirMax = 0;
+};
+rootNode.move.yDir = random(1 + yDirMax - yDirMin) + yDirMin;
+
+//Decide which distance will be covered
+rootNode.move.dist = random(rootNode.worldData.maxMove);
+
+//#pop
+}
+, false
+, 12
+, function() {
+//#push 1 "decide_move.enter"
+//Code executed before entering the node
+
+//#pop
+}
+, function() {
+//#push 1 "decide_move.leave"
+//Code executed after leaving the node
+
+//#pop
+}, false, [129.306, 33.4113]);
+
+//random_values state declaration
+var _root_search_1._nodes_.random_values = fsm.State.create_("_root_search_1._nodes_.random_values", _root_search_1,
+function() {
+//#push 1 "random_values"
+//Value that should be found to start the search cycle
+rootNode.startValue = random(rootNode.worldData.startRange);
+
+//Position of the object searched during the search cycle
+rootNode.searchedObject.x = random(rootNode.worldData.width);
+rootNode.searchedObject.y = random(rootNode.worldData.height);
+
+echo("The searched object is at position: " + rootNode.searchedObject.x + " - " + rootNode.searchedObject.y);
+
+//#pop
+}
+, false
+, 16
+, function() {
+//#push 1 "random_values.enter"
+//Code executed before entering the node
+
+//#pop
+}
+, function() {
+//#push 1 "random_values.leave"
+//Code executed after leaving the node
+
+//#pop
+}, false, [165.462, 461.464]);
+
+//Object_was_found state declaration
+var _root_search_1._nodes_.Object_was_found = fsm.State.create_("_root_search_1._nodes_.Object_was_found", _root_search_1,
+function() {
+//#push 1 "Object_was_found"
+echo("-------------------------------------------");
+echo("-------------------------------------------");
+echo("------ The searched object was found ------");
+echo("-------------------------------------------");
+echo("-------------------------------------------");
+sleep(5s);
+
+//#pop
+}
+, false
+, 20
+, function() {
+//#push 1 "Object_was_found.enter"
+//Code executed before entering the node
+
+//#pop
+}
+, function() {
+//#push 1 "Object_was_found.leave"
+//Code executed after leaving the node
+
+//#pop
+}, false, [836.819, 190.869]);
+
+/***************************
+ * Transitions declaration *
+ ***************************/
+fsm.Transition.create_(_root_search_1._nodes_.start_cycle, _root_search_1._nodes_.try_start, _root_search_1._nodes_.start_failed, "workFailed?", "_root_search_1._nodes_.Unnamed_transition_3");
+fsm.Transition.create_(_root_search_1._nodes_.start_cycle, _root_search_1._nodes_.start_failed, _root_search_1._nodes_.try_start, "workEnded?", "_root_search_1._nodes_.Unnamed_transition_4");
+fsm.Transition.create_(_root_search_1._nodes_.search_cycle, _root_search_1._nodes_.Init_search, _root_search_1._nodes_.decide_move, "workEnded?", "_root_search_1._nodes_.Unnamed_transition_6");
+fsm.Transition.create_(_root_search_1._nodes_.search_cycle, _root_search_1._nodes_.decide_move, _root_search_1._nodes_.move, "workEnded?", "_root_search_1._nodes_.Unnamed_transition_7");
+fsm.Transition.create_(_root_search_1._nodes_.search_cycle, _root_search_1._nodes_.move, _root_search_1._nodes_.decide_move, "workFailed?", "_root_search_1._nodes_.Unnamed_transition_8");
+fsm.Transition.create_(_root_search_1, _root_search_1._nodes_.Init, _root_search_1._nodes_.random_values, "workEnded?", "_root_search_1._nodes_.Unnamed_transition");
+fsm.Transition.create_(_root_search_1, _root_search_1._nodes_.random_values, _root_search_1._nodes_.start_cycle, "workEnded?", "_root_search_1._nodes_.Unnamed_transition_2");
+fsm.Transition.create_(_root_search_1, _root_search_1._nodes_.try_start, _root_search_1._nodes_.search_cycle, "workSucceeded?", "_root_search_1._nodes_.Unnamed_transition_5");
+fsm.Transition.create_(_root_search_1, _root_search_1._nodes_.Object_was_found, _root_search_1._nodes_.random_values, "workEnded?", "_root_search_1._nodes_.Unnamed_transition_10");
+fsm.Transition.create_(_root_search_1, _root_search_1._nodes_.move, _root_search_1._nodes_.Object_was_found, "workSucceeded?", "_root_search_1._nodes_.Unnamed_transition_9");
+
+
+var _root_search_1.enterChan = Channel.new("enteringNode");
+var _root_search_1.enterChan.lobby = getSlot("lobby");
+at(_root_search_1.enteringNode?(var id)) _root_search_1.enterChan << ["_root_search_1", id.name];
+var _root_search_1.leaveChan = Channel.new("leavingNode");
+var _root_search_1.leaveChan.lobby = getSlot("lobby");
+at(_root_search_1.leavingNode?(var id)) _root_search_1.leaveChan << ["_root_search_1", id.name];
+var _root_search_1.transitingChan = Channel.new("transiting");
+var _root_search_1.transitingChan.lobby = getSlot("lobby");
+at(_root_search_1.transiting?(var node, var trans)) _root_search_1.transitingChan << ["_root_search_1", trans.name];
+var _root_search_1.freezeChan = Channel.new("frozen");
+var _root_search_1.freezeChan.lobby = getSlot("lobby");
+at(_root_search_1.graphFrozen?()) _root_search_1.freezeChan << "_root_search_1";
+// Start code.
+detach(_root_search_1.enter_());
+
+// End of graph implementation `_root_search_1'.

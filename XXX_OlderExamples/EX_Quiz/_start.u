@@ -1,0 +1,164 @@
+do (Global){
+
+	//helper funtion for shuffling list based on cpp std::shuffle
+	function shuffle(l_in) {
+		var l = l_in.new;
+		var size = l.size;
+		var temp;
+		var rnd;
+		for(var i : size){
+			rnd = (i+1).random;
+			temp = l[i];
+			l[i] = l[rnd];
+			l[rnd] = temp;
+		};
+		return l;
+	}|;
+	
+
+	class QuizGame {
+	
+		// model of a question
+		// by default answer[0] is correct
+		class QuizQuestion {
+			var id = "";
+			var question="";
+			var answers = [""] *4;
+			var order = 4.seq;
+			function init(){
+				order = shuffle(4.seq);
+			};
+			
+			function GetMixedAnswers() {
+				return order.map(closure(i) { answers[i]});
+			};
+			
+			function GetQuestion() {
+				return question;
+			};
+			
+			function IsAnswerCorrect(i){
+				return order[i] == 0;
+			};
+			
+			function Copy(){ 
+				var copy = new;
+				copy.id = id.clone;
+				copy.question = question.clone;
+				copy.answers = answers.clone;
+				return copy;
+				};
+			function asString() { "(["+id+"] " + question + ", " + answers + ")"; };
+		}|;
+
+
+		var questions = [];
+		var currentQuestion = 0;
+		var order;
+		
+		var playerCount = 1;
+		var currentPlayer=0;
+		var scores= [0];
+		var answerCount = [0];
+		
+		// read QuizQuestions from file by line
+		// id \ question \ answers[0-3]
+		function init(file, _playerCount){
+			// read in questions
+			var i = InputStream.new(File.new(file));
+			var q = QuizQuestion.new;
+			while (
+					!(q.id = i.getLine.acceptVoid).isVoid &&
+					!(q.question = i.getLine.acceptVoid).isVoid &&
+					!(q.answers[0] = i.getLine.acceptVoid).isVoid &&
+					!(q.answers[1] = i.getLine.acceptVoid).isVoid &&
+					!(q.answers[2] = i.getLine.acceptVoid).isVoid &&
+					!(q.answers[3] = i.getLine.acceptVoid).isVoid ) {
+				questions << q.Copy;
+			};
+			i.close;
+			
+			playerCount = _playerCount;
+			// shuffle questions, reset scores
+			Reset();
+
+		};
+		
+		// shuffle the order in which questions are presented
+		function Reset() {
+			order = shuffle( questions.size.seq );
+			currentQuestion = 0;
+			scores = [0] * playerCount;
+			answerCount = [0] * playerCount;
+			currentPlayer = 0;
+		};
+		
+		function NextQuestion() {
+			currentQuestion = (currentQuestion+1) % questions.size;
+		};
+		
+		function GetQuizQuestion() {
+			return questions[order[currentQuestion]];
+		};
+		
+		function SelectPlayer(p){
+			currentPlayer = p;
+		};
+		
+		function PostAnswer(answer) {
+			if ( GetQuizQuestion().IsAnswerCorrect(answer) ) {
+				scores[currentPlayer]++ ;
+				answerCount[currentPlayer]++ ;
+				NextQuestion();
+				return true;
+			} else {
+				answerCount[currentPlayer]++ ;
+				NextQuestion();
+				return false;
+			};
+				
+		};
+		
+		function GetScores() {
+			return scores;
+		};
+
+		function asString() { "(size: " + questions.size + ", order: " + order + ")"; };
+
+	}|;
+	
+	
+
+	
+}|;
+
+ 
+
+// 
+
+var q = QuizGame.new("Quiz_4ans_PL_100.txt",2)|;
+var q1;
+
+
+q1 = q.GetQuizQuestion();
+q1.GetMixedAnswers();
+for (var i: 4.seq)
+	echo(q1.IsAnswerCorrect(i));
+q.PostAnswer(2);
+
+q1 = q.GetQuizQuestion();
+q1.GetMixedAnswers();
+for (var i: 4.seq)
+	echo(q1.IsAnswerCorrect(i));
+q.PostAnswer(2);
+
+q1 = q.GetQuizQuestion();
+q1.GetMixedAnswers();
+for (var i: 4.seq)
+	echo(q1.IsAnswerCorrect(i));
+q.PostAnswer(2);
+
+
+q.GetScores();
+
+

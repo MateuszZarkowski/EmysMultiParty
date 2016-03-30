@@ -1,0 +1,67 @@
+
+//int list
+if(!Global.hasSlot("range"))
+function range(a,b){
+	b.seq - a.seq;
+};
+
+// **************List******************
+	//helper funtion for shuffling list based on cpp std::shuffle
+	if(!List.hasSlot("shuffle"))
+	function List.shuffle() {
+		var l = this.new;
+		var size = l.size;
+		var temp;
+		var rnd;
+		for(var i : size){
+			rnd = (i+1).random;
+			temp = l[i];
+			l[i] = l[rnd];
+			l[rnd] = temp;
+		};
+		return l;
+	}|;
+	
+	if(!List.hasSlot("GetRandom"))
+	function List.GetRandom() {
+		this[this.size.random];
+	}|;
+	
+
+// **************String******************
+
+// Fills in string in format "arg: {0}, {1}" with list elements
+if(!String.hasSlot("^"))
+function String.'^'(list){
+	var res = this;
+	list.eachi( function(v,i){ res=res.replace("{"+i+"}", v.asString); } );
+	res;
+}|;
+
+if(!String.hasSlot("utf"))
+function String.utf(){
+  var replacers =[
+  	["ą","a"],
+		["Ą","A"],
+		["ć","c"],
+		["Ć","C"],
+		["ę","e"],
+		["Ę","E"],
+		["ł","l"],
+		["Ł","L"],
+		["ń","n"],
+		["Ń","N"],
+		["ó","o"],
+		["Ó","O"],
+		["ś","s"],
+		["Ś","S"],
+		["ż","z"],
+		["Ż","Z"],
+		["ź","z"],
+		["Ź","Z"]];
+  
+  var str = this;
+  for(var e : replacers) str =  str.replace(e[0],e[1]); 
+  str;
+  
+}|;

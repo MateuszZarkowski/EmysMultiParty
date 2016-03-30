@@ -1,0 +1,14 @@
+
+loadModule("USpeech");
+var speech=USpeech.new();
+
+speech.&visemeTrig.notifyChange( closure() {robot.setMouth(speech.visemeId,speech.visemeTime);});
+// or just
+speech.&visemeTrig.notifyChange( closure() {echo("viseme no. "+speech.visemeId+" exec. time "+speech.visemeTime);});
+
+speech.Speak("Hello world");
+
+speech.voiceNo=1;
+speech.volume=100;
+speech.rate=-10;
+speech.Speak("Hello. My name is robot, robot FLASH.");

@@ -1,0 +1,30 @@
+load("DialogueManagerClass.u")|;
+load("QuizGameClass.u")|;
+
+robot.audio.Run,
+
+robot.dialogue = DialogueManager.new;
+var quiz = QuizGame.new("Quiz_4ans_100_PL.txt",1)|;
+
+for (4){
+	var q1 = quiz.GetQuizQuestion|;
+	var ans = q1.GetMixedAnswers|;
+	
+	var mergeQuestion = q1.question + "\n" +
+		" A. " + ans[0] + "\n" +
+		" Be. " + ans[1] + "\n" +
+		" C. " + ans[2] + "\n" +
+		" D. " + ans[3] |;
+	// robot.dialogue.Print( mergeQuestion );
+	// robot.dialogue.AskQuestion(mergeQuestion,"_QuizGameAnswers", true);
+	robot.dialogue.AskQuestionFill(mergeQuestion,ans,"ToFill_QuizGameAnswers", true);
+	robot.dialogue.PrintResult();
+	if( quiz.PostAnswer(robot.audio.recognition.semantics["Answer"].asFloat) ){
+			robot.dialogue.Speak("Dobrze!");
+		} else {
+			robot.dialogue.Speak("Niestety nie! Poprawna odpowiedz to {0}." ^ [q1.answers[0]]);
+	};
+	quiz.NextQuestion;
+};
+
+

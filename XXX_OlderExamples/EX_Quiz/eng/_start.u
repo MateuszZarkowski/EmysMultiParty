@@ -1,0 +1,28 @@
+var i = InputStream.new(File.new("QuizQuestions_4ans_EN_in.txt"));
+var out = OutputStream.new(File.create("fresh.txt"))|;
+
+var id;
+var question;
+var answers = [""]*4|;
+var thruth;
+
+while (
+				!(id = i.getLine.acceptVoid).isVoid &&
+				!(question = i.getLine.acceptVoid).isVoid &&
+				!(answers[0] = i.getLine.acceptVoid).isVoid &&
+				!(answers[1] = i.getLine.acceptVoid).isVoid &&
+				!(answers[2] = i.getLine.acceptVoid).isVoid &&
+				!(answers[3] = i.getLine.acceptVoid).isVoid &&
+				!(thruth = i.getLine.acceptVoid).isVoid ) {
+		out << id << "\n";
+		out << question << "\n";
+		out << thruth << "\n";
+		for( var a: answers)
+			if( a != thruth )
+				out << a << "\n";
+};
+
+i.close();
+out.close();
+
+echo("DONE");

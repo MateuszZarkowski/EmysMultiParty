@@ -1,0 +1,9 @@
+// loading robot environment
+load("_CONFIG_.u");
+var pwd = Path.cwd|;
+Path.new("../modules/").cd|;
+load("../urbi_scripts/_ROBOT_.u");
+pwd.cd|;
+//***************************
+
+

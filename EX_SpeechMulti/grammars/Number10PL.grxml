@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<grammar version="1.0" xml:lang="pl-PL" root="NumberRule" tag-format="semantics/1.0-literals" xmlns="http://www.w3.org/2001/06/grammar">
+
+	<rule id="NumberRule">
+	
+    <ruleref special="GARBAGE" />
+		<one-of>
+		<item><ruleref uri="RepeatPL.grxml"/></item>
+		
+<item>0 <tag> 0 </tag></item> 
+<item>raz <tag> 1 </tag></item> 
+<item>jedno <tag> 1 </tag></item> 
+
+<item>1 <tag>1</tag></item> 
+<item>2 <tag>2</tag></item> 
+<item>3 <tag>3</tag></item> 
+<item>4 <tag>4</tag></item> 
+<item>5 <tag>5</tag></item> 
+<item>6 <tag>6</tag></item> 
+<item>7 <tag>7</tag></item> 
+<item>8 <tag>8</tag></item> 
+<item>9 <tag>9</tag></item> 
+<item>10 <tag>10</tag></item> 
+
+
+		</one-of>
+    <ruleref special="GARBAGE" />
+		
+  </rule>
+	
+</grammar>

@@ -1,0 +1,991 @@
+/*
+* 
+*   Speech sequences file
+*
+*
+*  Author: Jan Kedzierski
+*  Date: 09.03.2015
+*  Ver:  2.22
+*/	
+{
+
+  var _lang_tmp=0;
+  
+  ////////////////////////////////////////////////////////////////
+  //
+  //    E N G L I S H
+  //
+  ////////////////////////////////////////////////////////////////
+  
+  _lang_tmp = 0;
+
+    
+  robot.dialogue.speech_sequences[601][_lang_tmp] = "Hi!";
+  robot.dialogue.speech_sequences[602][_lang_tmp] = "Hello!";
+  robot.dialogue.speech_sequences[603][_lang_tmp] = "Hey!";
+    
+  robot.dialogue.speech_sequences[1][_lang_tmp] = "Hi!";
+  robot.dialogue.speech_sequences[2][_lang_tmp] = "Hello!";
+  robot.dialogue.speech_sequences[3][_lang_tmp] = "Hey!";
+  robot.dialogue.speech_sequences[4][_lang_tmp] = "Welcome!";
+  robot.dialogue.speech_sequences[5][_lang_tmp] = "Nice to see you!";
+  
+  robot.dialogue.speech_sequences[7][_lang_tmp] = "Get up!";
+  robot.dialogue.speech_sequences[8][_lang_tmp] = "Wake up!";
+  robot.dialogue.speech_sequences[9][_lang_tmp] = "Wakey-wakey!";
+
+  robot.dialogue.speech_sequences[10][_lang_tmp] = "OK";
+  robot.dialogue.speech_sequences[11][_lang_tmp] = "Thank you.";
+  robot.dialogue.speech_sequences[12][_lang_tmp] = "Ok. Thanks.";
+  
+  robot.dialogue.speech_sequences[14][_lang_tmp] = "Unfortunately.";
+  robot.dialogue.speech_sequences[15][_lang_tmp] = "Eh.";
+  robot.dialogue.speech_sequences[16][_lang_tmp] = "Oh my.";
+    
+  robot.dialogue.speech_sequences[17][_lang_tmp] = "Great!";
+  robot.dialogue.speech_sequences[18][_lang_tmp] = "Super!";
+  robot.dialogue.speech_sequences[19][_lang_tmp] = "Awesome!";
+    
+  robot.dialogue.speech_sequences[20][_lang_tmp] = "What do you feel like doing?";
+  robot.dialogue.speech_sequences[21][_lang_tmp] = "What kind of music would you like to listen to?";
+  robot.dialogue.speech_sequences[22][_lang_tmp] = "What do you want me to put on?";
+ 
+  robot.dialogue.speech_sequences[30][_lang_tmp] = "I can?t see anybody!";
+  robot.dialogue.speech_sequences[31][_lang_tmp] = "Hey, where did you go?";
+  robot.dialogue.speech_sequences[32][_lang_tmp] = "Come on! I can?t see you!";
+   
+  robot.dialogue.speech_sequences[35][_lang_tmp] = "I can?t see you very well.";
+  robot.dialogue.speech_sequences[36][_lang_tmp] = "I see you very poorly.";
+  robot.dialogue.speech_sequences[37][_lang_tmp] = "Something is wrong with my sight.";
+  
+  
+  
+  robot.dialogue.speech_sequences[40][_lang_tmp] = "At what hour would you like me to wake you?";
+  robot.dialogue.speech_sequences[41][_lang_tmp] = "When do you want to be woken up?";
+  robot.dialogue.speech_sequences[42][_lang_tmp] = "When do you get up?"; 
+    
+  robot.dialogue.speech_sequences[43][_lang_tmp] = "Do you want to get up at";
+  robot.dialogue.speech_sequences[44][_lang_tmp] = "I will wake you";
+  robot.dialogue.speech_sequences[45][_lang_tmp] = "are you sure?"; 
+    
+  robot.dialogue.speech_sequences[46][_lang_tmp] = "Do you want me to wake you in 5 minutes?";
+  robot.dialogue.speech_sequences[47][_lang_tmp] = "Do you want to sleep for 5 more minutes?";
+  robot.dialogue.speech_sequences[48][_lang_tmp] = "Do want 5 more minutes to nap?"; 
+
+  robot.dialogue.speech_sequences[50][_lang_tmp] = "On Sunday";
+  robot.dialogue.speech_sequences[51][_lang_tmp] = "On Monday";
+  robot.dialogue.speech_sequences[52][_lang_tmp] = "On Tuesday";
+  robot.dialogue.speech_sequences[53][_lang_tmp] = "On Wednesday";
+  robot.dialogue.speech_sequences[54][_lang_tmp] = "On Thursday";
+  robot.dialogue.speech_sequences[55][_lang_tmp] = "On Friday";
+  robot.dialogue.speech_sequences[56][_lang_tmp] = "On Saturday";
+  robot.dialogue.speech_sequences[57][_lang_tmp] = "On Sunday";
+  
+  robot.dialogue.speech_sequences[60][_lang_tmp] = "I?m sorry there was a problem downloading content from the web.";
+  robot.dialogue.speech_sequences[61][_lang_tmp] = "Oh my, I couldn't download anything";
+  robot.dialogue.speech_sequences[62][_lang_tmp] = "There are some connectivity problems, I could process your request";
+    
+  robot.dialogue.speech_sequences[70][_lang_tmp] = "Do you want to hear the weather forecast for the next few days?";
+  robot.dialogue.speech_sequences[71][_lang_tmp] = "Do you want to hear what the wether will be like in the coming days?";
+  robot.dialogue.speech_sequences[72][_lang_tmp] = "Do you want me to give you the weather forecast?";
+  
+  robot.dialogue.speech_sequences[73][_lang_tmp] = "Do you want to know what?s going to be on TV in the coming days?";
+  robot.dialogue.speech_sequences[74][_lang_tmp] = "Do you want to listen to the TV guide?";
+  robot.dialogue.speech_sequences[75][_lang_tmp] = "Want to hear what?s on TV?";
+  
+  robot.dialogue.speech_sequences[76][_lang_tmp] = "There is nothing for today.";
+  robot.dialogue.speech_sequences[77][_lang_tmp] = "You have nothing more planned.";
+  robot.dialogue.speech_sequences[78][_lang_tmp] = "There is nothing of interest today.";
+    
+  robot.dialogue.speech_sequences[79][_lang_tmp] = "Sunday";
+  robot.dialogue.speech_sequences[80][_lang_tmp] = "Monday";
+  robot.dialogue.speech_sequences[81][_lang_tmp] = "Tuesday";
+  robot.dialogue.speech_sequences[82][_lang_tmp] = "Wednesday";
+  robot.dialogue.speech_sequences[83][_lang_tmp] = "Thursday";
+  robot.dialogue.speech_sequences[84][_lang_tmp] = "Friday";
+  robot.dialogue.speech_sequences[85][_lang_tmp] = "Saturday";
+  robot.dialogue.speech_sequences[86][_lang_tmp] = "Sunday";
+    
+  robot.dialogue.speech_sequences[87][_lang_tmp] = "today";
+  robot.dialogue.speech_sequences[88][_lang_tmp] = "tomorrow";
+  robot.dialogue.speech_sequences[89][_lang_tmp] = "the day after tomorrow";
+  // robot.dialogue.speech_sequences[89][_lang_tmp] = "today";
+  
+  robot.dialogue.speech_sequences[90][_lang_tmp] = "The temperature outside is";
+  robot.dialogue.speech_sequences[91][_lang_tmp] = "degrees Celsius, and the weather today is";
+  robot.dialogue.speech_sequences[92][_lang_tmp] = "Temperature will be between";
+  robot.dialogue.speech_sequences[93][_lang_tmp] = "and";
+  robot.dialogue.speech_sequences[94][_lang_tmp] = "and";
+  robot.dialogue.speech_sequences[95][_lang_tmp] = "from";
+  robot.dialogue.speech_sequences[96][_lang_tmp] = "to";
+  robot.dialogue.speech_sequences[97][_lang_tmp] = "degrees Celsius";
+  
+  robot.dialogue.speech_sequences[100][_lang_tmp] = "tornado";
+  robot.dialogue.speech_sequences[101][_lang_tmp] = "tropical storm";
+  robot.dialogue.speech_sequences[102][_lang_tmp] = "hurricane";
+  robot.dialogue.speech_sequences[103][_lang_tmp] = "severe thunderstorms";
+  robot.dialogue.speech_sequences[104][_lang_tmp] = "thunderstorms";
+  robot.dialogue.speech_sequences[105][_lang_tmp] = "mixed rain and snow";
+  robot.dialogue.speech_sequences[106][_lang_tmp] = "mixed rain and sleet";
+  robot.dialogue.speech_sequences[107][_lang_tmp] = "mixed snow and sleet";
+  robot.dialogue.speech_sequences[108][_lang_tmp] = "freezing drizzle";
+  robot.dialogue.speech_sequences[109][_lang_tmp] = "drizzle";
+  robot.dialogue.speech_sequences[110][_lang_tmp] = "freezing rain";
+  robot.dialogue.speech_sequences[111][_lang_tmp] = "showers";
+  robot.dialogue.speech_sequences[112][_lang_tmp] = "showers";
+  robot.dialogue.speech_sequences[113][_lang_tmp] = "snow flurries";
+  robot.dialogue.speech_sequences[114][_lang_tmp] = "light snow showers";
+  robot.dialogue.speech_sequences[115][_lang_tmp] = "blowing snow";
+  robot.dialogue.speech_sequences[116][_lang_tmp] = "snow";
+  robot.dialogue.speech_sequences[117][_lang_tmp] = "hail";
+  robot.dialogue.speech_sequences[118][_lang_tmp] = "sleet";
+  robot.dialogue.speech_sequences[119][_lang_tmp] = "dust";
+  robot.dialogue.speech_sequences[120][_lang_tmp] = "foggy";
+  robot.dialogue.speech_sequences[121][_lang_tmp] = "haze";
+  robot.dialogue.speech_sequences[122][_lang_tmp] = "smoky";
+  robot.dialogue.speech_sequences[123][_lang_tmp] = "blustery";
+  robot.dialogue.speech_sequences[124][_lang_tmp] = "windy";
+  robot.dialogue.speech_sequences[125][_lang_tmp] = "cold";
+  robot.dialogue.speech_sequences[126][_lang_tmp] = "cloudy";
+  robot.dialogue.speech_sequences[127][_lang_tmp] = "mostly cloudy";
+  robot.dialogue.speech_sequences[128][_lang_tmp] = "mostly cloudy";
+  robot.dialogue.speech_sequences[129][_lang_tmp] = "partly cloudy";
+  robot.dialogue.speech_sequences[130][_lang_tmp] = "partly cloudy";
+  robot.dialogue.speech_sequences[131][_lang_tmp] = "clear";
+  robot.dialogue.speech_sequences[132][_lang_tmp] = "sunny";
+  robot.dialogue.speech_sequences[133][_lang_tmp] = "fair";
+  robot.dialogue.speech_sequences[134][_lang_tmp] = "fair";
+  robot.dialogue.speech_sequences[135][_lang_tmp] = "mixed rain and hail";
+  robot.dialogue.speech_sequences[136][_lang_tmp] = "hot";
+  robot.dialogue.speech_sequences[137][_lang_tmp] = "isolated thunderstorms";
+  robot.dialogue.speech_sequences[138][_lang_tmp] = "scattered thunderstorms";
+  robot.dialogue.speech_sequences[139][_lang_tmp] = "scattered thunderstorms";
+  robot.dialogue.speech_sequences[140][_lang_tmp] = "scattered showers";
+  robot.dialogue.speech_sequences[141][_lang_tmp] = "heavy snow";
+  robot.dialogue.speech_sequences[142][_lang_tmp] = "scattered snow showers";
+  robot.dialogue.speech_sequences[143][_lang_tmp] = "heavy snow";
+  robot.dialogue.speech_sequences[144][_lang_tmp] = "partly cloudy";
+  robot.dialogue.speech_sequences[145][_lang_tmp] = "thundershowers";
+  robot.dialogue.speech_sequences[146][_lang_tmp] = "snow showers";
+  robot.dialogue.speech_sequences[147][_lang_tmp] = "isolated thundershowers";
+  
+  robot.dialogue.speech_sequences[200][_lang_tmp] = "What kind of news do you want to hear?";
+  robot.dialogue.speech_sequences[201][_lang_tmp] = "What do you want to hear about?";
+  robot.dialogue.speech_sequences[202][_lang_tmp] = "What interests you?";
+
+  robot.dialogue.speech_sequences[205][_lang_tmp] = "Do you want to hear more?";
+  robot.dialogue.speech_sequences[206][_lang_tmp] = "Should I read another one?";
+  robot.dialogue.speech_sequences[207][_lang_tmp] = "Want more?";
+
+  robot.dialogue.speech_sequences[208][_lang_tmp] = "No more data.";
+  robot.dialogue.speech_sequences[209][_lang_tmp] = "That?s all.";
+  robot.dialogue.speech_sequences[210][_lang_tmp] = "That is all for now.";
+  
+  
+  robot.dialogue.speech_sequences[211][_lang_tmp] = "You have nothing planned for today.";
+  robot.dialogue.speech_sequences[212][_lang_tmp] = "Your calendar for today is empty.";
+  robot.dialogue.speech_sequences[213][_lang_tmp] = "There?s nothing for today.";
+  
+  robot.dialogue.speech_sequences[214][_lang_tmp] = "one event.";
+  robot.dialogue.speech_sequences[215][_lang_tmp] = "events.";
+  robot.dialogue.speech_sequences[216][_lang_tmp] = "events.";
+  
+  robot.dialogue.speech_sequences[217][_lang_tmp] = "An all-day event.";
+
+  robot.dialogue.speech_sequences[224][_lang_tmp] = "Do you want to check your calendar for the next few days?";
+  robot.dialogue.speech_sequences[225][_lang_tmp] = "Want me to check what's planned for the next few days?";
+  robot.dialogue.speech_sequences[226][_lang_tmp] = "Would you like to check the coming events?";
+
+   
+  robot.dialogue.speech_sequences[227][_lang_tmp] = "There is nothing more planned for the next week.";
+  robot.dialogue.speech_sequences[228][_lang_tmp] = "That is all for this week.";
+  robot.dialogue.speech_sequences[229][_lang_tmp] = "You have nothing more planned.";
+  
+  
+  robot.dialogue.speech_sequences[230][_lang_tmp] = "EMYS robot";            ////////////////////////////
+  robot.dialogue.speech_sequences[231][_lang_tmp] = "Voice message sent by EMYS robot.";
+  robot.dialogue.speech_sequences[234][_lang_tmp] = "Hello!<br> There is a voice message in the attachment.<br>Regards,<br><br><br><b><i>EMYS robot</b></i>";
+  robot.dialogue.speech_sequences[232][_lang_tmp] = "Message sent by EMYS robot.";
+  robot.dialogue.speech_sequences[235][_lang_tmp] = "Hello!<br> There is a photo in the attachment.<br>Regards,<br><br><br><b><i>EMYS robot</b></i>";
+  robot.dialogue.speech_sequences[233][_lang_tmp] = "Message sent by EMYS robot.";
+  robot.dialogue.speech_sequences[236][_lang_tmp] = "Hello!<br> There is a voice message and a photo in the attachment.<br>Regards,<br><br><br><b><i>EMYS robot</b></i>";
+ 
+     
+  robot.dialogue.speech_sequences[240][_lang_tmp] = "Do you want to add a photo?";
+  robot.dialogue.speech_sequences[241][_lang_tmp] = "Would you like to add a photo?";
+  robot.dialogue.speech_sequences[242][_lang_tmp] = "Do you want a photo attached?"; 
+  robot.dialogue.speech_sequences[243][_lang_tmp] = "Do you want a voice message with that?";
+  robot.dialogue.speech_sequences[244][_lang_tmp] = "Want me to add a voice message?";
+  robot.dialogue.speech_sequences[245][_lang_tmp] = "Should I attach a voice message?"; 
+    
+  robot.dialogue.speech_sequences[246][_lang_tmp] = "Want me to read the next message?";
+  robot.dialogue.speech_sequences[247][_lang_tmp] = "Should I read you the next one?";
+  robot.dialogue.speech_sequences[248][_lang_tmp] = "Do you want to hear another one?";
+
+  robot.dialogue.speech_sequences[253][_lang_tmp] = "Do you want to reply to that message?";
+  robot.dialogue.speech_sequences[254][_lang_tmp] = "Do you want to send a reply?";
+  robot.dialogue.speech_sequences[255][_lang_tmp] = "Would you like to answer?";
+  
+  robot.dialogue.speech_sequences[256][_lang_tmp] = "Should I read it to you?";
+  robot.dialogue.speech_sequences[257][_lang_tmp] = "Do you want me to read it?";
+  robot.dialogue.speech_sequences[258][_lang_tmp] = "Would you like me to read them?";
+  robot.dialogue.speech_sequences[259][_lang_tmp] = "Should I read them to you?";
+   
+  robot.dialogue.speech_sequences[260][_lang_tmp] = "Attention!";
+  robot.dialogue.speech_sequences[261][_lang_tmp] = "Ready?";
+  robot.dialogue.speech_sequences[262][_lang_tmp] = "I'm taking a photo!";
+
+  robot.dialogue.speech_sequences[263][_lang_tmp] = "Attention!";
+  robot.dialogue.speech_sequences[264][_lang_tmp] = "Ready?";
+  robot.dialogue.speech_sequences[265][_lang_tmp] = "I'm recording!";  
+    
+  robot.dialogue.speech_sequences[270][_lang_tmp] = "The message has been sent.";
+  robot.dialogue.speech_sequences[271][_lang_tmp] = "I have sent the message.";
+  robot.dialogue.speech_sequences[272][_lang_tmp] = "The message was sent successfully.";
+  
+  robot.dialogue.speech_sequences[273][_lang_tmp] = "You have no new messages.";
+  robot.dialogue.speech_sequences[274][_lang_tmp] = "There are no new messages.";
+  robot.dialogue.speech_sequences[275][_lang_tmp] = "No new messages.";
+  
+  
+  robot.dialogue.speech_sequences[276][_lang_tmp] = "Who do you want to send this to?";
+  robot.dialogue.speech_sequences[277][_lang_tmp] = "Who should receive this message?";
+  robot.dialogue.speech_sequences[278][_lang_tmp] = "Who should I send it to?";
+  
+  robot.dialogue.speech_sequences[280][_lang_tmp] = "You have";
+  robot.dialogue.speech_sequences[281][_lang_tmp] = "one new message.";
+  robot.dialogue.speech_sequences[282][_lang_tmp] = "two new messages.";
+  robot.dialogue.speech_sequences[283][_lang_tmp] = "three new messages.";
+  robot.dialogue.speech_sequences[284][_lang_tmp] = "four new messages.";
+  robot.dialogue.speech_sequences[285][_lang_tmp] = "new messages.";
+  
+  robot.dialogue.speech_sequences[286][_lang_tmp] = "Downloading. One moment.";
+  robot.dialogue.speech_sequences[287][_lang_tmp] = "Wait a second, I'm downloading.";
+  robot.dialogue.speech_sequences[288][_lang_tmp] = "Please wait until I download the message";
+ 
+  robot.dialogue.speech_sequences[290][_lang_tmp] = "Message from";
+ 
+  robot.dialogue.speech_sequences[291][_lang_tmp] = "The message has to contain a recording or photo.";
+  robot.dialogue.speech_sequences[292][_lang_tmp] = "You need to add a photo or a voice message.";
+  robot.dialogue.speech_sequences[293][_lang_tmp] = "Please add a photo or a voice message";
+
+  
+
+  robot.dialogue.speech_sequences[295][_lang_tmp] = "Sorry, I couldn't send the message.";
+  robot.dialogue.speech_sequences[296][_lang_tmp] = "Oh my, I was unable to send the message.";
+  robot.dialogue.speech_sequences[297][_lang_tmp] = "There seems to be a problem with the Internet, I couldn't send anything.";
+   
+  
+
+  
+  robot.dialogue.speech_sequences[300][_lang_tmp] = "midnight";
+  robot.dialogue.speech_sequences[301][_lang_tmp] = "one";
+  robot.dialogue.speech_sequences[302][_lang_tmp] = "two";
+  robot.dialogue.speech_sequences[303][_lang_tmp] = "three";
+  robot.dialogue.speech_sequences[304][_lang_tmp] = "four";
+  robot.dialogue.speech_sequences[305][_lang_tmp] = "five";
+  robot.dialogue.speech_sequences[306][_lang_tmp] = "six";
+  robot.dialogue.speech_sequences[307][_lang_tmp] = "seven";
+  robot.dialogue.speech_sequences[308][_lang_tmp] = "eight";
+  robot.dialogue.speech_sequences[309][_lang_tmp] = "nine";
+  robot.dialogue.speech_sequences[310][_lang_tmp] = "ten";
+  robot.dialogue.speech_sequences[311][_lang_tmp] = "eleven";
+  robot.dialogue.speech_sequences[312][_lang_tmp] = "twelve";
+  robot.dialogue.speech_sequences[313][_lang_tmp] = "one p.m.";
+  robot.dialogue.speech_sequences[314][_lang_tmp] = "two p.m.";
+  robot.dialogue.speech_sequences[315][_lang_tmp] = "three p.m.";
+  robot.dialogue.speech_sequences[316][_lang_tmp] = "four p.m.";
+  robot.dialogue.speech_sequences[317][_lang_tmp] = "five p.m.";
+  robot.dialogue.speech_sequences[318][_lang_tmp] = "six p.m.";
+  robot.dialogue.speech_sequences[319][_lang_tmp] = "seven p.m.";
+  robot.dialogue.speech_sequences[320][_lang_tmp] = "eight p.m.";
+  robot.dialogue.speech_sequences[321][_lang_tmp] = "nine p.m.";
+  robot.dialogue.speech_sequences[322][_lang_tmp] = "ten p.m.";
+  robot.dialogue.speech_sequences[323][_lang_tmp] = "eleven p.m.";
+  
+  robot.dialogue.speech_sequences[340][_lang_tmp] = "What do you want me to do with this photo?";
+  robot.dialogue.speech_sequences[341][_lang_tmp] = "What should I do with it?";
+  robot.dialogue.speech_sequences[342][_lang_tmp] = "What now?";
+  
+
+  robot.dialogue.speech_sequences[351][_lang_tmp] = "wrote to you";
+  robot.dialogue.speech_sequences[352][_lang_tmp] = "wrote a message";
+  
+  robot.dialogue.speech_sequences[353][_lang_tmp] = "wrote to you";
+  robot.dialogue.speech_sequences[354][_lang_tmp] = "wrote message";
+  
+  
+  robot.dialogue.speech_sequences[355][_lang_tmp] = "wrote";
+  robot.dialogue.speech_sequences[356][_lang_tmp] = "wrote";
+   
+  robot.dialogue.speech_sequences[357][_lang_tmp] = "You have notifications.";  ///////////////////////////////////////
+  robot.dialogue.speech_sequences[358][_lang_tmp] = "You received notifications.";  ///////////////////////////////////////
+  
+ 
+  robot.dialogue.speech_sequences[360][_lang_tmp] = "You have no messages and notifications.";
+  robot.dialogue.speech_sequences[361][_lang_tmp] = "There are neither messages nor notifiactions.";
+  robot.dialogue.speech_sequences[362][_lang_tmp] = "No new messages or notifications.";
+  
+  robot.dialogue.speech_sequences[364][_lang_tmp] = "Want me to read you a couple of posts?";
+  robot.dialogue.speech_sequences[365][_lang_tmp] = "Should I read some of the posts from your wall?";
+  robot.dialogue.speech_sequences[366][_lang_tmp] = "Would you like to hear the latest posts?";
+  
+
+  robot.dialogue.speech_sequences[367][_lang_tmp] = "Should I read the next one or like this?";
+  robot.dialogue.speech_sequences[368][_lang_tmp] = "Like this or should I read on?";
+  robot.dialogue.speech_sequences[369][_lang_tmp] = "Do you like this or should I read the next one?";
+    
+  robot.dialogue.speech_sequences[370][_lang_tmp] = "Photo published by my robot.";
+  robot.dialogue.speech_sequences[371][_lang_tmp] = "skoment";
+  
+  robot.dialogue.speech_sequences[375][_lang_tmp] = "I posted the photo on the wall.";
+  robot.dialogue.speech_sequences[376][_lang_tmp] = "I posted this on facebook.";
+  robot.dialogue.speech_sequences[377][_lang_tmp] = "The photo was added to your account.";
+  
+    
+  robot.dialogue.speech_sequences[380][_lang_tmp] = "I'll show you some of my emotions.";
+  robot.dialogue.speech_sequences[381][_lang_tmp] = "This is how I express emotions.";
+  robot.dialogue.speech_sequences[382][_lang_tmp] = "Let me show you my emotions.";
+  
+  
+  robot.dialogue.speech_sequences[383][_lang_tmp] = "I can be";
+  robot.dialogue.speech_sequences[384][_lang_tmp] = "This is how i look when I'm";
+  robot.dialogue.speech_sequences[385][_lang_tmp] = "I do this when I'm";
+  
+  robot.dialogue.speech_sequences[386][_lang_tmp] = "That's all.";
+  robot.dialogue.speech_sequences[387][_lang_tmp] = "Ok. That's it.";
+  robot.dialogue.speech_sequences[388][_lang_tmp] = "That will be all.";
+  robot.dialogue.speech_sequences[389][_lang_tmp] = "Ok. This is enough.";
+  
+  robot.dialogue.speech_sequences[391][_lang_tmp] = "happy";
+  robot.dialogue.speech_sequences[392][_lang_tmp] = "sad";
+  robot.dialogue.speech_sequences[393][_lang_tmp] = "frightened";
+  robot.dialogue.speech_sequences[394][_lang_tmp] = "disgusted";
+  robot.dialogue.speech_sequences[395][_lang_tmp] = "surprised";
+  robot.dialogue.speech_sequences[396][_lang_tmp] = "angry";
+  
+  robot.dialogue.speech_sequences[400][_lang_tmp] = "Would you like to send it to";
+  robot.dialogue.speech_sequences[401][_lang_tmp] = "Are you sure you want it to go to";
+  robot.dialogue.speech_sequences[402][_lang_tmp] = "Do you want to send the message to";
+  
+  robot.dialogue.speech_sequences[410][_lang_tmp] = "My name is EMYS and I'm a social robot created at the Wroc?aw University of Technology."; 
+  robot.dialogue.speech_sequences[411][_lang_tmp] = "I'm here to assist you in your daily activities." ;
+  robot.dialogue.speech_sequences[412][_lang_tmp] = "I would like to help you with your daily activities." ;
+  robot.dialogue.speech_sequences[413][_lang_tmp] = "Everyday I can keep track of your e-mails, personal calendar and facebook acount.";
+  robot.dialogue.speech_sequences[414][_lang_tmp] = "If you ask me, I'll check current weather or the forecast for the coming days.";
+  robot.dialogue.speech_sequences[415][_lang_tmp] = "I can also read a variety of different news: local, national or from around the world. You can also ask me for some news about sports, automotive industry, movies, TV and celebrities. I can also tell you what is happening in the world of science and modern technologies.";
+  robot.dialogue.speech_sequences[416][_lang_tmp] = "Whenever you want, I can play your favourite radio station. You only have to pick one of the available genres of music, such as: club, classical, children, chillout, rock, reggae, dubstep, flamenco, or relaxation.";
+  robot.dialogue.speech_sequences[417][_lang_tmp] = "If you want to send a message to your friend, you can use my audio-visual system. It will allow you to send a voice message or a photo. Since I'm integrated with your contacts, you can just tell me who to send the message to.";
+  robot.dialogue.speech_sequences[418][_lang_tmp] = "When you ask me to take a photo, I can either send it via e-mail or post it on your facebook profile. I will also be able to tell you who commented on it!";
+  robot.dialogue.speech_sequences[419][_lang_tmp] = "When you're preparing for an evening TV session, I will check what is on for you. This way you will never miss your favourite movies again.";
+  robot.dialogue.speech_sequences[420][_lang_tmp] = "But remember! Your task is to teach me the names of as many different colors as possible. This is very important to me, because it will allow me to better understand the environment that I live in.";
+  robot.dialogue.speech_sequences[421][_lang_tmp] = "Thank you.";
+  
+  
+  robot.dialogue.speech_sequences[490][_lang_tmp] = "Would you like to hear more about me?";
+  robot.dialogue.speech_sequences[491][_lang_tmp] = "Do you want to hear more?";
+  robot.dialogue.speech_sequences[492][_lang_tmp] = "Should I continue?"; 
+
+  robot.dialogue.speech_sequences[500][_lang_tmp] = "What shall we play? Teaching or guessing"; 
+  robot.dialogue.speech_sequences[501][_lang_tmp] = "What would you like to play? Teaching or guessing?"; 
+  robot.dialogue.speech_sequences[502][_lang_tmp] = "Which game do you want to playe? Teaching or guessing?"; 
+  robot.dialogue.speech_sequences[503][_lang_tmp] = "Would you like to teach me or should i guess?"; 
+  
+  robot.dialogue.speech_sequences[504][_lang_tmp] = "Ok. Show me something and tell me what color it is."; 
+  robot.dialogue.speech_sequences[505][_lang_tmp] = "Great. Show me an object and tell me what is it's color."; 
+  robot.dialogue.speech_sequences[506][_lang_tmp] = "Ok. Present me with an object and say what color it is."; 
+
+  robot.dialogue.speech_sequences[507][_lang_tmp] = "Show me something and ask me what color it is."; 
+  robot.dialogue.speech_sequences[508][_lang_tmp] = "Present me with an object and ask me for it's color."; 
+  robot.dialogue.speech_sequences[509][_lang_tmp] = "Show me whatever you want and and ask me for the color of that thing."; 
+  
+  robot.dialogue.speech_sequences[510][_lang_tmp] = "Am I right?"; 
+  robot.dialogue.speech_sequences[511][_lang_tmp] = "Is that correct?"; 
+  robot.dialogue.speech_sequences[512][_lang_tmp] = "Is that right?"; 
+  robot.dialogue.speech_sequences[513][_lang_tmp] = "Did I guess right?"; 
+  robot.dialogue.speech_sequences[514][_lang_tmp] = "Correct?"; 
+  robot.dialogue.speech_sequences[515][_lang_tmp] = "Would you agree?"; 
+  
+  robot.dialogue.speech_sequences[520][_lang_tmp] = "Ok, I got it."; 
+  robot.dialogue.speech_sequences[521][_lang_tmp] = "I'll try to remember."; 
+  robot.dialogue.speech_sequences[522][_lang_tmp] = "Got it."; 
+  robot.dialogue.speech_sequences[523][_lang_tmp] = "Right."; 
+
+  robot.dialogue.speech_sequences[530][_lang_tmp] = "Show me the next one.";
+  robot.dialogue.speech_sequences[531][_lang_tmp] = "Another one, please.";
+  robot.dialogue.speech_sequences[532][_lang_tmp] = "Show me something else."; 
+  robot.dialogue.speech_sequences[533][_lang_tmp] = "Next one."; 
+  robot.dialogue.speech_sequences[534][_lang_tmp] = "More, please."; 
+  
+  robot.dialogue.speech_sequences[540][_lang_tmp] = "I'm not quite sure but I think it's"; 
+  robot.dialogue.speech_sequences[541][_lang_tmp] = "I guess this is"; 
+  robot.dialogue.speech_sequences[542][_lang_tmp] = "It is"; 
+  robot.dialogue.speech_sequences[543][_lang_tmp] = "I think it is"; 
+  robot.dialogue.speech_sequences[544][_lang_tmp] = "I'd say it's"; 
+  
+  robot.dialogue.speech_sequences[546][_lang_tmp] = "I can't see this color very well."; 
+  robot.dialogue.speech_sequences[547][_lang_tmp] = "Oh my. I can't see this color"; 
+  robot.dialogue.speech_sequences[548][_lang_tmp] = "Gee, I have a problem seeing this color."; 
+     
+  robot.dialogue.speech_sequences[550][_lang_tmp] = "white"; 
+  robot.dialogue.speech_sequences[551][_lang_tmp] = "gray"; 
+  robot.dialogue.speech_sequences[552][_lang_tmp] = "black"; 
+  robot.dialogue.speech_sequences[553][_lang_tmp] = "red"; 
+  robot.dialogue.speech_sequences[554][_lang_tmp] = "yellow"; 
+  robot.dialogue.speech_sequences[555][_lang_tmp] = "green"; 
+  robot.dialogue.speech_sequences[556][_lang_tmp] = "blue"; 
+  robot.dialogue.speech_sequences[557][_lang_tmp] = "violet"; 
+  robot.dialogue.speech_sequences[558][_lang_tmp] = "orange"; 
+  robot.dialogue.speech_sequences[559][_lang_tmp] = "brown"; 
+  robot.dialogue.speech_sequences[560][_lang_tmp] = "pink"; 
+  robot.dialogue.speech_sequences[561][_lang_tmp] = "navy blue"; 
+  robot.dialogue.speech_sequences[562][_lang_tmp] = "purple"; 
+  robot.dialogue.speech_sequences[563][_lang_tmp] = "ecru"; 
+  robot.dialogue.speech_sequences[564][_lang_tmp] = "salmon"; 
+  robot.dialogue.speech_sequences[565][_lang_tmp] = "flesh-coloured"; 
+  robot.dialogue.speech_sequences[566][_lang_tmp] = "azure"; 
+  robot.dialogue.speech_sequences[567][_lang_tmp] = "olive"; 
+  robot.dialogue.speech_sequences[568][_lang_tmp] = "celadon"; 
+  robot.dialogue.speech_sequences[569][_lang_tmp] = "turquoise"; 
+  robot.dialogue.speech_sequences[570][_lang_tmp] = "graphite"; 
+  
+
+  robot.dialogue.speech_sequences[580][_lang_tmp] = "Unfortunately I don't know many colors yet."; 
+  robot.dialogue.speech_sequences[581][_lang_tmp] = "Oh, I'm sorry. I think I know too many colors."; 
+  robot.dialogue.speech_sequences[582][_lang_tmp] = "I don't really know many colors yet"; 
+  
+  robot.dialogue.speech_sequences[583][_lang_tmp] = "You have to teach me first."; 
+  robot.dialogue.speech_sequences[584][_lang_tmp] = "Maybe you could teach me first?"; 
+  robot.dialogue.speech_sequences[585][_lang_tmp] = "Teach me some colors, please."; 
+  
+  robot.dialogue.speech_sequences[586][_lang_tmp] = "Unfortunately I only know a few colors."; 
+  robot.dialogue.speech_sequences[587][_lang_tmp] = "I'm afraid I only know a few colors."; 
+  robot.dialogue.speech_sequences[588][_lang_tmp] = "Sorry, I know just a couple of colors"; 
+  
+  robot.dialogue.speech_sequences[589][_lang_tmp] = "We can try. I hope I'll manage."; 
+  robot.dialogue.speech_sequences[590][_lang_tmp] = "Let's give it a go. Maybe I'll get it right."; 
+  robot.dialogue.speech_sequences[591][_lang_tmp] = "Let's try but don't be suprised if I get something wrong."; 
+    
+  robot.dialogue.speech_sequences[592][_lang_tmp] = "Great. I know some colors now."; 
+  robot.dialogue.speech_sequences[593][_lang_tmp] = "Ok. I've learned a few colors already."; 
+  robot.dialogue.speech_sequences[594][_lang_tmp] = "Fine. I know some colors."; 
+  
+    
+  robot.dialogue.speech_sequences[600][_lang_tmp] = "";
+  robot.dialogue.speech_sequences[601][_lang_tmp] = "";
+  robot.dialogue.speech_sequences[602][_lang_tmp] = "";
+  robot.dialogue.speech_sequences[603][_lang_tmp] = "";
+  
+  
+  //////////////////////////////////////////////////////////////// 
+  //
+  //    P O L I S H
+  //
+  ////////////////////////////////////////////////////////////////
+  //
+  // Polish UTF-8 chars - just for quick reference
+  //
+  // a	\xc4\x85   	A  \xc4\x84
+  // c	\xc4\x87   	C  \xc4\x86
+  // e	\xc4\x99	E  \xc4\x98
+  // l	\xc5\x82 	L  \xc5\x81
+  // n	\xc5\x84 	N  \xc5\x83
+  // o	\xc3\xb3	O  \xc3\x93
+  // s	\xc5\x9b	S  \xc5\x9a
+  // z,	\xc5\xba	Z, \xc5\xb9
+  // z.	\xc5\xbc	Z. \xc5\xbb
+  
+  _lang_tmp = 1;
+
+    
+  robot.dialogue.speech_sequences[601][_lang_tmp] = "Jest tu kto\xc5\x9b? Troch\xc4\x99 mi nudno.";
+  robot.dialogue.speech_sequences[602][_lang_tmp] = "Troch\xc4\x99 tu nudno.";
+  robot.dialogue.speech_sequences[603][_lang_tmp] = "Ale si\xc4\x99 nudz\xc4\x99.";
+  robot.dialogue.speech_sequences[604][_lang_tmp] = "Troch\xc4\x99 mi si\xc4\x99 nudzi.";
+  
+  robot.dialogue.speech_sequences[1][_lang_tmp] = "Cze\xc5\x9b\xc4\x87!";
+  robot.dialogue.speech_sequences[2][_lang_tmp] = "Witaj!";
+  robot.dialogue.speech_sequences[3][_lang_tmp] = "Hej!";
+  robot.dialogue.speech_sequences[4][_lang_tmp] = "Witaj witaj!";
+  robot.dialogue.speech_sequences[5][_lang_tmp] = "Siema!";
+  
+  robot.dialogue.speech_sequences[7][_lang_tmp] = "Wstawaj!";
+  robot.dialogue.speech_sequences[8][_lang_tmp] = "Obud\xc5\xba si\xc4\x99!";
+  robot.dialogue.speech_sequences[9][_lang_tmp] = "Wstawaj! Wstawaj!";
+
+  robot.dialogue.speech_sequences[10][_lang_tmp] = "Okej";
+  robot.dialogue.speech_sequences[11][_lang_tmp] = "Dzi\xc4\x99kuj\xc4\x99.";
+  robot.dialogue.speech_sequences[12][_lang_tmp] = "Okej. Dzi\xc4\x99kuj\xc4\x99.";
+  
+  robot.dialogue.speech_sequences[14][_lang_tmp] = "Niestety.";
+  robot.dialogue.speech_sequences[15][_lang_tmp] = "Eh.";
+  robot.dialogue.speech_sequences[16][_lang_tmp] = "Ojej.";
+    
+  robot.dialogue.speech_sequences[17][_lang_tmp] = "\xc5\x9awietnie!";
+  robot.dialogue.speech_sequences[18][_lang_tmp] = "Super!";
+  robot.dialogue.speech_sequences[19][_lang_tmp] = "Wspaniale!";
+    
+  robot.dialogue.speech_sequences[20][_lang_tmp] = "Na co masz ochot\xc4\x99?";
+  robot.dialogue.speech_sequences[21][_lang_tmp] = "Jaki rodzaj muzuki chcesz pos\xc5\x82ucha\xc4\x87?";
+  robot.dialogue.speech_sequences[22][_lang_tmp] = "Co ci w\xc5\x82\xc4\x85czy\xc4\x87?";
+ 
+  robot.dialogue.speech_sequences[30][_lang_tmp] = "Nikogo nie widz\xc4\x99!";
+  robot.dialogue.speech_sequences[31][_lang_tmp] = "Hej gdzie sobie poszed\xc5\x82e\xc5\x9b!";
+  robot.dialogue.speech_sequences[32][_lang_tmp] = "Ej! Nie widz\xc4\x99 ci\xc4\x99!";
+   
+  robot.dialogue.speech_sequences[35][_lang_tmp] = "S\xc5\x82abo ci\xc4\x99 widz\xc4\x99.";
+  robot.dialogue.speech_sequences[36][_lang_tmp] = "Kiepsko ci\xc4\x99 widz\xc4\x99.";
+  robot.dialogue.speech_sequences[37][_lang_tmp] = "Nie najlepiej ci\xc4\x99 widz\xc4\x99.";
+  
+  
+  
+  robot.dialogue.speech_sequences[40][_lang_tmp] = "Podaj godzin\xc4\x99 o kt\xc3\xb3rej mam w\xc5\x82\xc4\x85czy\xc4\x87 budzik.";
+  robot.dialogue.speech_sequences[41][_lang_tmp] = "O kt\xc3\xb3rej ci\xc4\x99 obudzi\xc4\x87?";
+  robot.dialogue.speech_sequences[42][_lang_tmp] = "O kt\xc3\xb3rej wstajesz?"; 
+    
+  robot.dialogue.speech_sequences[43][_lang_tmp] = "Czy chcesz wsta\xc4\x87 o";
+  robot.dialogue.speech_sequences[44][_lang_tmp] = "Obudzi\xc4\x87 ci\xc4\x99 o";
+  robot.dialogue.speech_sequences[45][_lang_tmp] = "napewno?"; 
+    
+  robot.dialogue.speech_sequences[46][_lang_tmp] = "Czy chcesz abym obudzi\xc5\x82 ci\xc4\x99 za 5 minut?";
+  robot.dialogue.speech_sequences[47][_lang_tmp] = "Czy chcesz jeszcze podrzema\xc4\x87 5 minut?";
+  robot.dialogue.speech_sequences[48][_lang_tmp] = "Czy chcesz si\xc4\x99 jeszcze zdrzemn\xc4\x85\xc4\x87 5 minut?"; 
+
+  robot.dialogue.speech_sequences[50][_lang_tmp] = "w niedziel\xc4\x99";
+  robot.dialogue.speech_sequences[51][_lang_tmp] = "w poniedzia\xc5\x82ek";
+  robot.dialogue.speech_sequences[52][_lang_tmp] = "we wtorek";
+  robot.dialogue.speech_sequences[53][_lang_tmp] = "w \xc5\x9brod\xc4\x99";
+  robot.dialogue.speech_sequences[54][_lang_tmp] = "w czwartek";
+  robot.dialogue.speech_sequences[55][_lang_tmp] = "w pi\xc4\x85tek";
+  robot.dialogue.speech_sequences[56][_lang_tmp] = "w sobot\xc4\x99";
+  robot.dialogue.speech_sequences[57][_lang_tmp] = "w niedziel\xc4\x99";
+  
+  robot.dialogue.speech_sequences[60][_lang_tmp] = "Przepraszam, mam jaki\xc5\x9b problem z pobraniem danych z sieci.";
+  robot.dialogue.speech_sequences[61][_lang_tmp] = "Ojej, nie mog\xc5\x82em pobra\xc4\x87 danych z sieci.";
+  robot.dialogue.speech_sequences[62][_lang_tmp] = "Mam jaki\xc5\x9b problem z sieci\xc4\x85, nie mog\xc5\x82em pobra\xc4\x87 danych.";
+    
+  robot.dialogue.speech_sequences[70][_lang_tmp] = "Czy chcesz us\xc5\x82ysze\xc4\x87 prognoz\xc4\x99 na nast\xc4\x99pne dni?";
+  robot.dialogue.speech_sequences[71][_lang_tmp] = "Czy chcesz pozna\xc4\x87 prognoz\xc4\x99 na nast\xc4\x99pne dni?";
+  robot.dialogue.speech_sequences[72][_lang_tmp] = "Poda\xc4\x87 prognoz\xc4\x99 na nast\xc4\x99pne dni?";
+  
+  robot.dialogue.speech_sequences[73][_lang_tmp] = "Czy chcesz us\xc5\x82ysze\xc4\x87 program na nast\xc4\x99pne dni?";
+  robot.dialogue.speech_sequences[74][_lang_tmp] = "Czy chcesz pozna\xc4\x87 program na nast\xc4\x99pne dni?";
+  robot.dialogue.speech_sequences[75][_lang_tmp] = "Poda\xc4\x87 program na nast\xc4\x99pne dni?";
+  
+  robot.dialogue.speech_sequences[76][_lang_tmp] = "Nie ma nic na dzisiaj.";
+  robot.dialogue.speech_sequences[77][_lang_tmp] = "Dzisiaj ju\xc5\xbc nie ma nic ciekawego.";
+  robot.dialogue.speech_sequences[78][_lang_tmp] = "Na dzisiaj nie ma \xc5\xbcadnych ciekawych propozycji.";
+    
+  robot.dialogue.speech_sequences[79][_lang_tmp] = "niedziela";
+  robot.dialogue.speech_sequences[80][_lang_tmp] = "poniedzia\xc5\x82ek";
+  robot.dialogue.speech_sequences[81][_lang_tmp] = "wtorek";
+  robot.dialogue.speech_sequences[82][_lang_tmp] = "\xc5\x9broda";
+  robot.dialogue.speech_sequences[83][_lang_tmp] = "czwartek";
+  robot.dialogue.speech_sequences[84][_lang_tmp] = "pi\xc4\x85tek";
+  robot.dialogue.speech_sequences[85][_lang_tmp] = "sobota";
+  robot.dialogue.speech_sequences[86][_lang_tmp] = "niedziela";
+    
+  robot.dialogue.speech_sequences[87][_lang_tmp] = "dzi\xc5\x9b";
+  robot.dialogue.speech_sequences[88][_lang_tmp] = "jutro";
+  robot.dialogue.speech_sequences[89][_lang_tmp] = "pojutrze";
+  // robot.dialogue.speech_sequences[89][_lang_tmp] = "dzi\xc5\x9b";
+  
+  robot.dialogue.speech_sequences[90][_lang_tmp] = "Temperatura na zewn\xc4\x85trz wynosi";
+  robot.dialogue.speech_sequences[91][_lang_tmp] = "stopni Celsjusza, a pogoda na dzi\xc5\x9b to,";
+  robot.dialogue.speech_sequences[92][_lang_tmp] = "Temperatura";
+  robot.dialogue.speech_sequences[93][_lang_tmp] = "mi\xc4\x99dzy";
+  robot.dialogue.speech_sequences[94][_lang_tmp] = "a";
+  robot.dialogue.speech_sequences[95][_lang_tmp] = "od";
+  robot.dialogue.speech_sequences[96][_lang_tmp] = "do";
+  robot.dialogue.speech_sequences[97][_lang_tmp] = "stopni Celsjusza";
+  
+  
+  robot.dialogue.speech_sequences[100][_lang_tmp] = "tornado";
+  robot.dialogue.speech_sequences[101][_lang_tmp] = "tropikalna burza";
+  robot.dialogue.speech_sequences[102][_lang_tmp] = "huragan";
+  robot.dialogue.speech_sequences[103][_lang_tmp] = "silne burze";
+  robot.dialogue.speech_sequences[104][_lang_tmp] = "burze";
+  robot.dialogue.speech_sequences[105][_lang_tmp] = "deszcz ze \xc5\x9bniegiem";
+  robot.dialogue.speech_sequences[106][_lang_tmp] = "deszcz ze \xc5\x9bniegiem";
+  robot.dialogue.speech_sequences[107][_lang_tmp] = "deszcz ze \xc5\x9bniegiem";
+  robot.dialogue.speech_sequences[108][_lang_tmp] = "marzn\xc4\x85ca m\xc5\xbcawka";
+  robot.dialogue.speech_sequences[109][_lang_tmp] = "m\xc5\xbcawka";
+  robot.dialogue.speech_sequences[110][_lang_tmp] = "marzn\xc4\x85cy deszcz"; 
+  robot.dialogue.speech_sequences[111][_lang_tmp] = "deszczowo";
+  robot.dialogue.speech_sequences[112][_lang_tmp] = "deszczowo";
+  robot.dialogue.speech_sequences[113][_lang_tmp] = "przelotne opady \xc5\x9bniegu";
+  robot.dialogue.speech_sequences[114][_lang_tmp] = "lekkie opady \xc5\x9bniegu";
+  robot.dialogue.speech_sequences[115][_lang_tmp] = "zamie\xc4\x87 \xc5\x9bnie\xc5\xbcna";
+  robot.dialogue.speech_sequences[116][_lang_tmp] = "opady \xc5\x9bniegu";
+  robot.dialogue.speech_sequences[117][_lang_tmp] = "opady gradu";
+  robot.dialogue.speech_sequences[118][_lang_tmp] = "deszcz ze \xc5\x9bniegiem";
+  robot.dialogue.speech_sequences[119][_lang_tmp] = "burza piaskowa";
+  robot.dialogue.speech_sequences[120][_lang_tmp] = "mgli\xc5\x9bcie";
+  robot.dialogue.speech_sequences[121][_lang_tmp] = "umiarkowanie mgli\xc5\x9bcie";
+  robot.dialogue.speech_sequences[122][_lang_tmp] = "nieco mgli\xc5\x9bcie";
+  robot.dialogue.speech_sequences[123][_lang_tmp] = "wietrznie";
+  robot.dialogue.speech_sequences[124][_lang_tmp] = "nieco wietrznie";
+  robot.dialogue.speech_sequences[125][_lang_tmp] = "och\xc5\x82odzenie";
+  robot.dialogue.speech_sequences[126][_lang_tmp] = "pochmurnie";
+  robot.dialogue.speech_sequences[127][_lang_tmp] = "silne zachmurzenie";
+  robot.dialogue.speech_sequences[128][_lang_tmp] = "silne zachmurzenie";
+  robot.dialogue.speech_sequences[129][_lang_tmp] = "cz\xc4\x99\xc5\x9bciowe zachmurzenie"; ///
+  robot.dialogue.speech_sequences[130][_lang_tmp] = "cz\xc4\x99\xc5\x9bciowe zachmurzenie";
+  robot.dialogue.speech_sequences[131][_lang_tmp] = "bezhmurnie";
+  robot.dialogue.speech_sequences[132][_lang_tmp] = "s\xc5\x82onecznie";
+  robot.dialogue.speech_sequences[133][_lang_tmp] = "pogodnie";
+  robot.dialogue.speech_sequences[134][_lang_tmp] = "pogodnie";
+  robot.dialogue.speech_sequences[135][_lang_tmp] = "opady deszczu i gradu";
+  robot.dialogue.speech_sequences[136][_lang_tmp] = "upa\xc5\x82";
+  robot.dialogue.speech_sequences[137][_lang_tmp] = "sporadyczne burze";
+  robot.dialogue.speech_sequences[138][_lang_tmp] = "umiarkowane burze";
+  robot.dialogue.speech_sequences[139][_lang_tmp] = "umiarkowane burze";
+  robot.dialogue.speech_sequences[140][_lang_tmp] = "sporadyczne opady deszczu";
+  robot.dialogue.speech_sequences[141][_lang_tmp] = "\xc5\x9bnie\xc5\xbcyca";
+  robot.dialogue.speech_sequences[142][_lang_tmp] = "przelotne opady deszczu";
+  robot.dialogue.speech_sequences[143][_lang_tmp] = "\xc5\x9bnie\xc5\xbcyca";
+  robot.dialogue.speech_sequences[144][_lang_tmp] = "cz\xc4\x99\xc5\x9bciowe zachmurzenie";
+  robot.dialogue.speech_sequences[145][_lang_tmp] = "burzowo";
+  robot.dialogue.speech_sequences[146][_lang_tmp] = "opady \xc5\x9bniegu";
+  robot.dialogue.speech_sequences[147][_lang_tmp] = "sporadyczne burze";
+
+  robot.dialogue.speech_sequences[200][_lang_tmp] = "Jakie wiadomo\xc5\x9bci chcesz us\xc5\x82ysze\xc4\x87?";
+  robot.dialogue.speech_sequences[201][_lang_tmp] = "Na jaki temat?";
+  robot.dialogue.speech_sequences[202][_lang_tmp] = "Co ci\xc4\x99 interesuje?";
+
+  robot.dialogue.speech_sequences[205][_lang_tmp] = "Czyta\xc4\x87 dalej?";
+  robot.dialogue.speech_sequences[206][_lang_tmp] = "Czyta\xc4\x87 kolejne?";
+  robot.dialogue.speech_sequences[207][_lang_tmp] = "Czyta\xc4\x87 nast\xc4\x99pne?";
+
+  robot.dialogue.speech_sequences[208][_lang_tmp] = "Nie mam wi\xc4\x99cej danych.";
+  robot.dialogue.speech_sequences[209][_lang_tmp] = "To wszystko.";
+  robot.dialogue.speech_sequences[210][_lang_tmp] = "To by by\xc5\x82o na tyle.";
+  
+  
+  robot.dialogue.speech_sequences[211][_lang_tmp] = "Nie masz na dzi\xc5\x9b zaplanowanych wydarze\xc5\x84.";
+  robot.dialogue.speech_sequences[212][_lang_tmp] = "Tw\xc3\xb3j kalendarz na dzi\xc5\x9b jest pusty.";
+  robot.dialogue.speech_sequences[213][_lang_tmp] = "Nic nie ma na dzi\xc5\x9b.";
+  
+  robot.dialogue.speech_sequences[214][_lang_tmp] = "jedno wydarzenie.";
+  robot.dialogue.speech_sequences[215][_lang_tmp] = "wydarzenia.";
+  robot.dialogue.speech_sequences[216][_lang_tmp] = "wydarze\xc5\x84.";
+  
+  robot.dialogue.speech_sequences[217][_lang_tmp] = "Wydarzenie ca\xc5\x82odniowe.";
+
+  robot.dialogue.speech_sequences[224][_lang_tmp] = "Sprawdzi\xc4\x87 kalendarz na nast\xc4\x99pne dni?";
+  robot.dialogue.speech_sequences[225][_lang_tmp] = "Sprawdzi\xc4\x87 kolejne dni?";
+  robot.dialogue.speech_sequences[226][_lang_tmp] = "Sprawdzi\xc4\x87 wydarzenia na kolejne dni?";
+
+   
+  robot.dialogue.speech_sequences[227][_lang_tmp] = "Nie ma wi\xc4\x99cej wydarze\xc5\x84 na najbli\xc5\xbcszy tydzie\xc5\x84.";
+  robot.dialogue.speech_sequences[228][_lang_tmp] = "W tym tygodniu to ju\xc5\xbc wszystko.";
+  robot.dialogue.speech_sequences[229][_lang_tmp] = "Na ten tydzie\xc5\x84 to ju\xc5\xbc wszystko.";
+  
+  
+  robot.dialogue.speech_sequences[230][_lang_tmp] = "";       
+  robot.dialogue.speech_sequences[231][_lang_tmp] = "Wiadomo\xc5\x9b\xc4\x87 wys\xc5\x82ana przez robota EMYS.";
+
+
+
+ 
+     
+  robot.dialogue.speech_sequences[240][_lang_tmp] = "Czy chcesz doda\xc4\x87 zdj\xc4\x99cie?";
+  robot.dialogue.speech_sequences[241][_lang_tmp] = "Doda\xc4\x87 zdj\xc4\x99cie?";
+  robot.dialogue.speech_sequences[242][_lang_tmp] = "Do\xc5\x82\xc4\x85czy\xc4\x87 do wiadomo\xc5\x9bci zdj\xc4\x99cie?"; 
+  robot.dialogue.speech_sequences[243][_lang_tmp] = "Czy chcesz doda\xc4\x87 wiadomo\xc5\x9b\xc4\x87 g\xc5\x82osow\xc4\x85?";
+  robot.dialogue.speech_sequences[244][_lang_tmp] = "Doda\xc4\x87 wiadomo\xc5\x9b\xc4\x87 g\xc5\x82osow\xc4\x85?";
+  robot.dialogue.speech_sequences[245][_lang_tmp] = "Do\xc5\x82\xc4\x85czy\xc4\x87 wiadomo\xc5\x9b\xc4\x87 g\xc5\x82osow\xc4\x85?"; 
+    
+  robot.dialogue.speech_sequences[246][_lang_tmp] = "Przeczyta\xc4\x87 nast\xc4\x99pn\xc4\x85 wiadomo\xc5\x9b\xc4\x87?";
+  robot.dialogue.speech_sequences[247][_lang_tmp] = "Przeczyta\xc4\x87 kolejn\xc4\x85 wiadomo\xc5\x9b\xc4\x87?";
+  robot.dialogue.speech_sequences[248][_lang_tmp] = "Przeczyta\xc4\x87 kolejn\xc4\x85?";
+
+  robot.dialogue.speech_sequences[253][_lang_tmp] = "Chcesz odpowiedzie\xc4\x87 na t\xc4\x85 wiadomo\xc5\x9b\xc4\x87?";
+  robot.dialogue.speech_sequences[254][_lang_tmp] = "Odpowiedzie\xc4\x87 na t\xc4\x85 wiadomo\xc5\x9b\xc4\x87?";
+  robot.dialogue.speech_sequences[255][_lang_tmp] = "Mo\xc5\xbce chcesz odpowiedzie\xc4\x87 na t\xc4\x85 wiadomo\xc5\x9b\xc4\x87?";
+  
+  robot.dialogue.speech_sequences[256][_lang_tmp] = "Chcesz abym ci j\xc4\x85 odczyta\xc5\x82?";
+  robot.dialogue.speech_sequences[257][_lang_tmp] = "Przeczyta\xc4\x87 ci j\xc4\x85?";
+  robot.dialogue.speech_sequences[258][_lang_tmp] = "Chcesz abym ci je odczyta\xc5\x82?";
+  robot.dialogue.speech_sequences[259][_lang_tmp] = "Przeczyta\xc4\x87 ci je?";
+   
+  robot.dialogue.speech_sequences[260][_lang_tmp] = "Uwaga!";
+  robot.dialogue.speech_sequences[261][_lang_tmp] = "Gotowy?";
+  robot.dialogue.speech_sequences[262][_lang_tmp] = "Robi\xc4\x99 zdj\xc4\x99cie!";
+
+  robot.dialogue.speech_sequences[263][_lang_tmp] = "Uwaga!";
+  robot.dialogue.speech_sequences[264][_lang_tmp] = "Gotowy?";
+  robot.dialogue.speech_sequences[265][_lang_tmp] = "Zaczynam nagrywanie!";  
+    
+  robot.dialogue.speech_sequences[270][_lang_tmp] = "Wiadomo\xc5\x9b\xc4\x87 zosta\xc5\x82a wys\xc5\x82ana.";
+  robot.dialogue.speech_sequences[271][_lang_tmp] = "Wiadomo\xc5\x9b\xc4\x87 wys\xc5\x82ana.";
+  robot.dialogue.speech_sequences[272][_lang_tmp] = "Posz\xc5\x82o.";
+  
+  robot.dialogue.speech_sequences[273][_lang_tmp] = "Nie masz \xc5\xbcadnych nowych wiadomo\xc5\x9bci.";
+  robot.dialogue.speech_sequences[274][_lang_tmp] = "Nie ma nowych wiadomo\xc5\x9bci.";
+  robot.dialogue.speech_sequences[275][_lang_tmp] = "Brak nowych wiadomo\xc5\x9bci.";
+  
+  
+  robot.dialogue.speech_sequences[276][_lang_tmp] = "Do kogo wys\xc5\x82a\xc4\x87 wiadomo\xc5\x9b\xc4\x87?";
+  robot.dialogue.speech_sequences[277][_lang_tmp] = "Do kogo to wys\xc5\x82a\xc4\x87?";
+  robot.dialogue.speech_sequences[278][_lang_tmp] = "Komu wys\xc5\x82a\xc4\x87 t\xc4\x85 wiadomo\xc5\x9b\xc4\x87?";
+  
+  robot.dialogue.speech_sequences[280][_lang_tmp] = "Masz";
+  robot.dialogue.speech_sequences[281][_lang_tmp] = "jedn\xc4\x85 now\xc4\x85 wiadomo\xc5\x9b\xc4\x87.";
+  robot.dialogue.speech_sequences[282][_lang_tmp] = "dwie nowe wiadomo\xc5\x9bci.";
+  robot.dialogue.speech_sequences[283][_lang_tmp] = "trzy nowe wiadomo\xc5\x9bci.";
+  robot.dialogue.speech_sequences[284][_lang_tmp] = "cztery nowe wiadomo\xc5\x9bci.";
+  robot.dialogue.speech_sequences[285][_lang_tmp] = "nowych wiadomo\xc5\x9bci.";
+  
+  robot.dialogue.speech_sequences[286][_lang_tmp] = "Poczekaj. Pobieram.";
+  robot.dialogue.speech_sequences[287][_lang_tmp] = "Pobieram wiadomo\xc5\x9b\xc4\x87. Poczekaj.";
+  robot.dialogue.speech_sequences[288][_lang_tmp] = "Pobieram. Poczekaj.";
+ 
+  robot.dialogue.speech_sequences[290][_lang_tmp] = "Wiadomo\xc5\x9b\xc4\x87 od";
+ 
+  robot.dialogue.speech_sequences[291][_lang_tmp] = "Wiadomo\xc5\x9b\xc4\x87 musi zawiera\xc4\x87 nagranie lub chocia\xc5\xbc zdj\xc4\x99cie";
+  robot.dialogue.speech_sequences[292][_lang_tmp] = "Musisz doda\xc4\x87 wiadomo\xc5\x9b\xc4\x87 g\xc5\x82osow\xc4\x85 lub chocia\xc5\xbc zdj\xc4\x99cie";
+  robot.dialogue.speech_sequences[293][_lang_tmp] = "Dodaj wiadomo\xc5\x9b\xc4\x87 g\xc5\x82osow\xc4\x85 lub chocia\xc5\xbc zdj\xc4\x99cie";
+
+  
+
+  robot.dialogue.speech_sequences[295][_lang_tmp] = "Przepraszam, nie uda\xc5\x82o mi si\xc4\x99 wys\xc5\x82a\xc4\x87 tej wiadomo\xc5\x9bci.";
+  robot.dialogue.speech_sequences[296][_lang_tmp] = "Ojej, nie mog\xc5\x82em wys\xc5\x82a\xc4\x87 tej wiadomo\xc5\x9bci.";
+  robot.dialogue.speech_sequences[297][_lang_tmp] = "Mam jaki\xc5\x9b problem z Internetem, nie mog\xc5\x82em wys\xc5\x82a\xc4\x87 wiadomo\xc5\x9bci.";
+   
+  
+
+  
+  robot.dialogue.speech_sequences[300][_lang_tmp] = "p\xc3\xb3\xc5\x82noc";
+  robot.dialogue.speech_sequences[301][_lang_tmp] = "pierwszej";
+  robot.dialogue.speech_sequences[302][_lang_tmp] = "drugiej";
+  robot.dialogue.speech_sequences[303][_lang_tmp] = "trzeciej";
+  robot.dialogue.speech_sequences[304][_lang_tmp] = "czwartej";
+  robot.dialogue.speech_sequences[305][_lang_tmp] = "pi\xc4\x85tej";
+  robot.dialogue.speech_sequences[306][_lang_tmp] = "sz\xc3\xb3stej";
+  robot.dialogue.speech_sequences[307][_lang_tmp] = "si\xc3\xb3dmej";
+  robot.dialogue.speech_sequences[308][_lang_tmp] = "\xc3\xb3smej";
+  robot.dialogue.speech_sequences[309][_lang_tmp] = "dziewi\xc4\x85tej";
+  robot.dialogue.speech_sequences[310][_lang_tmp] = "dziesi\xc4\x85tej";
+  robot.dialogue.speech_sequences[311][_lang_tmp] = "jedenastej";
+  robot.dialogue.speech_sequences[312][_lang_tmp] = "dwunastej";
+  robot.dialogue.speech_sequences[313][_lang_tmp] = "trzynastej";
+  robot.dialogue.speech_sequences[314][_lang_tmp] = "czternastej";
+  robot.dialogue.speech_sequences[315][_lang_tmp] = "pi\xc4\x99tnastej";
+  robot.dialogue.speech_sequences[316][_lang_tmp] = "szesnastej";
+  robot.dialogue.speech_sequences[317][_lang_tmp] = "siedemnastej";
+  robot.dialogue.speech_sequences[318][_lang_tmp] = "osiemnastej";
+  robot.dialogue.speech_sequences[319][_lang_tmp] = "dziewi\xc4\x99tnastej";
+  robot.dialogue.speech_sequences[320][_lang_tmp] = "dwudziestej";
+  robot.dialogue.speech_sequences[321][_lang_tmp] = "dwudziestej pierwszej";
+  robot.dialogue.speech_sequences[322][_lang_tmp] = "dwudziestej drugiej";
+  robot.dialogue.speech_sequences[323][_lang_tmp] = "dwudziestej trzeciej";
+  
+  robot.dialogue.speech_sequences[340][_lang_tmp] = "Co mam zrobi\xc4\x87 z tym zdj\xc4\x99ciem?";
+  robot.dialogue.speech_sequences[341][_lang_tmp] = "Co mam z nim zrobi\xc4\x87?";
+  robot.dialogue.speech_sequences[342][_lang_tmp] = "Co teraz?";
+  
+
+  robot.dialogue.speech_sequences[351][_lang_tmp] = "napisa\xc5\x82a ci";
+  robot.dialogue.speech_sequences[352][_lang_tmp] = "napisa\xc5\x82a do ciebie";
+  
+  robot.dialogue.speech_sequences[353][_lang_tmp] = "napisa\xc5\x82 ci";
+  robot.dialogue.speech_sequences[354][_lang_tmp] = "napisa\xc5\x82 do ciebie";
+  
+  
+  robot.dialogue.speech_sequences[355][_lang_tmp] = "napisa\xc5\x82a";
+  robot.dialogue.speech_sequences[356][_lang_tmp] = "napisa\xc5\x82";
+   
+  robot.dialogue.speech_sequences[357][_lang_tmp] = "Otrzyma\xc5\x82e\xc5\x9b tak\xc5\xbce powiadomienia.";  ///////////////////////////////////////
+  robot.dialogue.speech_sequences[358][_lang_tmp] = "Otrzyma\xc5\x82e\xc5\x9b te\xc5\xbc powiadomienia.";  ///////////////////////////////////////
+  
+ 
+  robot.dialogue.speech_sequences[360][_lang_tmp] = "Nie masz \xc5\xbcadnych wiadomo\xc5\x9bci ani powiadomie\xc5\x84.";
+  robot.dialogue.speech_sequences[361][_lang_tmp] = "Nie ma nowych wiadomo\xc5\x9bci ani powiadomie\xc5\x84.";
+  robot.dialogue.speech_sequences[362][_lang_tmp] = "Brak nowych wiadomo\xc5\x9bci i powiadomie\xc5\x84.";
+  
+  robot.dialogue.speech_sequences[364][_lang_tmp] = "Czy przeczyta\xc4\x87 ci kilka post\xc3\xb3w?";
+  robot.dialogue.speech_sequences[365][_lang_tmp] = "Przeczyta\xc4\x87 ci kilka post\xc3\xb3w ze \xc5\x9bciany?";
+  robot.dialogue.speech_sequences[366][_lang_tmp] = "Odczyta\xc4\x87 ci ostatnie posty?";
+  
+
+  robot.dialogue.speech_sequences[367][_lang_tmp] = "Czyta\xc4\x87 dalej, polubi\xc4\x87?";
+  robot.dialogue.speech_sequences[368][_lang_tmp] = "Polubi\xc4\x87 ,czy czyta\xc4\x87 dalej?";
+  robot.dialogue.speech_sequences[369][_lang_tmp] = "polubi\xc4\x87, czyta\xc4\x87 dalej?";
+  
+  
+  robot.dialogue.speech_sequences[370][_lang_tmp] = "Zdjecie opublikowane przez mojego robota.";
+  robot.dialogue.speech_sequences[371][_lang_tmp] = "skoment";
+  
+  robot.dialogue.speech_sequences[375][_lang_tmp] = "Wrzuci\xc5\x82em zdj\xc4\x99cie na \xc5\x82ola.";
+  robot.dialogue.speech_sequences[376][_lang_tmp] = "Wrzuci\xc5\x82em zdj\xc4\x99cie na fejsa.";
+  robot.dialogue.speech_sequences[377][_lang_tmp] = "Wrzuci\xc5\x82em na tw\xc3\xb3j profil.";
+  
+    
+  robot.dialogue.speech_sequences[380][_lang_tmp] = "Poka\xc5\xbc\xc4\x99 ci kilka swoich emocji.";
+  robot.dialogue.speech_sequences[381][_lang_tmp] = "Poka\xc5\xbc\xc4\x99 ci jak wyra\xc5\xbcam swoje emocje.";
+  robot.dialogue.speech_sequences[382][_lang_tmp] = "Poka\xc5\xbc\xc4\x99 ci swoje miny.";
+  
+  
+  robot.dialogue.speech_sequences[383][_lang_tmp] = "Mog\xc4\x99 by\xc4\x87";
+  robot.dialogue.speech_sequences[384][_lang_tmp] = "Tak wygl\xc4\x85dam gdy jestem";
+  robot.dialogue.speech_sequences[385][_lang_tmp] = "Tak\xc4\x85 robi\xc4\x99 min\xc4\x99 gdy jestem";
+  
+  robot.dialogue.speech_sequences[386][_lang_tmp] = "To tyle.";
+  robot.dialogue.speech_sequences[387][_lang_tmp] = "Okej. To wszystko.";
+  robot.dialogue.speech_sequences[388][_lang_tmp] = "Dobra. To wszystko.";
+  robot.dialogue.speech_sequences[389][_lang_tmp] = "Dobra. To tyle.";
+  
+  robot.dialogue.speech_sequences[391][_lang_tmp] = "weso\xc5\x82y";
+  robot.dialogue.speech_sequences[392][_lang_tmp] = "smutny";
+  robot.dialogue.speech_sequences[393][_lang_tmp] = "zaniepokojony";
+  robot.dialogue.speech_sequences[394][_lang_tmp] = "zniesmaczony";
+  robot.dialogue.speech_sequences[395][_lang_tmp] = "zaskoczony";
+  robot.dialogue.speech_sequences[396][_lang_tmp] = "z\xc5\x82y";
+  
+  robot.dialogue.speech_sequences[400][_lang_tmp] = "Wys\xc5\x82a\xc4\x87 wiadomo\xc5\x9b\xc4\x87 do";
+  robot.dialogue.speech_sequences[401][_lang_tmp] = "Czy napewno wys\xc5\x82a\xc4\x87 wiadomo\xc5\x9b\xc4\x87 do";
+  robot.dialogue.speech_sequences[402][_lang_tmp] = "Jeste\xc5\x9b pewien, \xc5\xbce chcesz wys\xc5\x82a\xc4\x87 wiadomo\xc5\x9b\xc4\x87 do"; ///////////////////////////////
+  
+  
+  
+  robot.dialogue.speech_sequences[410][_lang_tmp] = "Nazywam si\xc4\x99 EMYS i jestem robotem spo\xc5\x82ecznym skonstruowanym na Politechnice Wroc\xc5\x82awskiej."; 
+  robot.dialogue.speech_sequences[411][_lang_tmp] = "Zamieszkali\xc5\x9bmy razem, abym m\xc3\xb3g\xc5\x82 ci towarzyszy\xc4\x87 w Twoich codziennych domowych czynno\xc5\x9bciach." ;
+  robot.dialogue.speech_sequences[412][_lang_tmp] = "Jestem tu po to, aby m\xc3\xb3c ci towarzyszy\xc4\x87 w Twoich codziennych domowych czynno\xc5\x9bciach." ;
+  robot.dialogue.speech_sequences[413][_lang_tmp] = "Codziennie sprawdzam dla Ciebie twoj\xc4\x85 skrzynk\xc4\x99 pocztow\xc4\x85, osobisty kalendarz oraz profil na feisbuku.";
+  robot.dialogue.speech_sequences[414][_lang_tmp] = "Gdy mnie o to poprosisz, mog\xc4\x99 sprawdzi\xc4\x87 aktualn\xc4\x85 pogod\xc4\x99 oraz prognoz\xc4\x99 na nast\xc4\x99pne dni.";
+  robot.dialogue.speech_sequences[415][_lang_tmp] = "Mog\xc4\x99 tak\xc5\xbce odczyta\xc4\x87 ci codzienn\xc4\x85 porcj\xc4\x99 wiadomo\xc5\x9bci lokalne, z kraju i ze \xc5\x9bwiata, a tak\xc5\xbce news-y sportowe, motoryzacyjne, ciekawostki, filmowe, telewizyjne i plotkarskie. Mog\xc4\x99 te\xc5\xbc sprawdzi\xc4\x87 co dzieje si\xc4\x99 w \xc5\x9bwiecie nauki i najnowszych technologii.";
+  robot.dialogue.speech_sequences[416][_lang_tmp] = "Jestem gotowy, aby w ka\xc5\xbcdej chwili odtworzy\xc4\x87 ci ulubion\xc4\x85 stacj\xc4\x99 radiow\xc4\x85. Wystarczy tylko, \xc5\xbce wybierzesz jeden z wielu dost\xc4\x99pnych gatunk\xc3\xb3w, np.: muzyka klubowa, klasyczna, dla dzieci, czila\xc5\x82t, rock, rege, dapstep, flamenko, muzyka do pracy, czy te\xc5\xbc muzyka relaksuj\xc4\x85ca.";
+  robot.dialogue.speech_sequences[417][_lang_tmp] = "Je\xc5\x9bli chcesz wys\xc5\x82a\xc4\x87 wiadomo\xc5\x9b\xc4\x87 do swoich znajomych, skorzystaj z mojego systemu audio-wideo. On pozwoli ci utworzy\xc4\x87 wiadomo\xc5\x9b\xc4\x87 g\xc5\x82osow\xc4\x85 i doda\xc4\x87 zdj\xc4\x99cie. A dzi\xc4\x99ki temu, \xc5\xbce mam dost\xc4\x99p do twoich kontakt\xc3\xb3w mo\xc5\xbcesz wskaza\xc4\x87 dowolnego odbiorc\xc4\x99.";
+  robot.dialogue.speech_sequences[418][_lang_tmp] = "Gdy mnie poprosisz abym zrobi\xc5\x82 ci zdj\xc4\x99cie mog\xc4\x99 je wys\xc5\x82a\xc4\x87 poczt\xc4\x85 lub opublikowa\xc4\x87 na twoim profilu. Pami\xc4\x99taj, \xc5\xbce zawsze b\xc4\x99d\xc4\x99 m\xc3\xb3g\xc5\x82 sprawdzi\xc4\x87, kto je skomentowa\xc5\x82.";
+  robot.dialogue.speech_sequences[419][_lang_tmp] = "Gdy b\xc4\x99dziesz szykowa\xc5\x82 si\xc4\x99 do wieczornego seansu filmowego, sprawdz\xc4\x99 dla Ciebie aktualny program telewizyjny, aby\xc5\x9b nie przegapi\xc5\x82 swoich ulubionych program\xc3\xb3w.";
+  robot.dialogue.speech_sequences[420][_lang_tmp] = "Ale pami\xc4\x99taj! Twoim g\xc5\x82\xc3\xb3wnym zadaniem jest nauczy\xc4\x87 mnie jak najwi\xc4\x99kszej liczby kolor\xc3\xb3w. Wiedza ta jest mi bardzo potrzebna abym m\xc3\xb3g\xc5\x82 lepiej rozumie\xc4\x87 swoje otoczenie. ";
+  robot.dialogue.speech_sequences[421][_lang_tmp] = "Dzi\xc4\x99kuj\xc4\x99.";
+  
+  
+  robot.dialogue.speech_sequences[490][_lang_tmp] = "Opowiedzie\xc4\x87 ci o sobie co\xc5\x9b wiecej?";
+  robot.dialogue.speech_sequences[491][_lang_tmp] = "Chcesz s\xc5\x82ucha\xc4\x87 dalej?";
+  robot.dialogue.speech_sequences[492][_lang_tmp] = "Mowi\xc4\x87 dalej?"; 
+
+  robot.dialogue.speech_sequences[500][_lang_tmp] = "W co zagramy? Uczenie czy zgadywanie?"; 
+  robot.dialogue.speech_sequences[501][_lang_tmp] = "W co chcesz zagra\xc4\x87? Uczenie czy zgadywanie?"; 
+  robot.dialogue.speech_sequences[502][_lang_tmp] = "W kt\xc3\xb3r\xc4\x85 gre chcesz zagra\xc4\x87? Uczenie czy zgadywanie?"; 
+  robot.dialogue.speech_sequences[503][_lang_tmp] = "Uczymy si\xc4\x99 czy zgadujemy?"; 
+  
+  robot.dialogue.speech_sequences[504][_lang_tmp] = "Poka\xc5\xbc mi co\xc5\x9b i powiedz jakiego jest koloru."; 
+  robot.dialogue.speech_sequences[505][_lang_tmp] = "Poka\xc5\xbc jaki\xc5\x9b przedmiot i powiedz co to jest za kolor."; 
+  robot.dialogue.speech_sequences[506][_lang_tmp] = "We\xc5\xba jaki\xc5\x9b przedmiot i powiedz jakiego jest koloru."; 
+
+  robot.dialogue.speech_sequences[507][_lang_tmp] = "Poka\xc5\xbc mi co\xc5\x9b i zapytaj jakiego jest koloru."; 
+  robot.dialogue.speech_sequences[508][_lang_tmp] = "Poka\xc5\xbc jaki\xc5\x9b przedmiot i zapytaj co to jest za kolor."; 
+  robot.dialogue.speech_sequences[509][_lang_tmp] = "We\xc5\xba jaki\xc5\x9b przedmiot i zapytaj jakiego jest koloru."; 
+  
+  robot.dialogue.speech_sequences[510][_lang_tmp] = "Mam racj\xc4\x99?"; 
+  robot.dialogue.speech_sequences[511][_lang_tmp] = "Zgadza si\xc4\x99?"; 
+  robot.dialogue.speech_sequences[512][_lang_tmp] = "Czy prawid\xc5\x82owo odpowiedzia\xc5\x82em?"; 
+  robot.dialogue.speech_sequences[513][_lang_tmp] = "Czy prawid\xc5\x82owo rozpozna\xc5\x82em?"; 
+  robot.dialogue.speech_sequences[514][_lang_tmp] = "Dobrze?"; 
+  robot.dialogue.speech_sequences[515][_lang_tmp] = "Zgodzisz si\xc4\x99 ze mn\xc4\x85?"; 
+  
+  robot.dialogue.speech_sequences[520][_lang_tmp] = "Okej mam to."; 
+  robot.dialogue.speech_sequences[521][_lang_tmp] = "Okej zapami\xc4\x99tam."; 
+  robot.dialogue.speech_sequences[522][_lang_tmp] = "Mam to."; 
+  robot.dialogue.speech_sequences[523][_lang_tmp] = "Zapami\xc4\x99tam."; 
+
+  robot.dialogue.speech_sequences[530][_lang_tmp] = "Poka\xc5\xbc kolejny.";
+  robot.dialogue.speech_sequences[531][_lang_tmp] = "Poka\xc5\xbc nast\xc4\x99pny.";
+  robot.dialogue.speech_sequences[532][_lang_tmp] = "Poka\xc5\xbc mi co\xc5\x9b jeszcze."; 
+  robot.dialogue.speech_sequences[533][_lang_tmp] = "Dalej."; 
+  robot.dialogue.speech_sequences[534][_lang_tmp] = "Poka\xc5\xbc co\xc5\x9b innego."; 
+  
+  robot.dialogue.speech_sequences[540][_lang_tmp] = "Nie jestem pewien, ale chyba to kolor"; 
+  robot.dialogue.speech_sequences[541][_lang_tmp] = "Mo\xc5\xbce to jest kolor"; 
+  robot.dialogue.speech_sequences[542][_lang_tmp] = "To jest kolor"; 
+  robot.dialogue.speech_sequences[543][_lang_tmp] = "Wydaje mi si\xc4\x99, \xc5\xbce to jest kolor"; 
+  robot.dialogue.speech_sequences[544][_lang_tmp] = "Stawiam na kolor"; 
+  
+  robot.dialogue.speech_sequences[546][_lang_tmp] = "Niestety nie widz\xc4\x99 dobrze tego koloru."; 
+  robot.dialogue.speech_sequences[547][_lang_tmp] = "Ojej. Nie widz\xc4\x99 za dobrze tej barwy."; 
+  robot.dialogue.speech_sequences[548][_lang_tmp] = "Eh. Mam jaki\xc5\x9b problem z dostrze\xc5\xbceniem tego koloru."; 
+     
+  robot.dialogue.speech_sequences[550][_lang_tmp] = "bia\xc5\x82y"; 
+  robot.dialogue.speech_sequences[551][_lang_tmp] = "szary"; 
+  robot.dialogue.speech_sequences[552][_lang_tmp] = "czarny"; 
+  robot.dialogue.speech_sequences[553][_lang_tmp] = "czerwony"; 
+  robot.dialogue.speech_sequences[554][_lang_tmp] = "\xc5\xbc\xc3\xb3\xc5\x82ty"; 
+  robot.dialogue.speech_sequences[555][_lang_tmp] = "zielony"; 
+  robot.dialogue.speech_sequences[556][_lang_tmp] = "niebieski"; 
+  robot.dialogue.speech_sequences[557][_lang_tmp] = "fioletowy"; 
+  robot.dialogue.speech_sequences[558][_lang_tmp] = "pomara\xc5\x84czowy"; 
+  robot.dialogue.speech_sequences[559][_lang_tmp] = "br\xc4\x85zowy"; 
+  robot.dialogue.speech_sequences[560][_lang_tmp] = "r\xc3\xb3\xc5\xbcowy"; 
+  robot.dialogue.speech_sequences[561][_lang_tmp] = "granatowy"; 
+  robot.dialogue.speech_sequences[562][_lang_tmp] = "purpurowy"; 
+  robot.dialogue.speech_sequences[563][_lang_tmp] = "ekri"; 
+  robot.dialogue.speech_sequences[564][_lang_tmp] = "\xc5\x82ososiowy"; 
+  robot.dialogue.speech_sequences[565][_lang_tmp] = "cielisty"; 
+  robot.dialogue.speech_sequences[566][_lang_tmp] = "b\xc5\x82\xc4\x99kitny"; 
+  robot.dialogue.speech_sequences[567][_lang_tmp] = "oliwkowy"; 
+  robot.dialogue.speech_sequences[568][_lang_tmp] = "seledynowy"; 
+  robot.dialogue.speech_sequences[569][_lang_tmp] = "turkusowy"; 
+  robot.dialogue.speech_sequences[570][_lang_tmp] = "grafitowy"; 
+  
+
+  robot.dialogue.speech_sequences[580][_lang_tmp] = "Niestety nie znam jeszcze zbyt wielu kolor\xc3\xb3w."; 
+  robot.dialogue.speech_sequences[581][_lang_tmp] = "Oj przykro mi, nie znam jeszcze zbyt wielu kolor\xc3\xb3w."; 
+  robot.dialogue.speech_sequences[582][_lang_tmp] = "Eh, nie znam jeszcze zbyt wielu kolor\xc3\xb3w."; 
+  
+  robot.dialogue.speech_sequences[583][_lang_tmp] = "Musisz minie najpierw troch\xc4\x99 pouczy\xc4\x87."; 
+  robot.dialogue.speech_sequences[584][_lang_tmp] = "Mo\xc5\xbce najpierw si\xc4\x99 troche pouczymy?"; 
+  robot.dialogue.speech_sequences[585][_lang_tmp] = "Prosz\xc4\x99 naucz mnie kilku."; 
+  
+  robot.dialogue.speech_sequences[586][_lang_tmp] = "Niestety znam tylko kilka kolor\xc3\xb3w."; 
+  robot.dialogue.speech_sequences[587][_lang_tmp] = "Oj przykro mi, znam tylko kilka kolor\xc3\xb3w."; 
+  robot.dialogue.speech_sequences[588][_lang_tmp] = "Eh, znam tylko kilka kolor\xc3\xb3w."; 
+  
+  robot.dialogue.speech_sequences[589][_lang_tmp] = "Mo\xc5\xbcemy spr\xc3\xb3bowa\xc4\x87. Mo\xc5\xbce mi si\xc4\x99 uda."; 
+  robot.dialogue.speech_sequences[590][_lang_tmp] = "Ale spr\xc3\xb3bujmy. Mo\xc5\xbce mi si\xc4\x99 uda."; 
+  robot.dialogue.speech_sequences[591][_lang_tmp] = "Mo\xc5\xbcemy spr\xc3\xb3bowa\xc4\x87, ale mog\xc4\x99 cz\xc4\x99sto pud\xc5\x82owa\xc4\x87."; 
+    
+  robot.dialogue.speech_sequences[592][_lang_tmp] = "Dobra. Znam ju\xc5\xbc kilka kolor\xc3\xb3w."; 
+  robot.dialogue.speech_sequences[593][_lang_tmp] = "Okej. Troch\xc4\x99 kolor\xc3\xb3w ju\xc5\xbc znam."; 
+  robot.dialogue.speech_sequences[594][_lang_tmp] = "Okej. Znam ju\xc5\xbc kilka kolor\xc3\xb3w."; 
+  
+  
+    
+  robot.dialogue.speech_sequences[600][_lang_tmp] = "Jest tu kto\xc5\x9b? Troch\xc4\x99 tu nudno.";
+  robot.dialogue.speech_sequences[601][_lang_tmp] = "Troch\xc4\x99 tu nudno. Chyba zaraz si\xc4\x99 zdrzemn\xc4\x99.";
+  robot.dialogue.speech_sequences[602][_lang_tmp] = "Ale si\xc4\x99 nudz\xc4\x99. Jest tu kto\xc5\x9b?";
+  robot.dialogue.speech_sequences[603][_lang_tmp] = "Czy kto\xc5\x9b tu jeszcze jest? Troch\xc4\x99 mi si\xc4\x99 nudzi.";
+  
+  //////////////////////////////////////////////////////////////// 
+  //
+  //    P O R T U G U E S E  (to do)
+  //
+  ////////////////////////////////////////////////////////////////
+  //
+  // Portuguese UTF-8 chars - just for quick edit
+  //
+  // a\	
+  // a/	
+  // a^	
+  // a~	
+  // a:
+  // ao	
+  // ae	
+  // ...to do
+
+  _lang_tmp = 2;
+
+  robot.dialogue.speech_sequences[1][_lang_tmp] = "";
+  robot.dialogue.speech_sequences[2][_lang_tmp] = "";
+  robot.dialogue.speech_sequences[3][_lang_tmp] = "";
+  robot.dialogue. speech_sequences[4][_lang_tmp] = "";
+  
+
+  robot.dialogue.speech_sequences[10][_lang_tmp] = "";
+  robot.dialogue.speech_sequences[11][_lang_tmp] = "";
+  robot.dialogue.speech_sequences[12][_lang_tmp] = "";
+  robot.dialogue.speech_sequences[13][_lang_tmp] = "";
+   
+};

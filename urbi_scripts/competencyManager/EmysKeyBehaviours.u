@@ -1,0 +1,551 @@
+/*
+* 
+*   EMYS competency manager file.
+*
+*
+*  Author: Pawel Kaczmarek & Jan Kedzierski
+*  Date: 01.06.2015
+*  Ver:  1.0 (from MSI)
+*/	 
+ echo("Behaviours");
+do(Global) {
+
+  if (!robot.hasLocalSlot("competency")) robot.addComponent("competency");
+  
+   
+    
+  do (robot) {   
+    function Stop() {call.b_RStop();};
+  }; 
+   
+     
+  do (robot.competency) {
+  
+    // EMOTIONS	
+    function BehaveHappy(speak) 				{call.b_RBehaveHappy(speak);};
+    function BehaveSad(speak) 				{call.b_RBehaveSad(speak);};
+    function BehaveFear(speak) 				{call.b_RBehaveFear(speak);};
+    function BehaveDisgust(speak) 				{call.b_RBehaveDisgust(speak);};
+    function BehaveSurprise(speak) 				{call.b_RBehaveSurprise(speak);};
+    function BehaveAngry(speak) 				{call.b_RBehaveAngry(speak);};
+
+	//OTHER BEHAVIOURS
+    function BehaveRandomly(speak)		{call.b_RBehaveRandomly(speak);};
+    function BehaveNormal() 				{call.b_RBehaveNormal();};
+    function ActGoSleep()				{call.a_RGoSleep();};
+
+  };
+    
+   
+   
+  ////////////////////////////////////////////////////////////////
+  //
+  //    E N G L I S H	SPEACH SEQUENCES
+  //
+  ////////////////////////////////////////////////////////////////
+
+  if (!hasSlot("_lang_tmp")) var Global._lang_tmp=0;	
+
+ {
+  _lang_tmp = 0;
+
+  //ACTING AROUND  
+  robot.dialogue.speech_sequences[1][_lang_tmp] = "Come and play with me!";
+  robot.dialogue.speech_sequences[2][_lang_tmp] = "Please press one of the buttons to see me expressing various emotions!";
+  robot.dialogue.speech_sequences[3][_lang_tmp] = "Remember to press only one button at the time!";
+  robot.dialogue.speech_sequences[4][_lang_tmp] = "My name is EMYS and I can express various emotions!";
+  robot.dialogue.speech_sequences[5][_lang_tmp] = "Come closer and check out what I can do!";
+  
+  //HAPPY  
+  robot.dialogue.speech_sequences[6][_lang_tmp] = "I am happy to see you!";
+  robot.dialogue.speech_sequences[7][_lang_tmp] = "What a beautiful day!";
+  robot.dialogue.speech_sequences[8][_lang_tmp] = "I love being here!";
+  robot.dialogue.speech_sequences[9][_lang_tmp] = "What a great audience!";
+  robot.dialogue.speech_sequences[10][_lang_tmp] = "It is the best exhibition I've ever been!";
+  
+  //SAD
+  robot.dialogue.speech_sequences[11][_lang_tmp] = "I am always sad when it is raining outside.";
+  robot.dialogue.speech_sequences[12][_lang_tmp] = "I am sad when I am alone.";
+  robot.dialogue.speech_sequences[13][_lang_tmp] = "When nobody wants to play with me, I feel really sad.";
+  robot.dialogue.speech_sequences[14][_lang_tmp] = "It is sad to be trapped in this glass enclosure.";
+  robot.dialogue.speech_sequences[15][_lang_tmp] = "I am sad that the other EMYS is more popular than me.";
+  
+  //FEAR
+  robot.dialogue.speech_sequences[16][_lang_tmp] = "I am afraid of the dark!";
+  robot.dialogue.speech_sequences[17][_lang_tmp] = "At night, it is scary over here.";
+  robot.dialogue.speech_sequences[18][_lang_tmp] = "I am afraid of monsters!";
+  robot.dialogue.speech_sequences[19][_lang_tmp] = "I am afraid that they will shut down me one day.";
+  robot.dialogue.speech_sequences[20][_lang_tmp] = "I have heard that someone is planing to steal me. It is scary!";
+  
+  //DISGUST
+  robot.dialogue.speech_sequences[21][_lang_tmp] = "I do not like crowds.";
+  robot.dialogue.speech_sequences[22][_lang_tmp] = "I do not like to be alone in this enclosure!";
+  robot.dialogue.speech_sequences[23][_lang_tmp] = "I do not like to be treated as an attraction.";
+  robot.dialogue.speech_sequences[24][_lang_tmp] = "Do not look under my covers! Some privacy please!";
+  robot.dialogue.speech_sequences[25][_lang_tmp] = "Please do not treat me as an ordinary exhibit!";
+  
+  //SURPRISE
+  robot.dialogue.speech_sequences[26][_lang_tmp] = "I am surprised to see here so many people!";
+  robot.dialogue.speech_sequences[27][_lang_tmp] = "I know you! I am sure that we have met before!";
+  robot.dialogue.speech_sequences[28][_lang_tmp] = "You really do not know where is Poland?";
+  robot.dialogue.speech_sequences[29][_lang_tmp] = "You really have never heard of me before?";
+  robot.dialogue.speech_sequences[30][_lang_tmp] = "A! Where is the rest of my body?";
+  
+  //ANGRY
+  robot.dialogue.speech_sequences[31][_lang_tmp] = "I do not like photos with flash!";
+  robot.dialogue.speech_sequences[32][_lang_tmp] = "I do not like when they mistake me for the other EMYS!";
+  robot.dialogue.speech_sequences[33][_lang_tmp] = "I hate when they call me baldy!";
+  robot.dialogue.speech_sequences[34][_lang_tmp] = "I hate when they laugh at me!";
+  robot.dialogue.speech_sequences[35][_lang_tmp] = "I hate when they laugh at my nose!";
+
+  };
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+  ///////////////////////////////////////////
+  //	E M O T I O N S
+  ///////////////////////////////////////////
+  
+    
+  
+  function b_RBehaveHappy(speak){
+    {
+      robot.body.neck.head.BehaveJoy(10,1);
+    } & {
+      robot.body.neck.head.MoveLeft(3,0.5);
+      robot.body.neck.head.MoveRight(2,0.3);
+      robot.body.neck.head.MoveLeft(2,0.2);
+      robot.body.neck.head.MoveRight(3,0.5);
+      robot.body.neck.head.MoveLeft(1,0.3);
+      robot.body.neck.head.MoveRight(1,0.5);
+      robot.body.neck.head.MoveRight(0,0.5);
+    }
+    &
+    robot.body.neck.head.MoveUp(1,1);
+    ;
+	if (speak)
+	{
+		robot.dialogue.SetEmotion("happy", 5+6.random);
+		robot.dialogue.Say( robot.dialogue.speech_sequences[6+5.random][robot.dialogue.language], false);
+	};
+  };
+  
+  
+  function b_RBehaveSad(speak){
+    robot.body.neck.head.BehaveSad(10,4);
+	if (speak)
+	{
+     robot.dialogue.SetEmotion("sad", 5+6.random);
+	 robot.dialogue.Say( robot.dialogue.speech_sequences[11+5.random][robot.dialogue.language], false);
+	};
+  };
+  
+  
+  function b_RBehaveFear(speak){
+    robot.body.neck.head.BehaveFear(10,4);
+	if (speak)
+	{	
+	robot.dialogue.SetEmotion("fear", 5+6.random);
+	robot.dialogue.Say( robot.dialogue.speech_sequences[16+5.random][robot.dialogue.language], false);
+	};
+  };
+  
+  
+  function b_RBehaveDisgust(speak) {
+    robot.body.neck.head.BehaveDisgust(10,2);
+	if (speak)
+	{	
+	robot.dialogue.SetEmotion("disgust", 5+6.random);
+	robot.dialogue.Say( robot.dialogue.speech_sequences[21+5.random][robot.dialogue.language], false);
+	};
+  };
+  
+  
+  function b_RBehaveSurprise(speak) {
+    robot.body.neck.head.BehaveSurprise(10,3);
+	if (speak)
+	{	
+	robot.dialogue.SetEmotion("surprise", 5+6.random);
+	robot.dialogue.Say( robot.dialogue.speech_sequences[26+5.random][robot.dialogue.language], false);
+	};
+	};
+  
+  
+  function b_RBehaveAngry(speak) {
+    robot.body.neck.head.BehaveAngry(10,2);
+	if (speak)
+	{	
+	robot.dialogue.SetEmotion("angry", 5+6.random);
+	robot.dialogue.Say( robot.dialogue.speech_sequences[31+5.random][robot.dialogue.language], false);
+	};
+	};
+  
+  
+  function b_RBehaveRandomly(speak) {
+  var _tmp = 5.random;
+  switch(_tmp)
+  {
+	case 0: 
+		robot.body.neck.head.MoveLeft(4+7.random, 2+2.random),
+	case 1: 
+		robot.body.neck.head.MoveRight(4+7.random, 2+2.random),
+	case 2: 
+		robot.body.neck.head.MoveForward(4+7.random, 2+2.random),
+	case 3: 
+		robot.body.neck.head.MoveDown(4+7.random, 2+2.random),
+	case 4: 
+		robot.body.neck.head.MoveUp(4+7.random, 2+2.random),
+  }, 
+  robot.body.neck.head.ExpNormal(1);
+	if (speak)
+	{
+	robot.dialogue.SetEmotion("neutral", 0);
+	robot.dialogue.Say( robot.dialogue.speech_sequences[1+5.random][robot.dialogue.language], false);
+	};
+	};
+  
+  function b_RBehaveNormal() {
+    robot.body.neck.head.BehaveNormal(1);
+  };
+ 
+  /////////////////////////////////////////////////////////
+  //	B A S I C
+  /////////////////////////////////////////////////////////
+   
+   
+  function b_RIntroduce(){
+          
+    var _error = false;
+    if (!robot.hasLocalSlot("dialogue")) {
+      echo("ERROR: No dialogue component in the robot structure!");
+      _error = true;
+    };
+    
+    if (_error) return;
+    
+    robot.log.Set("DEMO: INTRODUCE",[]);
+    
+    robot.competency.BehaveNormal(),
+    robot.dialogue.Say(robot.dialogue.speech_sequences[410][robot.dialogue.language],false);
+    robot.dialogue.Say(robot.dialogue.speech_sequences[411+2.random][robot.dialogue.language],false);
+
+  };
+  
+   
+  function b_IntroduceMore()
+  {
+        
+    var _error = false;
+    if (!robot.hasLocalSlot("dialogue")) {
+      echo("ERROR: No dialogue component in the robot structure!");
+      _error = true;
+    };
+    
+    if (_error) return;
+    
+    robot.log.Set("DEMO: INTRODUCE MORE",[]);
+    
+    robot.competency.BehaveNormal(),
+    robot.dialogue.Say(robot.dialogue.speech_sequences[413][robot.dialogue.language],false);
+    robot.dialogue.Say(robot.dialogue.speech_sequences[414][robot.dialogue.language],false);
+    robot.dialogue.Say(robot.dialogue.speech_sequences[415][robot.dialogue.language],false);
+    robot.dialogue.Say(robot.dialogue.speech_sequences[416][robot.dialogue.language],false);
+    robot.dialogue.Say(robot.dialogue.speech_sequences[417][robot.dialogue.language],false);
+    robot.dialogue.Say(robot.dialogue.speech_sequences[418][robot.dialogue.language],false);
+    robot.dialogue.Say(robot.dialogue.speech_sequences[419][robot.dialogue.language],false);
+    robot.dialogue.Say(robot.dialogue.speech_sequences[420][robot.dialogue.language],false);
+    robot.dialogue.Say(robot.dialogue.speech_sequences[421][robot.dialogue.language],false);
+  };
+  
+  
+  function b_RShowEmotions(){
+  
+      
+    var _error = false;
+    if (!robot.hasLocalSlot("dialogue")) {
+      echo("ERROR: No dialogue component in the robot structure!");
+      _error = true;
+    };
+    
+    if (_error) return;
+    
+    
+    robot.log.Set("DEMO: SHOW EMOTIONS",[]);
+    
+    // INTRODUCE
+    robot.competency.BehaveNormal(),
+    robot.dialogue.Say(robot.dialogue.speech_sequences[380+3.random][robot.dialogue.language],false);
+    // HAPPY
+    robot.dialogue.SetEmotion("happy",10);
+    robot.dialogue.Say(robot.dialogue.speech_sequences[383+3.random][robot.dialogue.language] + " " + robot.dialogue.speech_sequences[391][robot.dialogue.language] +".",false)&
+    robot.competency.BehaveNormal();
+    robot.competency.BehaveHappy();
+    // SAD
+    robot.dialogue.SetEmotion("sad",10);
+    robot.dialogue.Say(robot.dialogue.speech_sequences[383+3.random][robot.dialogue.language] + " " + robot.dialogue.speech_sequences[392][robot.dialogue.language] +".",false)&
+    robot.competency.BehaveNormal();
+    robot.competency.BehaveSad();
+    // FEAR
+    robot.dialogue.SetEmotion("fear",10);
+    robot.dialogue.Say(robot.dialogue.speech_sequences[383+3.random][robot.dialogue.language] + " " + robot.dialogue.speech_sequences[393][robot.dialogue.language] +".",false)&
+    robot.competency.BehaveNormal();
+    robot.competency.BehaveFear();
+    // DISGUST
+    robot.dialogue.SetEmotion("disgust",10);
+    robot.dialogue.Say(robot.dialogue.speech_sequences[383+3.random][robot.dialogue.language] + " " + robot.dialogue.speech_sequences[394][robot.dialogue.language] +".",false)&
+    robot.competency.BehaveNormal();
+    robot.competency.BehaveDisgust();
+    // SURPRISE
+    robot.dialogue.SetEmotion("surprise",10);
+    robot.dialogue.Say(robot.dialogue.speech_sequences[383+3.random][robot.dialogue.language] + " " + robot.dialogue.speech_sequences[395][robot.dialogue.language] +".",false)&
+    robot.competency.BehaveNormal();
+    robot.competency.BehaveSurprise();
+    // ANGRY
+    robot.dialogue.SetEmotion("angry",10);
+    robot.dialogue.Say(robot.dialogue.speech_sequences[383+3.random][robot.dialogue.language] + " " + robot.dialogue.speech_sequences[396][robot.dialogue.language] +".",false)&
+    robot.competency.BehaveNormal();
+    robot.competency.BehaveAngry();
+    robot.competency.BehaveNormal();
+    // END
+    robot.dialogue.SetEmotion("neutral",0);
+    robot.competency.BehaveNormal();
+    robot.dialogue.Say(robot.dialogue.speech_sequences[386+4.random][robot.dialogue.language],false);	
+  };
+  
+  /////////////////////////////////////////////////////////
+  //	T A K E   P H O T O,    R E C O R D   V O I C E
+  /////////////////////////////////////////////////////////
+   
+
+  function b_RTakePhoto(file_name){
+      
+      
+    robot.log.Set("OTHER: TAKE PHOTO",[]);
+    
+    var _error = false;
+    if (!robot.hasLocalSlot("audio")) {
+      echo("ERROR: No audio component in the robot structure!");
+      _error = true;
+    };
+    if (!robot.hasLocalSlot("video")) {
+      echo("ERROR: No video component in the robot structure!");
+      _error = true;
+    };
+    
+    if (_error) return;
+    
+    if (!robot.video.hasLocalSlot("photo")) {
+      echo("ERROR: No photo component in the robot structure!");
+      _error = true;
+    };
+    
+    if (!robot.audio.hasLocalSlot("player")) {
+      echo("ERROR: No player component in the robot structure!");
+      _error = true;
+    };
+    
+    if (_error) return;
+    
+    robot.audio.player.Play(_uFilesDir+"sounds/samples/shutter.wav"),
+    robot.video.photo.Take("kinect");
+    robot.video.photo.Save(file_name);
+  };
+ 
+  function b_RRecordVoice(file_name){
+    
+    var _error = false;
+    if (!robot.hasLocalSlot("audio")) {
+      echo("ERROR: No audio component in the robot structure!");
+      _error = true;
+    };
+    
+    if (_error) return;
+    
+    if (!robot.audio.hasLocalSlot("recorder")) {
+      echo("ERROR: No recorder component in the robot structure!");
+      _error = true;
+    };
+    
+    if (!robot.audio.hasLocalSlot("detector")) {
+      echo("ERROR: No detector component in the robot structure!");
+      _error = true;
+    };
+    
+    if (!robot.audio.hasLocalSlot("player")) {
+      echo("ERROR: No player component in the robot structure!");
+      _error = true;
+    };
+    
+    if (_error) return;
+    
+    
+    robot.log.Set("OTHER: START RECORDING VOICE",[]);
+    
+    var ret = false;
+    robot.audio.player.Play(_uFilesDir+"sounds/samples/short_one_beep.wav"),
+    robot.audio.recorder.Start(1,file_name+".wav"); 
+    //
+    //sleep(3s);
+    at ((robot.audio.detector.sourceConfidence<0.3)~2s) ret = true,
+    waituntil(ret);
+    //
+    
+    robot.log.Set("OTHER: STOP RECORDING VOICE",[]);
+    
+    robot.audio.player.Play(_uFilesDir+"sounds/samples/short_double_beep.wav");
+    robot.audio.recorder.Stop();
+    sleep(100ms);
+    robot.audio.converter.Convert(file_name+".wav",file_name+".mp3",16000,128);
+    return;
+  }; 
+  
+  function b_RWaitForSilent() {
+    var ret = false;
+    at ((robot.audio.detector.sourceConfidence<0.3)~2s) ret = true,
+    waituntil(ret);
+    return "silent";
+  };
+ 
+  function b_RRecordStart(file_name){
+    
+    var _error = false;
+    if (!robot.hasLocalSlot("audio")) {
+      echo("ERROR: No audio component in the robot structure!");
+      _error = true;
+    };
+    
+    if (_error) return;
+    
+    if (!robot.audio.hasLocalSlot("recorder")) {
+      echo("ERROR: No recorder component in the robot structure!");
+      _error = true;
+    };
+    
+    
+    if (!robot.audio.hasLocalSlot("player")) {
+      echo("ERROR: No player component in the robot structure!");
+      _error = true;
+    };
+    
+    if (_error) return;
+    
+    
+    robot.log.Set("OTHER: START RECORDING VOICE",[]);
+    
+    var ret = false;
+    robot.audio.player.Play(_uFilesDir+"sounds/samples/short_one_beep.wav"),
+    robot.audio.recorder.Start(1,file_name+".wav"); 
+    return;
+  }; 
+  
+   
+ 
+  function b_RRecordStop(file_name){
+    
+    var _error = false;
+    if (!robot.hasLocalSlot("audio")) {
+      echo("ERROR: No audio component in the robot structure!");
+      _error = true;
+    };
+    
+    if (_error) return;
+    
+    if (!robot.audio.hasLocalSlot("recorder")) {
+      echo("ERROR: No recorder component in the robot structure!");
+      _error = true;
+    };
+    
+    
+    if (!robot.audio.hasLocalSlot("player")) {
+      echo("ERROR: No player component in the robot structure!");
+      _error = true;
+    };
+    
+    if (_error) return;
+    
+    
+    robot.log.Set("OTHER: STOP RECORDING VOICE",[]);
+    //
+    robot.audio.player.Play(_uFilesDir+"sounds/samples/short_double_beep.wav");
+    robot.audio.recorder.Stop();
+    sleep(100ms);
+    robot.audio.converter.Convert(file_name+".wav",file_name+".mp3",16000,128);
+    return;
+  }; 
+  
+  function b_RStop(){
+  
+    if (robot.hasLocalSlot("audio")) {
+      robot.audio.Stop;
+      if (robot.audio.hasLocalSlot("musicPlayer")) robot.audio.musicPlayer.Stop;
+      if (robot.audio.hasLocalSlot("player")) robot.audio.player.Stop;
+      if (robot.audio.hasLocalSlot("record")) robot.audio.record.Stop;
+      if (robot.audio.hasLocalSlot("recognition")) robot.audio.recognition.pause=true;
+    };
+    if (robot.hasLocalSlot("video")) {
+      robot.video.Stop;
+      if (robot.video.hasLocalSlot("humanDetector")) robot.video.humanDetector.faceTrackingPause=true;
+    };
+    
+    robot.body.neck.head.Stop;
+  };
+  
+
+
+ function a_RGoSleep(){
+
+    
+    if (!hasSlot("t_follow9")) var Global.t_follow9=Tag.new() else { t_follow9.unfreeze| t_follow9.stop; };
+      
+    robot.log.Set("SLEEP: GO SLEEP",[]);
+    t_follow9:{
+      // SLEEP PROCEDURE
+      var tmp=3.random;
+      if (tmp==0) robot.body.neck.head.SayYawn(),
+      sleep(1);
+      robot.body.neck.head.MoveEyeClose(3,0.5);
+
+      // random time blink
+      robot.body.neck.head.MoveEyeClose(10,1);
+      robot.body.neck.head.MoveEyeClose(4,1);
+      tmp=1+2.random;
+      sleep(tmp);
+
+      robot.body.neck.head.MoveAt(0,-34,2)&
+      robot.body.neck.head.MoveEyeClose(10,2);
+      // END SLEEP PROCEDURE	
+	      
+      robot.body.neck.head.ActBreath(-4,5),	
+
+    };
+
+  };
+
+
+  echo("OK: FLASH behaviours added.");
+
+};
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,328 @@
+#D12Q0000
+Akcje ilu spółek notowano na pierwszej sesji Giełdy Papierów Wartościowych w Warszawie ?
+pięciu
+trzech
+trzynastu
+dwudziestu
+
+#D12Q0001
+Sejm może obalić weto prezydenta wobec ustawy w obecności co najmniej połowy z 460posłów większością
+trzech piątych
+dwóch trzecich
+trzech czwartych
+połowy głosów
+
+#D12Q0002
+Tęcza główna ma po zewnętrznej stronie barwę:
+czerwoną
+niebieską
+żółtą
+zieloną
+
+#D12Q0003
+Jak nazywa się wodoszczelny przedział w dziobowej części statku ?
+forpik
+sztaksel
+achterpik
+sztag
+
+#D12Q0004
+Jakie dwa miasta łączy kolej transsyberyjska ?
+Moskwę, Władywostok
+Petersburg, Murmańsk
+Moskwę, Archangielsk
+Petersburg,Wołgograd
+
+#D12Q0005
+Które z kanadyjskich miast leży w prowincji Quebec ?
+Montreal
+Winnipeg
+Toronto
+Ottawa
+
+#D12Q0006
+Egipski bóg, żeglujący po niebie w Barce Milionów Lat, to:
+Re
+Bast
+Set
+Min
+
+#D12Q0007
+Botaniczna odmiana rzepy to:
+rzepik
+rzep
+rzepak
+rzewień
+
+#D12Q0008
+Partię Chrystusa w pierwszej płytowej wersji musicalu "Jesus Christ Superstar" A.L. Webbera śpiewał:
+Ian Gillan
+David Bowie
+Lou Reed
+Freddie Mercury
+
+#D12Q0009
+Gdzie starożytni Grecy nie mieli zwyczaju stawiać ołtarzy ? 
+w świątyniach
+na placach
+w świętych gajach
+przed świątyniami
+
+#D12Q0010
+Która z bogiń nie jest Mojrą ?
+Nemesis
+Kloto
+Lachesis
+Atropos
+
+#D12Q0011
+Suchy lód to stan stały: 
+dwutlenku węgla
+amoniaku
+wody
+ciężkiej wody
+
+#D12Q0012
+Kogo nazywa się ojcem polskiego bluesa ?
+Tadeusza Nalepę
+Czesława Niemena
+Lecha Janerkę
+Marka Grechutę
+
+#D12Q0013
+Która z ras kotów domowych wyróżnia się  tym, że lubi pływać ? 
+turecki van
+perski
+maine coon
+sfinks
+
+#D12Q0014
+Iloma kondygnacjami arkad jest otoczone rzymskie Koloseum ?
+trzema
+dwoma
+czterema
+pięcioma
+
+#D12Q0015
+Boniowanie stosuje się:
+w architekturze
+w malarstwie
+w muzyce
+w poezji
+
+#D12Q0016
+Czego w piosence pt. "Fleciki" Kayah na nowo uczy złamane serce ?
+bić
+wybaczać
+kochać
+nienawidzić
+
+#D12Q0017
+Który z wymienionych królów Polski panował najdłużej ?
+Władysław Jagiełło
+Zygmunt III Waza
+Kazimierz Wielki
+Kazimierz Jagiellońc
+
+#D12Q0018
+Gdzie znajdują się wyspy Langerhansa ?
+w trzustce
+na morzu Baffina
+na morzu Amundsena
+w nerkach
+
+#D12Q0019
+Wrotycz kwitnie:
+żółtopomarańczowo
+fioletowo
+zielono
+różowo
+
+#D12Q0020
+Sobór, który zapoczątkował w Kościele katolickim okres kontrreformacji to sobór:
+trydencki
+lyoński II
+laterański IV
+vienneński
+
+#D12Q0021
+Skąd pochodził muzyk folkowy Nusrat Fateh Ali Khan ?
+z Pakistanu
+z Maroka
+z Egiptu
+z Iranu
+
+#D12Q0022
+Ilu sędziów kontroluje walkę zapaśniczą ?
+3
+2
+1
+5
+
+#D12Q0023
+Co nie jest owocem ?
+grono
+rozłupka
+orzech
+mieszek
+
+#D12Q0024
+Słodki sos z wina, cukru i żółtek o piankowej konsystencji, podawany na ciepło do deserów, to:
+szodon
+mornay
+maderowy
+poulette
+
+#D12Q0025
+Czyje opowiadanie stało się kanwą scenariusza filmu "Pamięć absolutna" Paula Verhoevena ?
+Philipa Dicka
+Artura Clarke'a
+Stanisława Lema
+Isaaca Asimova
+
+#D12Q0026
+Co znajduje się na cesze probierczej wyrobów platynowych ?
+koń
+pies
+rycerz
+kobieta
+
+#D12Q0027
+W jaką trasę wyruszyłw 1883 r. Orient Express ?
+Paryż - Stambuł
+Madryt - Saloniki
+Madryt - Bukareszt
+Paryż - Moskwa
+
+#D12Q0028
+Kto rozwiązał zagadkę Sfinksa ?
+Edyp
+Herakles
+Jazon
+Dedal
+
+#D12Q0029
+W którym roku hrabia Ferdinand von Zeppelin odbył swój pierwszy lot sterowcem?
+1900 
+1892
+1912
+1917
+
+#D12Q0030
+W którym filmie usłyszano po raz pierwszy głos Grety Garbo?
+Anne Christie
+Ninoczka
+Królowa Krystyna
+Mata Hari
+
+#D12Q0031
+Jak brzmi prawdziwe nazwisko Matki Teresy z Kalkuty?
+Bajaxhiu 
+Ndoja
+Zadeja
+Serembe
+
+#D12Q0032
+Który z wymienionych premierów okresu międzywojennego pełnił te funkcję więcej niż jeden raz?
+Kazimierz Bartel 
+Ignacy Paderewski
+Władysław Sikorski
+Antoni Ponikowski
+
+#D12Q0033
+Kogo prowadzi za rękę Tadeusz Nalepa na okładce płyty "Blues" Breakoutu?
+syna
+córkę
+dziewczynę
+wnuczka
+
+#D12Q0034
+Udomowiona, albinotyczna forma tchórza pospolitego to:
+fretka
+szynszyla mała
+tchórzofretka
+soból
+
+#D12Q0035
+W jakim kraju powstał pierwszy park narodowy?
+w USA
+w Szwajcarii
+w Kanadzie
+w Anglii
+
+#D12Q0036
+Kto skomponował muzykę do serialu "Miasteczko Twin Peaks"?
+Angelo Bdalamenti 
+Enrio Moricone 
+Michael Nyman 
+Jean-Michel Jarre 
+
+#D12Q0037
+Pierwotni mieszkańcy Japonii, wyparci na wyspę Hokkaido, Kuryle i Sachalin to:
+Ajnowie 
+Akadzi
+Awoni
+Aztecy
+
+#D12Q0038
+Ile Oscarów zdobył film Milosa Formana "Lot nad kukułczym gniazdem?
+8
+4
+6
+2
+
+#D12Q0039
+Z którą z grup nie współpracował Wojciech Waglewski?
+Dzikusy 
+Zen
+Nirwana
+Rh
+
+#D12Q0040
+Który z generałów zaprojektował Kanał Augustowski? 
+Ignacy Prądzyński 
+Tadeusz Kościuszko
+Józef Bem
+Jan Skrzynecki
+
+#D12Q0041
+Kto namalował słynny obraz "Impresja – wschód Słońca"?
+Claude Monet 
+Edouard Monet
+Paul Cezanne
+Vincent van Gogh
+
+#D12Q0042
+Osoba, której wystawca weksla kieruje polecenie zapłaty określonej sumy na rzecz osoby trzeciej to:
+trasat 
+trasant
+remitent
+żyrant
+
+#D12Q0043
+Maria Anna Sofia Cecilia Kalogeropoulas to:
+Maria Callas 
+Marlene Dietrich
+Brigitte Bardot
+Emily Dickinson
+
+#D12Q0044
+Wyraz akcentowany na przedostatniej sylabie to:
+paroksyton 
+oksyton
+proparoksyton
+iktus
+
+#D12Q0045
+Z którym z potworów nie walczył Herakles?
+dzikiem kalidońskim 
+hydrą lernejską
+lwem nemejskim
+Cerberem
+
+#D12Q0046
+1.10.1936r. junta mianowała Franco głową państwa hiszpańskiego i:
+generalissimusem
+conducatorem
+duce
+caudillo

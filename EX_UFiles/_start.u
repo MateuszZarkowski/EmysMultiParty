@@ -1,0 +1,28 @@
+
+// NOTE: use DEPENDENCY WALKER  to check if some debug libraries may be missing
+//       the best way to do it is to compare dependecies for release and debug DLLs.
+loadModule("UFiles");
+
+
+var ufiles = UFiles.new;
+
+var start = time;
+ufiles.ReadFile("README - Copy.txt");
+File.new("README - Copy.txt").remove;
+time - start;
+
+start = time;
+var tab = [];
+{
+  var f = File.new("README - Copy (2).txt");
+  var i = InputStream.new(f);
+  var x;
+  while (!(x = i.getLine.acceptVoid).isVoid) tab << x;
+  i.close;
+};
+time - start;
+
+
+start = time;
+ufiles.WriteFile("out.txt", tab);
+time - start;

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<grammar version="1.0" xml:lang="en-US" mode="voice" root="toplevel"
+xmlns="http://www.w3.org/2001/06/grammar" tag-format="semantics/1.0">
+  <rule id="toplevel" scope="public">
+
+      <item> <ruleref uri="#Intro"/> <tag> out.Intro = rules.Intro; </tag> </item>
+      <item> <ruleref uri="#Lookup"/> <tag> out.Lookup = rules.Lookup; </tag> </item>
+
+  </rule>
+
+  <rule id="Intro" scope="public">
+    <one-of>
+		<item> Szatan <tag> out = "Szatan"; </tag></item>
+		<item> Emys <tag> out = "Emys"; </tag></item>
+    </one-of>
+  </rule>
+
+  <rule
+    id="Lookup"
+    scope="private">
+    <one-of>
+      <item>
+        <one-of>
+          <item>Technical Support</item>
+          <item>Support</item>
+          <item>Help</item>
+        </one-of>
+        <tag> out = "Technical Support"; </tag>
+      </item>
+      <item>
+        <one-of>
+          <item>Accounting</item>
+          <item>Bookkeeping</item>
+          <item>Bean Counters</item>
+        </one-of>
+        <tag> out = "Accounting"; </tag>
+      </item>
+      <item>
+        <one-of>
+          <item>Sales</item>
+          <item>Sales and Marketing</item>
+          <item>Marketing</item>
+        </one-of>
+        <tag> out = "Sales"; </tag>
+      </item>
+    </one-of>
+  </rule>
+
+</grammar>

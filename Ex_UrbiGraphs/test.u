@@ -1,0 +1,133 @@
+/*
+ * test: Main graph implementation.
+ *
+ * Load this file in your server to run the graph.
+ *
+ * Created: N 6. mar 07:22:52 2016
+ *      by: Gostai Studio 2.7
+ *
+ * WARNING! All changes made in this file will be lost!
+ */
+
+
+// Load urbiscript file.
+load("urbi/fsm.u");
+
+//#line 16 "testGostai Studio 2.7"
+
+/*************************
+ * Create the root state *
+ *************************/
+
+//Clean previous code
+if (hasLocalSlot("_root_test_1"))
+  if (Object.hasLocalSlot("removeLocalSlot"))
+    removeLocalSlot("_root_test_1")
+  else
+    removeSlot("_root_test_1");
+
+var _root_test_1 = fsm.State.new("_root_test_1");
+_root_test_1.'$params_dict' = Dictionary.new();
+var _root_test_1._nodes_ = Object.new;
+
+/**********************
+ * States declaration *
+ **********************/
+
+//Unnamed state declaration
+var _root_test_1._nodes_.Unnamed = fsm.State.create_("_root_test_1._nodes_.Unnamed", _root_test_1,
+function() {
+//#push 1 "Unnamed"
+echo(2);
+class Global.Asd{
+var x = 3;
+function go(){
+echo(x);
+};
+
+}|;
+
+if( !robot.hasSlot("asd")) var robot.asd = Asd.new else robot.asd = Asd.new;
+//#pop
+}
+, true
+, 3
+, function() {
+//#push 1 "Unnamed.enter"
+echo(1);
+//#pop
+}
+, function() {
+//#push 1 "Unnamed.leave"
+//Code executed after leaving the node
+echo(3);
+//#pop
+}, false, [539, 257.4]);
+
+//Unnamed_2 state declaration
+var _root_test_1._nodes_.Unnamed_2 = fsm.State.create_("_root_test_1._nodes_.Unnamed_2", _root_test_1._nodes_.Unnamed,
+function() {
+//#push 1 "Unnamed_2"
+echo(5);
+echo("asd  " + robot.asd);
+//#pop
+}
+, true
+, 4
+, function() {
+//#push 1 "Unnamed_2.enter"
+//Code executed before entering the node
+echo(4);
+//#pop
+}
+, function() {
+//#push 1 "Unnamed_2.leave"
+//Code executed after leaving the node
+echo(6);
+//#pop
+}, false, [-40.5805, -36.1282]);
+
+//Unnamed_3 state declaration
+var _root_test_1._nodes_.Unnamed_3 = fsm.State.create_("_root_test_1._nodes_.Unnamed_3", _root_test_1._nodes_.Unnamed,
+function() {
+//#push 1 "Unnamed_3"
+echo(8);
+//#pop
+}
+, false
+, 5
+, function() {
+//#push 1 "Unnamed_3.enter"
+//Code executed before entering the node
+echo(7);
+//#pop
+}
+, function() {
+//#push 1 "Unnamed_3.leave"
+//Code executed after leaving the node
+echo(9);
+//#pop
+}, false, [76.6879, -43.503]);
+
+/***************************
+ * Transitions declaration *
+ ***************************/
+fsm.Transition.create_(_root_test_1._nodes_.Unnamed, _root_test_1._nodes_.Unnamed_2, _root_test_1._nodes_.Unnamed_3, "done?", "_root_test_1._nodes_.Transition");
+
+
+var _root_test_1.enterChan = Channel.new("enteringNode");
+var _root_test_1.enterChan.lobby = getSlot("lobby");
+at(_root_test_1.enteringNode?(var id)) _root_test_1.enterChan << ["_root_test_1", id.name];
+var _root_test_1.leaveChan = Channel.new("leavingNode");
+var _root_test_1.leaveChan.lobby = getSlot("lobby");
+at(_root_test_1.leavingNode?(var id)) _root_test_1.leaveChan << ["_root_test_1", id.name];
+var _root_test_1.transitingChan = Channel.new("transiting");
+var _root_test_1.transitingChan.lobby = getSlot("lobby");
+at(_root_test_1.transiting?(var node, var trans)) _root_test_1.transitingChan << ["_root_test_1", trans.name];
+var _root_test_1.freezeChan = Channel.new("frozen");
+var _root_test_1.freezeChan.lobby = getSlot("lobby");
+at(_root_test_1.graphFrozen?()) _root_test_1.freezeChan << "_root_test_1";
+// Start code.
+detach(_root_test_1.enter_());
+
+// End of graph implementation `_root_test_1'.

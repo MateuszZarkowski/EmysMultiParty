@@ -1,0 +1,16 @@
+[00000114] *** ********************************************************
+[00000114] *** Urbi version 2.7.5 patch 0 revision 846b3de
+[00000114] *** Copyright (C) 2004-2012 Gostai S.A.S.
+[00000114] ***
+[00000114] *** This program comes with ABSOLUTELY NO WARRANTY.  It can
+[00000114] *** be used under certain conditions.  Type `license;',
+[00000114] *** `authors;', or `copyright;' for more information.
+[00000114] ***
+[00000114] *** Check our community site: http://www.urbiforge.org.
+[00000114] *** ********************************************************
+[00000117:error] !!! _start.u:10.1-21: loadModule: failed to open UKinect: file not found
+[00000119] 1.73205
+[00000119] 1
+[00000119] 60
+[00000120] *** adf
+[00000120:error] !!! _start.u:37.2-9: syntax error: unexpected identifier

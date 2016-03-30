@@ -1,0 +1,281 @@
+// QUIZ GAME  with speech input/output
+
+load("urbi/component.u")|;
+var Global.robot = Component.new("robot")|;
+robot.addComponent("audio")|;
+
+// *********** SPEECH **********************
+
+// loadModule("USpeech_SAPI");
+// var robot.audio.speech = USpeech.new()|;
+// robot.audio.speech.voiceNo=4|;
+// robot.audio.speech.Speak("");
+
+// *********** END SPEECH ******************
+
+//************* DIALOGUE *********************
+
+loadModule("URecog_MSP");
+// check recognizer number
+var robot.audio.recognition = URecog.new("InProc",2 , 0)|;
+// robot.audio.recognition.AvailableRecognizers;
+// robot.audio.recognition.LoadGrammar("grammars/_QuizGameAnswersPL.grxml")|;
+// var recog=URecog.new("InProc",0 , 0);
+// recog.LoadGrammar("EX_simple_mtags.grxml");
+// recog.debug = true;
+
+robot.addComponent("dialogue")|;
+var robot.dialogue.language = 1|; //polish
+var robot.dialogue.timeOut = 0|;
+var robot.dialogue.defaultTimeOutValue = 12|;
+var robot.dialogue.ResetTimeout = function(_time) {
+    if (_time<0)
+      robot.dialogue.timeOut = robot.dialogue.defaultTimeOutValue
+    else
+      robot.dialogue.timeOut = _time;
+ }|;
+ 
+var robot.dialogue.BeepSound = function() { ;}|;
+var robot.dialogue.BeepTimeout = function() { ;}|;
+
+var robot.dialogue.WaitTimeout = function()
+  {
+    every(1s) robot.dialogue.timeOut--,
+    waituntil (robot.dialogue.timeOut<=0);
+
+  }|;
+
+
+loop { 
+  sleep(20ms);	
+  robot.audio.recognition.Poll(false);
+},
+
+function AskQuestion(question, answerGrammar, enableRepeat) {
+	robot.audio.recognition.pause = true;
+	robot.audio.recognition.ResetGrammar;
+	
+	// TODO: fix language, set it as a dialog property
+	// if (robot.dialogue.language==0) robot.audio.recognition.LoadGrammar(_uFilesDir+"grammars/" + answerGrammar + "EN.grxml");
+	if (robot.dialogue.language==0) robot.audio.recognition.LoadGrammar("grammars/" + answerGrammar + "EN.grxml");
+	if (robot.dialogue.language==1) robot.audio.recognition.LoadGrammar("grammars/" + answerGrammar + "PL.grxml");
+	
+	// robot.log.Set("LEARNING: ASK WHAT KIND OF GAME",[]);
+	// robot.dialogue.Say(robot.dialogue.speech_sequences[500+4.random][robot.dialogue.language],false);
+	
+	echo("[SPEAK]: " + question);
+	robot.audio.speech.Speak(question);
+	echo("done");
+	
+	robot.dialogue.ResetTimeout(-1);
+	robot.audio.recognition.pause = false;
+
+
+	await_response: at ((robot.audio.recognition.resultTag!="")&&(robot.audio.recognition.resultTag!="REPEAT")){
+		robot.dialogue.ResetTimeout(-1);
+		robot.audio.recognition.pause = true;
+		robot.dialogue.BeepSound();
+		if(enableRepeat) await_repeat.stop()|;
+		return robot.audio.recognition.resultTag;
+	},
+
+	// REPEAT
+	if (enableRepeat) {
+		await_repeat: at (robot.audio.recognition.resultTag=="REPEAT"){
+			robot.dialogue.ResetTimeout(-1);
+			robot.audio.recognition.pause = true;
+			robot.dialogue.BeepSound();
+			// robot.dialogue.Say(robot.dialogue.speech_sequences[500+4.random][robot.dialogue.language],false);
+			echo("[SPEAK]: " + question);
+			robot.audio.speech.Speak(question);
+			
+			robot.audio.recognition.ClearResult;
+			robot.audio.recognition.pause = false;
+		},
+	};
+
+	robot.dialogue.WaitTimeout()|
+	await_response.stop()|
+	if(enableRepeat) await_repeat.stop()|;
+	robot.audio.recognition.pause = true|
+	robot.dialogue.BeepTimeout();
+	return "TIMEOUT";
+}|;
+// *********** END DIALOGUE ****************
+
+
+loadModule("USpeech_SAPI");
+var robot.audio.speech = USpeech.new()|;
+robot.audio.speech.voiceNo=4|;
+
+// robot.audio.speech.Speak("");
+
+
+
+//************ QUIZ GAME *******************
+do (Global){
+
+	//helper funtion for shuffling list based on cpp std::shuffle
+	function shuffle(l_in) {
+		var l = l_in.new;
+		var size = l.size;
+		var temp;
+		var rnd;
+		for(var i : size){
+			rnd = (i+1).random;
+			temp = l[i];
+			l[i] = l[rnd];
+			l[rnd] = temp;
+		};
+		return l;
+	}|;
+	
+
+	class QuizGame {
+	
+		// model of a question
+		// by default answer[0] is correct
+		class QuizQuestion {
+			var id = "";
+			var question="";
+			var answers = [""] *4;
+			var order = 4.seq;
+			function init(){
+				order = shuffle(4.seq);
+			};
+			
+			function GetMixedAnswers() {
+				return order.map(closure(i) { answers[i]});
+			};
+			
+			function GetQuestion() {
+				return question;
+			};
+			
+			function IsAnswerCorrect(i){
+				return order[i] == 0;
+			};
+			
+			function Copy(){ 
+				var copy = new;
+				copy.id = id.clone;
+				copy.question = question.clone;
+				copy.answers = answers.clone;
+				return copy;
+				};
+			function asString() { "(["+id+"] " + question + ", " + answers + ")"; };
+		}|;
+
+
+		var questions = [];
+		var currentQuestion = 0;
+		var order;
+		
+		var playerCount = 1;
+		var currentPlayer=0;
+		var scores= [0];
+		var answerCount = [0];
+		
+		// read QuizQuestions from file by line
+		// id \ question \ answers[0-3]
+		function init(file, _playerCount){
+			// read in questions
+			var i = InputStream.new(File.new(file));
+			var q = QuizQuestion.new;
+			while (
+					!(q.id = i.getLine.acceptVoid).isVoid &&
+					!(q.question = i.getLine.acceptVoid).isVoid &&
+					!(q.answers[0] = i.getLine.acceptVoid).isVoid &&
+					!(q.answers[1] = i.getLine.acceptVoid).isVoid &&
+					!(q.answers[2] = i.getLine.acceptVoid).isVoid &&
+					!(q.answers[3] = i.getLine.acceptVoid).isVoid ) {
+				questions << q.Copy;
+			};
+			i.close;
+			
+			playerCount = _playerCount;
+			// shuffle questions, reset scores
+			Reset();
+
+		};
+		
+		// shuffle the order in which questions are presented
+		function Reset() {
+			order = shuffle( questions.size.seq );
+			currentQuestion = 0;
+			scores = [0] * playerCount;
+			answerCount = [0] * playerCount;
+			currentPlayer = 0;
+		};
+		
+		function NextQuestion() {
+			currentQuestion = (currentQuestion+1) % questions.size;
+		};
+		
+		function GetQuizQuestion() {
+			return questions[order[currentQuestion]];
+		};
+		
+		function SelectPlayer(p){
+			currentPlayer = p;
+		};
+		
+		function PostAnswer(answer) {
+			if ( GetQuizQuestion().IsAnswerCorrect(answer) ) {
+				scores[currentPlayer]++ ;
+				answerCount[currentPlayer]++ ;
+				// NextQuestion();
+				return true;
+			} else {
+				answerCount[currentPlayer]++ ;
+				// NextQuestion();
+				return false;
+			};
+				
+		};
+		
+		function GetScores() {
+			return scores;
+		};
+
+		function asString() { "(size: " + questions.size + ", order: " + order + ")"; };
+
+	}|;
+	
+	
+
+	
+}|;
+
+
+var quiz = QuizGame.new("Quiz_4ans_100_PL.txt",1)|;
+
+for (4){
+	var q1 = quiz.GetQuizQuestion|;
+	var ans = q1.GetMixedAnswers|;
+
+	var mergeQuestion = q1.question + "\n" +
+		" A. " + ans[0] + "\n" +
+		" Be. " + ans[1] + "\n" +
+		" C. " + ans[2] + "\n" +
+		" D. " + ans[3] |;
+	echo( mergeQuestion );
+	AskQuestion(mergeQuestion,"_QuizGameAnswers", true);
+	echo(robot.audio.recognition.semantics["Answer"] + "  , confidence: " + robot.audio.recognition.confidence );
+	if( quiz.PostAnswer(robot.audio.recognition.semantics["Answer"].asFloat) ){
+		echo ("Dobrze!");
+		robot.audio.speech.Speak("Dobrze!");
+	} else {
+		echo ("Niestety nie!");
+		echo ("Poprawna: " + q1.answers[0]);
+		robot.audio.speech.Speak("Niestety nie!");
+	};
+	quiz.NextQuestion;
+};
+
+
+// t:loop { 
+  // echo(AskQuestion("Którą odpowiedź wybierasz?","_QuizGameAnswers", true) );
+// },
+
+

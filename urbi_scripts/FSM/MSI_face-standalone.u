@@ -1,0 +1,1398 @@
+/*
+ * MSI_face: Main graph implementation.
+ *
+ * Load this file in your server to run the graph.
+ *
+ * Created: Pn 1. cze 11:55:58 2015
+ *      by: Gostai Studio 2.7
+ *
+ * WARNING! All changes made in this file will be lost!
+ */
+
+
+// Load urbiscript file.
+/*
+ * Copyright (C) 2009-2012, Gostai S.A.S.
+ *
+ * This software is provided "as is" without warranty of any kind,
+ * either expressed or implied, including but not limited to the
+ * implied warranties of fitness for a particular purpose.
+ *
+ * See the LICENSE file for more information.
+ */
+
+/**
+ * Finite State Machine urbiscript 2 implementation.
+ *
+ * The idea is to put as much stuff as possible into a generic urbiscript
+ * fsm engine, with a clean interaction and instantiation API.
+ *
+ *  TODO:
+ *    - Provide tags to freeze/stop a State and all its children.
+ *    - Communication API with urbi-live.
+ *
+ *
+ *
+ * INSTANTIATION quick-sheet for not-pro mode(one of the many possible ways):
+ * var someNode = fsm.State.create(nodeName,
+ *                                 parentNode,
+ *                                 workCode,
+ *                                 isStartNode);
+ * var someTrans = fsm.Transition.create(fsmRootNode, nodeSrc, nodeDst, cond);
+ *
+ * workCode can be a String that will be evaled, or Code or Executable.
+ *
+ */
+
+{
+  var currentFsmVersion = 1.4;
+  if (!(Global.hasLocalSlot("fsm")
+     && Global.fsm.hasLocalSlot("version")
+     && Global.fsm.version == currentFsmVersion))
+  {
+    if (Global.hasLocalSlot("fsm"))
+      if (Object.hasLocalSlot("removeLocalSlot"))
+        Global.removeLocalSlot("fsm")
+      else
+        Global.removeSlot("fsm");
+
+    class Global.fsm
+    {
+      var debug = false;
+      var version = currentFsmVersion;
+    };
+
+    /***************************
+    * FSM State and Transition *
+    ***************************/
+
+    /** Transition class.
+     *
+     *  Usage:
+     *     - implement setup(ownerstate, ev) so that it emits ev(this)
+     *       when the transition triggers.
+     *     - implement exit if you need. Default: "stop tag".
+     *
+     *  The correct code to setup 'setup' from an expression %s is:
+     *  var t = Transition.new();
+     *  t.setup = function(state, ev) { var tag = tag|
+     *       do (state) {tag: at(%s) emit ev(this)}}
+     */
+    class fsm.Transition
+    {
+      addProto(fsm);
+      // Callable, setup the transition so that it emits ev(this)
+      // when triggering.
+      function setup(state, ev) {};
+      // Exit the transition, unsetup it.
+      function exit() {tag.stop};
+      var tag = Tag.new;
+      // Source node
+      var '$id' = -1;
+      // We keep a string copy of functions, to be able to import them into
+      // Gostai Studio
+      var condStr = "";
+
+      function init()
+      {
+        tag = Tag.new;
+      };
+      // Create and connect a new transition, from node srcId to dstId on
+      // cond
+      function create_(root, srcId, dstId, cond, nameIn="")
+      {
+        var states = root.allStates_ |
+        var res = fsm.Transition.new |
+        var res.nSrc = root.toState_(srcId) |
+        var nDst = root.toState_(dstId) |
+        var res.'$id' = State.'$next_uid'.asString |
+        var res.name = nameIn|
+        var res.condStr = cond|
+        State.'$next_uid'++;
+        res.setup = eval
+          (
+            "function(state, ev)"
+            "{"
+            "  this.state = state |"
+            "  var tag = tag |"
+            "  var trans = this |"
+            "  do (state)"
+            "  { tag: at (%s\n) ev!(trans) }"
+            "};"
+            % [cond]
+          );
+        res.target = nDst |
+        res.nSrc.'$transitions' += [res] |
+        res
+      };
+      function asString()
+      {
+        "Transition: " + '$id'
+      };
+      function getParameter(paramName)
+      {
+        nSrc.getParameter(paramName)
+      };
+      // Target state
+      var target = nil;
+      // Source state I think
+      var state = nil;
+    };
+
+    /** State class.
+     */
+    class fsm.State
+    {
+      addProto(fsm);
+      // Uid of this state
+      var '$id' = "";
+      // Display name of this state
+      var name = "<unnamed>";
+      // Parent state or nil
+      var parent = nil;
+      // Root node of the graph
+      var rootNode = nil;
+      // Start node of our child fsm
+      var '$startChild' = nil;
+      // List of our direct child states
+      var '$children' = [];
+      // Dict of all child states,  by id maintained at the toplevel
+      var '$allStates_' = nil;
+      // Tag applied to user work code
+      var '$workTag' = Tag.new;
+      // Tag applied to transition code
+      var '$transitionTag' = Tag.new;
+      // Tag applied to the transition triggering function
+      var '$transitionTriggerTag' = Tag.new;
+      // Callable, user code to execute on entering the node before creating
+      // transitions.
+      var '$onEnterFunc' = function(){};
+      // Stop execution when entering the node
+      var breakpoint = false;
+      // Callable, user code to execute on leaving the node before following the
+      // transition.
+      var '$onLeaveFunc' = function(){};
+      // Callable, user code of the state
+      var '$work' = function(){};
+      // Emited when an outgoing transition triggers
+      var '$trigger' = Event.new;
+      // Transitions to activate when entering this state
+      // Do not change while the state is active.
+      var '$transitions' = [];
+      // DEPRECATED: kept only for backward compatibility
+      var workEnded = Event.new;
+      // Emited indefinitedly when '$work' ended.
+      var done = Event.new;
+      // Emited when the sub-graph in this node finished executing.
+      var subGraphDone = Event.new;
+      // True if the state is active
+      var active = false;
+      // Event, notify user that current node is entering.
+      var entering;
+      // Event, notify user that current node is entering.
+      var leaving;
+      // Root-node Event, notify user that arg1 node is entering.
+      var enteringNode;
+      // Root-node Event, notify user that arg1 node is leaving.
+      var leavingNode;
+      // Root-node Event, notify user that a transition from arg1 node to arg2
+      // node is occuring.
+      var transiting;
+      //Event that is called when freezing the graph through a breakpoint
+      var graphFrozen;
+      // True if an exit transition was already triggered.
+      var '$exiting' = false;
+      // Next free uid in graph
+      var '$next_uid' = 0;
+      // A dictionary of parameters that can be used by the node or its
+      // '$children'.
+      var '$params_dict' = [=>];
+      // A pair of values to place the state in a visual graph
+      var '$graphPosition' = [];
+      // We keep a string copy of functions, to be able to import them into
+      // Gostai Studio
+      var '$workStr' = "";
+      var '$onEnterStr' = "";
+      var '$onLeaveStr' = "";
+
+      // Accessor to allStates, stored at the toplevel State
+      function allStates_()
+      {
+        var boss = rootNode |
+        if (boss.'$allStates_'.isNil)
+          boss.'$allStates_' = Dictionary.new |
+        boss.'$allStates_'
+      };
+      allStates_->constant = true;
+
+      // Called to block all subnodes
+      function setExiting_(val = true)
+      {
+        '$exiting' = val|
+        '$workTag'.stop|
+        for| (var c: '$children')
+        {
+          c.setExiting_(val)|
+          if (val)
+          {
+            c.'$transitionTriggerTag'.stop|
+            c.'$transitionTag'.stop
+          }
+        }
+      };
+      setExiting_->constant = true;
+
+      // Initialize outgoing transitions
+      function setupTransitions_()
+      {
+        rootTransitionTag: '$transitionTag': at ('$trigger'?(var t))
+        {
+          '$transitionTriggerTag':
+          {
+            var callLeave;
+            {
+              nonInterruptible|
+              callLeave = false;
+              // Prevent multiple transition trigger at the same level.
+              if (!'$exiting')
+              {
+                setExiting_(true)|
+                callLeave = true
+              }
+            };
+            if (callLeave)
+            {
+              // Immediately leave from our '$children' to prevent a child
+              // transition from triggering.
+              if (fsm.debug)
+                echo("Trigger on " + name + " to activate " + t + "!, transmiting...") |
+              rootNode.transit_(this, t);
+
+              // Authorize new exit calls
+              setExiting_(false);
+            }
+          }
+        };
+        for| (var t: '$transitions')
+        {
+          if (fsm.debug)
+            echo("Setting up a transition...") |
+          rootTransitionTag: '$transitionTag': t.setup(this, '$trigger')
+        }
+      };
+      setupTransitions_->constant = true;
+
+      // look in the dictionary
+      function getParameter(paramName)
+      {
+        if (paramName in '$params_dict')
+          '$params_dict'[paramName]
+        else if (parent)
+          parent.getParameter(paramName)
+        else
+          0
+      };
+      getParameter->constant = true;
+
+      function emitDone_()
+      {
+        if ('$transitions'.empty && parent)
+          parent.subGraphDone! ~ inf,
+        done! ~ inf
+      };
+      emitDone_->constant = true;
+
+      // Called to enter in the state. Blocks
+      function enter_(startStartChild = true)
+      {
+        if (fsm.debug)
+          echo("entering %s(%s)" % [this.name, this.'$id']) |
+        entering.syncEmit |
+        rootNode.enteringNode.syncEmit(this) |
+        active = true |
+        if (breakpoint)
+        {
+          rootWorkTag.freeze|
+          rootNode.graphFrozen!
+        }|
+        rootWorkTag: '$workTag': '$onEnterFunc' |
+        setupTransitions_|
+        if ('$startChild' && startStartChild)
+          detach('$startChild'.enter_(true)) |
+        rootWorkTag: '$workTag': {
+          '$work' |
+          {
+            workEnded! ~ inf,
+            if ('$startChild' && startStartChild)
+            {
+              waituntil (subGraphDone?)|
+              emitDone_
+            }
+            else
+              emitDone_
+          }
+        }
+      };
+      enter_->constant = true;
+
+      // Called when leaving the state. Recurses to active '$children'.
+      function leave_()
+      {
+        for| (var c: '$children')
+          if (c.active)
+            c.leave_|
+        if (fsm.debug)
+          echo("leaving %s(%s)" % [this.name, this.'$id']) |
+        leaving! |
+        rootNode.leavingNode!(this) |
+        active = false |
+        rootWorkTag: '$workTag': '$onLeaveFunc' |
+        for| (var t: '$transitions')
+          t.exit |
+        '$transitionTag'.stop |
+        '$workTag'.stop
+      };
+      leave_->constant = true;
+
+      function asString()
+      {
+        "State: " + name
+      };
+      asString->constant = true;
+
+      function init(Pname, Pparent=nil, uid=nil)
+      {
+        '$id' = {if (uid) uid else (fsm.State.'$next_uid'++).asString}|
+        name = Pname|
+        parent = Pparent|
+        '$id'->constant = true|
+        name->constant = true|
+        parent->constant = true|
+
+        if (parent)
+        {
+          var this.rootWorkTag = parent.rootWorkTag |
+          var this.rootTransitionTag = parent.rootTransitionTag |
+          rootNode = parent.rootNode |
+          parent.'$children' += [this]
+        }
+        else
+        {
+          var this.rootWorkTag = Tag.new |
+          var this.rootTransitionTag = Tag.new |
+          rootNode = this |
+        }|
+        rootNode->constant = true|
+        allStates_['$id'.asString] = this |
+        '$workTag' = Tag.new |
+        '$transitionTag' = Tag.new|
+        '$transitionTriggerTag' = Tag.new|
+        '$trigger' = Event.new|
+        entering = Event.new |
+        leaving = Event.new |
+        if (!Pparent)
+        {
+          enteringNode = Event.new |
+          leavingNode = Event.new |
+          transiting = Event.new |
+          graphFrozen = Event.new
+        }|
+        '$transitions' = []|
+        '$children' = [] |
+        workEnded = Event.new|
+        done = Event.new|
+        subGraphDone = Event.new |
+        active = false|
+        '$exiting' = false
+      };
+      init->constant = true;
+
+      // Return the list of our ancestors.
+      function ancestors_()
+      {
+        var res = []|
+        var cur = parent |
+        while (cur)
+        {
+          res += [cur] |
+          cur = cur.parent
+        } |
+        res
+      };
+      ancestors_->constant = true;
+
+      function toState_(x)
+      {
+        if (x.isA(String))
+          allStates_[x]
+        else if (x.isA(fsm.State))
+          x
+        else
+          nil
+      };
+      toState_->constant = true;
+
+      function toFunction_(x)
+      {
+        if (x.isNil)
+          function() {}
+        else if (x.isA(String))
+          eval("function() {%s};" %  [x])
+        else
+          x
+      };
+      toFunction_->constant = true;
+
+      // create a State and plug it
+      function create_(name,
+                      parentID,
+                      workString = nil,
+                      startNode = false,
+                      uid = nil,
+                      onEnterFuncString = nil,
+                      onLeaveFuncString = nil,
+                      breakpoint = false,
+                      position = [0, 0])
+      {
+        var parent = toState_(parentID) |
+        var res = State.new(name, parent, uid) |
+        res.'$work' = toFunction_(workString) |
+        res.'$onEnterFunc' = toFunction_(onEnterFuncString) |
+        res.'$onLeaveFunc' = toFunction_(onLeaveFuncString) |
+        res.'$workStr' = workString|
+        res.'$onEnterStr' = onEnterFuncString|
+        res.'$onLeaveStr' = onLeaveFuncString|
+        res.breakpoint = breakpoint|
+        res.'$graphPosition' = position|
+        if (startNode && parent)
+          res.parent.'$startChild' = res |
+        res
+      };
+      create_->constant = true;
+
+      function transitionTo_(dst, cond, onTransition=nil)
+      {
+        rootNode.owner.addTransition(this, dst, cond, onTransition)
+      };
+      transitionTo_->constant = true;
+
+      // Transmission point, to get rid of previous tags when entering
+      // somewhere.
+      function transit_(state, trans)
+      {
+        transiting!(state, trans) |
+        if (debug)
+          echo("applyTransition from " + state.name + " to "
+               + trans.target.name +" rn=" + state.rootNode)|
+        // Tag with ancestor.'$workTag' so that applyTransition gets killed if
+        // parent exits.
+        var path = computePath(state, trans.target) |
+        // get common parent
+        var ancestor = path.down.back.parent|
+        { if (ancestor) ancestor.'$workTag' else Tag.new}:
+          applyTransition(state, trans.target, path)
+      };
+      transit_->constant = true;
+    };
+    /***********************
+    * Transition procedure *
+    ***********************/
+    do (fsm)
+    {
+      function pruneCommonBeginning(var l1, var l2)
+      {
+        while ((l1.head == l2.head) && !l1.empty && !l2.empty)
+        {
+          l1.removeFront |
+          l2.removeFront
+        }
+      };
+
+      function computePath(var src, var dst)
+      {
+        var l1 = ([src] + src.ancestors_).reverse |
+        var l2 = ([dst] + dst.ancestors_).reverse |
+        if (fsm.debug)
+          echo("path are %s" % [[l1, l2]]);
+        pruneCommonBeginning(l1, l2)|
+        if (fsm.debug)
+          echo("pruned path are %s" % [[l1, l2]]);
+        // Return it in the order we will crawl it.
+        class path {var down = l1.reverse; var up = l2}
+      };
+
+      function applyTransition(var src, var dst, var path=nil)
+      {
+        if (path.isNil)
+          path = computePath(src, dst) |
+        var last = path.up.removeBack  |
+        if (fsm.debug)
+          echo("transition sequence: %s" % [[path.down, path.up]])|
+        path.down.back.leave_ |
+        for| (var s: path.up)
+          detach(s.enter_(false)) |
+        detach(last.enter_(true))
+      }
+    }
+  }
+}|;
+
+
+//#line 16 "MSI_faceGostai Studio 2.7"
+
+/*************************
+ * Create the root state *
+ *************************/
+
+//Clean previous code
+if (hasLocalSlot("_root_MSI_face_1"))
+  if (Object.hasLocalSlot("removeLocalSlot"))
+    removeLocalSlot("_root_MSI_face_1")
+  else
+    removeSlot("_root_MSI_face_1");
+
+var _root_MSI_face_1 = fsm.State.new("_root_MSI_face_1");
+_root_MSI_face_1.'$params_dict' = Dictionary.new();
+var _root_MSI_face_1._nodes_ = Object.new;
+
+/**********************
+ * States declaration *
+ **********************/
+
+//FaceTracker state declaration
+var _root_MSI_face_1._nodes_.FaceTracker = fsm.State.create_("_root_MSI_face_1._nodes_.FaceTracker", _root_MSI_face_1,
+function() {
+//#push 1 "FaceTracker"
+//*  Author: Pawel Kaczmarek
+//*  Date: 01.06.2015
+//*  Ver:  1.0 (from MSI)
+
+robot.video.humanDetector.faceTrackingPause=false;
+robot.video.facetDetector.enable=true;
+robot.video.Run(),
+
+loop
+{
+robot.video.display[0].show(robot.video.kinect.faceImage);
+robot.video.display[1].show(robot.video.facetDetector.image);
+sleep(20ms);
+},
+//#pop
+}
+, true
+, 3
+, function() {
+//#push 1 "FaceTracker.enter"
+//Code executed before entering the node
+if (!hasSlot("_readingFaceParams_")) var Global._readingFaceParams_=Tag.new() else { Global._readingFaceParams_.unfreeze | Global._readingFaceParams_.stop;};
+
+
+if (!hasSlot("_eyeOpener_")) var Global._eyeOpener_=Tag.new() else { Global._eyeOpener_.unfreeze | Global._eyeOpener_.stop;};
+
+if (!hasSlot("_faceTrMoveHead_")) var Global._faceTrMoveHead_=Tag.new() else { Global._faceTrMoveHead_.unfreeze | Global._faceTrMoveHead_.stop;};
+
+
+if (!hasSlot("_faceTrMoveLdisc_")) var Global._faceTrMoveLdisc_=Tag.new() else { Global._faceTrMoveLdisc_.unfreeze | Global._faceTrMoveLdisc_.stop;};
+
+
+if (!hasSlot("_faceTrMoveUdisc_")) var Global._faceTrMoveUdisc_=Tag.new() else { Global._faceTrMoveUdisc_.unfreeze | Global._faceTrMoveUdisc_.stop;};
+
+
+if (!hasSlot("_faceTrMoveEyes_")) var Global._faceTrMoveEyes_=Tag.new() else { Global._faceTrMoveEyes_.unfreeze | Global._faceTrMoveEyes_.stop;};
+
+if (!hasSlot("_faceTrMoveEyeLids_")) var Global._faceTrMoveEyeLids_=Tag.new() else { Global._faceTrMoveEyeLids_.unfreeze | Global._faceTrMoveEyeLids_.stop;};
+
+
+if (!hasSlot("_behaveNormal_")) var Global._behaveNormal_=Tag.new() else { Global._behaveNormal_.unfreeze | Global._behaveNormal_.stop;};
+
+if (!hasSlot("_sleeping_")) var Global._sleeping_=Tag.new() else { Global._sleeping_.unfreeze | Global._sleeping_.stop;};
+
+
+if (!hasSlot("lastAngry")) var Global.lastAngry = 0 else Global.lastAngry = 0;
+if (!hasSlot("lastSurprise")) var Global.lastSurprise = 0 else Global.lastSurprise = 0;
+if (!hasSlot("lastFear")) var Global.lastFear = 0 else Global.lastFear = 0;
+
+if (!hasSlot("emotionExecution")) var Global.emotionExecution = 0 else Global.emotionExecution = 0;
+
+
+if (!hasSlot("AU")) {
+	var Global.AU = Object.new();
+
+var AU.readAU = [];
+var AU.au0 = 0; AU.au0->rangemin = -1;  AU.au0->rangemax = 1;
+var AU.au1 = 0; AU.au1->rangemin = -1;  AU.au1->rangemax = 1;
+var AU.au2 = 0; AU.au2->rangemin = -1;  AU.au2->rangemax = 1;
+var AU.au3 = 0; AU.au3->rangemin = -1;  AU.au3->rangemax = 1;
+var AU.au4 = 0; AU.au4->rangemin = -1;  AU.au4->rangemax = 1;
+var AU.au5 = 0; AU.au5->rangemin = -1;  AU.au5->rangemax = 1;
+} else {
+AU.readAU = [];
+AU.au0 = 0; 
+AU.au1 = 0; 
+AU.au2 = 0; 
+AU.au3 = 0; 
+AU.au4 = 0; 
+AU.au5 = 0; 
+};
+
+
+
+if (!hasSlot("SU")) {
+	var Global.SU = Object.new();
+
+var SU.readSU = [];
+var SU.su0 = 0; SU.su0->rangemin = -1;  SU.su0->rangemax = 1;
+var SU.su1 = 0; SU.su1->rangemin = -1;  SU.su1->rangemax = 1;
+var SU.su2 = 0; SU.su2->rangemin = -1;  SU.su2->rangemax = 1;
+var SU.su3 = 0; SU.su3->rangemin = -1;  SU.su3->rangemax = 1;
+var SU.su4 = 0; SU.su4->rangemin = -1;  SU.su4->rangemax = 1;
+var SU.su5 = 0; SU.su5->rangemin = -1;  SU.su5->rangemax = 1;
+var SU.su6 = 0; SU.su6->rangemin = -1;  SU.su6->rangemax = 1;
+var SU.su7 = 0; SU.su7->rangemin = -1;  SU.su7->rangemax = 1;
+var SU.su8 = 0; SU.su8->rangemin = -1;  SU.su8->rangemax = 1;
+var SU.su9 = 0; SU.su9->rangemin = -1;  SU.su9->rangemax = 1;
+var SU.su10 = 0; SU.su10->rangemin = -1;  SU.su10->rangemax = 1;
+} else {
+SU.readSU = [];
+SU.su0 = 0; 
+SU.su1 = 0; 
+SU.su2 = 0; 
+SU.su3 = 0; 
+SU.su4 = 0; 
+SU.su5 = 0; 
+SU.su6 = 0; 
+SU.su7 = 0; 
+SU.su8 = 0; 
+SU.su9 = 0; 
+SU.su10 = 0; 
+};
+
+//facePoints
+if (!hasSlot("FP")) {
+	var Global.FP= Object.new();
+
+var FP.readFP = [];
+var FP.leftEyeTop = 0; 
+var FP.leftEyeBottom = 0; 
+var FP.rightEyeTop = 0; 
+var FP.rightEyeBottom = 0; 
+
+var FP.leftEyeHeight = 0; 
+var FP.rightEyeHeight = 0; 
+
+var FP.leftBrow = 0; 
+var FP.rightBrow = 0; 
+
+var FP.leftBrowEyeHight = 0; 
+var FP.rightBrowEyeHight = 0; 
+
+} else {
+FP.readFP = [];
+FP.leftEyeTop = 0; 
+FP.leftEyeBottom = 0; 
+FP.rightEyeTop = 0; 
+FP.rightEyeBottom = 0; 
+
+FP.leftEyeHeight = 0; 
+FP.rightEyeHeight = 0; 
+
+FP.leftBrow = 0; 
+FP.rightBrow = 0; 
+
+FP.leftBrowEyeHight = 0; 
+FP.rightBrowEyeHight = 0; 
+
+};
+
+
+
+if (!hasSlot("headPos")) {
+	var Global.headPos = Object.new();
+var headPos.readHeadPos = [];
+var headPos.readHeadPosOnImage = [];
+var headPos.dist = 0;
+var headPos.roll = 0;
+var headPos.pitch = 0;
+var headPos.yaw = 0;
+var headPos.XOnImage = 0;
+var headPos.YOnImage = 0;
+var headPos.WidthOnImage = 0;
+var headPos.HeightOnImage = 0;
+} else {
+headPos.readHeadPos = [];
+headPos.readHeadPosOnImage = [];
+headPos.dist = 0;
+headPos.roll = 0;
+headPos.pitch = 0;
+headPos.yaw = 0;
+headPos.XOnImage = 0;
+headPos.YOnImage = 0;
+headPos.WidthOnImage = 0;
+headPos.HeightOnImage = 0;
+};
+
+
+
+if (!hasSlot("facetHead")) {
+	var Global.facetHead = Object.new();
+	
+
+//new 
+var facetHead.faces = 0;
+var facetHead.roix = [];
+var facetHead.roiy = [];
+var facetHead.LEyOpn = [];
+var facetHead.REyOpn = [];
+var facetHead.LEbHgt = [];
+var facetHead.REbHgt = [];
+//
+
+var facetHead.faceIdx = 0;
+var facetHead.leftEyeVis = 0;
+var facetHead.rightEyeVis = 0;
+var facetHead.leftEyePos= 0;
+var facetHead.rightEyePos = 0;
+var facetHead.leftEyePos2= 0;
+var facetHead.rightEyePos2 = 0;
+
+
+} else {
+//new 
+facetHead.faces = 0;
+facetHead.roix = [];
+facetHead.roiy = [];
+facetHead.LEyOpn = [];
+facetHead.REyOpn = [];
+facetHead.LEbHgt = [];
+facetHead.REbHgt = [];
+//
+
+facetHead.faceIdx = 0;
+facetHead.leftEyeVis = 0;
+facetHead.rightEyeVis = 0;
+facetHead.leftEyePos= 0;
+facetHead.rightEyePos = 0;
+facetHead.leftEyePos2 = 0; 
+facetHead.rightEyePos2 = 0;
+
+};
+
+
+
+if (!hasSlot("def")) {
+	var Global.def = Object.new();
+var def.distmin = 1;
+var def.dist0 = 1.2;
+var def.distmax = 1.6;
+
+var def.pitch = -6;
+var def.yaw = 0;
+var def.roll = 0;
+
+var def.eye = 50;
+
+var def.eyeTime = 0.6;
+var def.discTime = 0.6;
+var def.headTime = 0.7;
+
+} else {
+def.distmin = 1;
+def.dist0 = 1.2;
+def.distmax = 1.6;
+def.pitch = -6;
+def.yaw = 0;
+def.roll = 0;
+
+def.eye = 50;
+
+
+def.eyeTime = 0.6;
+def.discTime = 0.6;
+def.headTime = 0.7;
+
+};
+
+
+if (!hasSlot("TestAngry"))
+do (Global)
+{
+function TestAngry()
+{
+if(AU.au0>0.5 && AU.au5<-0.25)
+return 1
+else 
+return 0;
+}|{};
+};
+
+if (!hasSlot("TestSurprise"))
+do (Global)
+{
+function TestSurprise()
+{
+if(AU.au1>0.65 && AU.au4>0.65)
+return 1
+else 
+return 0;
+}|{};
+};
+
+
+/*
+function TestFear()
+{
+if(AU.au1<0.3 && AU.au5>0.35 && AU.au2>0.35)
+return 1
+else 
+return 0;
+}|{};
+};
+*/
+
+if (!hasSlot("TestFear"))
+do (Global)
+{
+function TestFear()
+{
+if(AU.au1<0.1  && AU.au2>0.35 && AU.au5>0.05)
+return 1
+else 
+return 0;
+}|{};
+};
+//#pop
+}
+, function() {
+//#push 1 "FaceTracker.leave"
+//Code executed after leaving the node
+
+//#pop
+}, false, [-13.3133, -223.569]);
+
+//Start state declaration
+var _root_MSI_face_1._nodes_.Start = fsm.State.create_("_root_MSI_face_1._nodes_.Start", _root_MSI_face_1._nodes_.FaceTracker,
+function() {
+//#push 1 "Start"
+robot.body.stop;
+robot.competency.BehaveNormal(); 
+Kinect.faceVisualization = 1;
+//#pop
+}
+, true
+, 4
+, function() {
+//#push 1 "Start.enter"
+//Code executed before entering the node
+
+//#pop
+}
+, function() {
+//#push 1 "Start.leave"
+//Code executed after leaving the node
+
+//#pop
+}, false, [-196.279, 100.371]);
+
+//Main state declaration
+var _root_MSI_face_1._nodes_.Main = fsm.State.create_("_root_MSI_face_1._nodes_.Main", _root_MSI_face_1._nodes_.FaceTracker,
+function() {
+//#push 1 "Main"
+Global._readingFaceParams_: loop
+{
+if (robot.video.humanDetector.head.faceIsTracking == 1)
+{
+Global._sleeping_.stop;
+Global._eyeOpener_.unfreeze;
+};
+
+if(robot.video.humanDetector.head.faceIsTracking == 1)
+{
+AU.readAU = robot.video.kinect.faceAU();
+SU.readSU = robot.video.kinect.faceSU();
+}
+else
+{
+AU.readAU = [];
+SU.readSU = [];
+
+};
+
+headPos.readHeadPos = robot.video.kinect.facePosition();
+headPos.readHeadPosOnImage = robot.video.kinect.facePositionOnImage();
+
+FP.readFP = robot.video.kinect.facePointsOnImage();
+
+if(AU.readAU.size == 6)
+{
+AU.au0 = AU.readAU[0]|
+AU.au1 = AU.readAU[1]|
+AU.au2 = AU.readAU[2]|
+
+AU.au3 = AU.readAU[3]|
+AU.au4 = AU.readAU[4]|
+AU.au5 = AU.readAU[5];
+};
+
+if(SU.readSU.size == 11)
+{
+SU.su0 = SU.readSU[0]|
+SU.su1 = SU.readSU[1]|
+SU.su2 = SU.readSU[2]|
+SU.su3 = SU.readSU[3]|
+SU.su4 = SU.readSU[4]|
+SU.su5 = SU.readSU[5]|
+SU.su6 = SU.readSU[6]|
+SU.su7 = SU.readSU[7]|
+SU.su8 = SU.readSU[8]|
+SU.su9 = SU.readSU[9]|
+SU.su10 = SU.readSU[10];
+};
+
+if (FP.readFP.size ==100)
+{
+FP.leftEyeTop = FP.readFP[10]| 
+FP.leftEyeBottom = FP.readFP[14]|
+FP.rightEyeTop = FP.readFP[2]|
+FP.rightEyeBottom = FP.readFP[6]|
+FP.leftBrow = FP.readFP[34]|
+FP.rightBrow = FP.readFP[24]|
+
+
+FP.leftEyeHeight = -(FP.leftEyeTop[1]-FP.leftEyeBottom[1]); 
+FP.rightEyeHeight = -(FP.rightEyeTop[1]-FP.rightEyeBottom[1]); 
+
+FP.leftBrowEyeHight = -(FP.leftBrow[1]-FP.leftEyeBottom[1]); 
+FP.rightBrowEyeHight = -(FP.rightBrow[1]-FP.rightEyeBottom[1]); 
+
+
+};
+
+if(headPos.readHeadPos.size != 0)
+{
+headPos.dist = headPos.readHeadPos[2];
+headPos.roll = headPos.readHeadPos[5];
+headPos.pitch = headPos.readHeadPos[3];
+headPos.yaw = headPos.readHeadPos[4];
+};
+
+if(headPos.readHeadPosOnImage.size==4)
+{
+headPos.XOnImage = headPos.readHeadPosOnImage[0]|
+headPos.YOnImage = headPos.readHeadPosOnImage[1]|
+headPos.WidthOnImage = headPos.readHeadPosOnImage[2]|
+headPos.HeightOnImage = headPos.readHeadPosOnImage[3];
+};
+
+if (robot.video.facetDetector.faces>0){
+//FACET - reading params:
+facetHead.faces = robot.video.facetDetector.faces|
+facetHead.roix = robot.video.facetDetector.roix|
+facetHead.roiy = robot.video.facetDetector.roiy|
+facetHead.LEyOpn = robot.video.facetDetector.LEyOpn|
+facetHead.REyOpn = robot.video.facetDetector.REyOpn|
+facetHead.LEbHgt = robot.video.facetDetector.LEbHgt|
+facetHead.REbHgt = robot.video.facetDetector.REbHgt;
+};
+
+
+//FACET
+//finding write index
+
+if (facetHead.faces == 0)
+{
+facetHead.leftEyeVis = 0;
+facetHead.rightEyeVis = 0;
+}
+else//there are some faces
+{
+var i;
+facetHead.faceIdx = -1;
+for(i = 0; i<facetHead.faces;i++)
+{
+if(headPos.XOnImage - headPos.WidthOnImage < facetHead.roix[i] &&
+headPos.YOnImage - headPos.HeightOnImage < facetHead.roiy[i] )
+{
+facetHead.faceIdx = i;
+break;
+};
+};
+
+
+if (facetHead.faceIdx == -1)
+{
+facetHead.leftEyeVis = 0;
+facetHead.rightEyeVis = 0;
+}
+else
+{
+facetHead.leftEyePos = facetHead.LEyOpn[facetHead.faceIdx];
+facetHead.rightEyePos = facetHead.REyOpn[facetHead.faceIdx];
+facetHead.leftEyePos2= facetHead.LEbHgt[facetHead.faceIdx];
+facetHead.rightEyePos2 = facetHead.REbHgt[facetHead.faceIdx];
+
+
+
+if (facetHead.leftEyePos !=0)
+facetHead.leftEyeVis = 1
+else
+facetHead.leftEyeVis = 0;
+
+if (facetHead.rightEyePos !=0)
+facetHead.rightEyeVis = 1
+else
+facetHead.rightEyeVis = 0;
+
+};
+
+};
+
+if ((facetHead.rightEyeVis == 1 || facetHead.leftEyeVis == 1) && Global.emotionExecution == 0)
+{
+Global._faceTrMoveEyeLids_.unfreeze;
+//echo("unfreeze");
+};
+sleep(20ms);
+},
+
+
+Global._eyeOpener_:loop
+{
+sleep(2+5.random);
+//echo("opener");
+facetHead.rightEyePos = def.eye;
+facetHead.leftEyePos = def.eye;
+facetHead.rightEyeVis = 0;
+facetHead.leftEyeVis = 0;
+
+Global._faceTrMoveEyeLids_.freeze;
+
+robot.body.neck.head.eye[left].lid.Move(2*(def.eye - facetHead.rightEyePos), def.eyeTime)&
+robot.body.neck.head.eye[right].lid.Move(2*(def.eye -facetHead.leftEyePos), def.eyeTime),
+
+},
+
+
+Global._faceTrMoveHead_:loop
+{
+if(robot.video.humanDetector.head.faceIsTracking==1)
+{
+if (headPos.dist>def.dist0)//move back
+{
+var val_neck = (headPos.dist-def.dist0)/(def.distmax-def.dist0)*20;
+
+robot.body.neck.head.MoveAtPitch(-headPos.yaw, val_neck, headPos.pitch-def.pitch, def.headTime);
+
+}
+else//forward
+{
+var val_neck = (def.dist0-headPos.dist)/(def.dist0-def.distmin)*(-17);
+
+robot.body.neck.head.MoveAtPitch(-headPos.yaw, val_neck, headPos.pitch-def.pitch, def.headTime);
+
+},
+
+},
+sleep(20ms);
+},
+
+
+
+Global._faceTrMoveLdisc_:loop
+{
+if(robot.video.humanDetector.head.faceIsTracking==1)
+{
+
+//val_disc: 1 and above max open, -1 and below max closed
+//var val_ldisc = 0.4*AU.au0 + 0.8* AU.au1-0.8*AU.au2;
+
+var val_ldisc = 0.4*AU.au0 + 0.8* AU.au1-0.8*AU.au2+AU.au4*0.5;
+
+if (val_ldisc>0)//open
+robot.body.neck.head.disc[down].Move(val_ldisc*(-17), def.discTime)
+else
+{
+//echo("val_ldisc: "+val_ldisc);
+robot.body.neck.head.disc[down].Move(val_ldisc*(-7)*2, def.discTime),
+},
+},
+sleep(20ms);
+},
+
+
+
+Global._faceTrMoveUdisc_:loop
+{
+if(robot.video.humanDetector.head.faceIsTracking==1)
+{
+
+//val_udisc: 1 and above max open, -1 and below max closed
+var val_udisc = AU.au4 + AU.au5;
+
+if (val_udisc>0)//open
+robot.body.neck.head.disc[up].Move(val_udisc*(15), def.discTime)
+else
+{
+//echo("val_ldisc: "+val_ldisc);
+robot.body.neck.head.disc[up].Move(val_udisc*(7)*4, def.discTime),
+},
+},
+sleep(20ms);
+},
+
+
+Global._faceTrMoveEyes_:loop
+{
+if(robot.video.humanDetector.head.faceIsTracking==1)
+{
+
+if (headPos.roll>def.roll)
+{
+robot.body.neck.head.eye[left].brow.Move(1.5*(def.roll-headPos.roll), def.eyeTime)&
+robot.body.neck.head.eye[right].brow.Move(1.5*(def.roll-headPos.roll), def.eyeTime),
+}
+else
+{
+robot.body.neck.head.eye[left].brow.Move(1.5*(def.roll-headPos.roll), def.eyeTime)&
+robot.body.neck.head.eye[right].brow.Move(1.5*(def.roll -headPos.roll), def.eyeTime),
+
+},
+},
+sleep(20ms);
+},
+
+//eye lids
+Global._faceTrMoveEyeLids_:loop
+{
+if(robot.video.facetDetector.faces>0)
+{
+robot.body.neck.head.eye[left].lid.Move(2*(def.eye - facetHead.rightEyePos), def.eyeTime)&
+robot.body.neck.head.eye[right].lid.Move(2*(def.eye -facetHead.leftEyePos), def.eyeTime),
+},
+sleep(20ms);
+},
+
+Global._behaveNormal_: {
+robot.body.neck.head.ActAlive(7,3,1,6,3,40,0.8),
+},
+
+
+
+at((robot.video.humanDetector.head.faceIsTracking == 0 && robot.video.facetDetector.faces == 0)~3s)
+{
+facetHead.rightEyePos = def.eye;
+facetHead.leftEyePos = def.eye;
+robot.body.neck.head.eye[left].lid.Move(0, def.eyeTime)&
+robot.body.neck.head.eye[right].lid.Move(0, def.eyeTime)&
+robot.body.neck.head.eye[left].brow.Move(0, def.eyeTime)&
+robot.body.neck.head.eye[right].brow.Move(0, def.eyeTime);
+
+Global._behaveNormal_.unfreeze;
+//echo("unfreeze normal");
+},
+
+at(robot.video.humanDetector.head.faceIsTracking == 1)
+{
+Global._behaveNormal_.freeze;
+//echo("freeze normal");
+},
+//#pop
+}
+, false
+, 5
+, function() {
+//#push 1 "Main.enter"
+//Code executed before entering the node
+
+//#pop
+}
+, function() {
+//#push 1 "Main.leave"
+//Code executed after leaving the node
+
+//#pop
+}, false, [60.3636, -12.1421]);
+
+//Exec state declaration
+var _root_MSI_face_1._nodes_.Exec = fsm.State.create_("_root_MSI_face_1._nodes_.Exec", _root_MSI_face_1._nodes_.Main,
+function() {
+//#push 1 "Exec"
+var faceCountDown = 120;
+
+at(robot.video.humanDetector.head.faceIsTracking == 1~1s)
+{
+faceCountDown = 120;
+},
+
+at( robot.video.facetDetector.faces==1~1s)
+{
+faceCountDown = 120;
+},
+
+every(1s)
+{
+faceCountDown -= 1;
+},
+
+at(faceCountDown <= 0)
+{
+return;
+},
+
+while(1)
+{
+if (robot.video.humanDetector.head.faceIsTracking == 1)
+{
+if (Global.lastAngry == 1 && TestAngry()==1)
+{
+echo("ANGRY");
+Global.emotionExecution = 1;
+Global._faceTrMoveHead_.freeze;
+Global._faceTrMoveLdisc_.freeze;
+Global._faceTrMoveUdisc_.freeze;
+Global._faceTrMoveEyes_.freeze;
+Global._eyeOpener_.freeze;
+Global._faceTrMoveEyeLids_.freeze;
+
+robot.competency.BehaveAngry();
+Global.emotionExecution = 0;
+
+Global._faceTrMoveHead_.unfreeze;
+Global._faceTrMoveLdisc_.unfreeze;
+Global._faceTrMoveUdisc_.unfreeze;
+Global._faceTrMoveEyes_.unfreeze;
+Global._eyeOpener_.unfreeze;
+Global._faceTrMoveEyeLids_.unfreeze;
+
+
+sleep(5+10.random);
+
+}
+else if (Global.lastSurprise == 1 && TestSurprise() == 1)
+{
+echo("SURPRISE");
+Global.emotionExecution = 1;
+Global._faceTrMoveHead_.freeze;
+Global._faceTrMoveLdisc_.freeze;
+Global._faceTrMoveUdisc_.freeze;
+Global._faceTrMoveEyes_.freeze;
+Global._eyeOpener_.freeze;
+Global._faceTrMoveEyeLids_.freeze;
+
+robot.competency.BehaveSurprise();
+Global.emotionExecution = 0;
+
+Global._faceTrMoveHead_.unfreeze;
+Global._faceTrMoveLdisc_.unfreeze;
+Global._faceTrMoveUdisc_.unfreeze;
+Global._faceTrMoveEyes_.unfreeze;
+Global._eyeOpener_.unfreeze;
+Global._faceTrMoveEyeLids_.unfreeze;
+
+sleep(5+10.random);
+}
+
+else if (Global.lastFear == 1 && TestFear()==1)
+{
+echo("FEAR");
+Global.emotionExecution = 1;
+Global._faceTrMoveHead_.freeze;
+Global._faceTrMoveLdisc_.freeze;
+Global._faceTrMoveUdisc_.freeze;
+Global._faceTrMoveEyes_.freeze;
+Global._eyeOpener_.freeze;
+Global._faceTrMoveEyeLids_.freeze;
+
+robot.competency.BehaveFear();
+Global.emotionExecution = 0;
+
+Global._faceTrMoveHead_.unfreeze;
+Global._faceTrMoveLdisc_.unfreeze;
+Global._faceTrMoveUdisc_.unfreeze; 
+Global._faceTrMoveEyes_.unfreeze;
+Global._eyeOpener_.unfreeze;
+Global._faceTrMoveEyeLids_.unfreeze;
+
+sleep(5+10.random);
+
+};
+};
+
+Global.lastAngry = TestAngry()|
+Global.lastSurprise = TestSurprise()|
+Global.lastFear = TestFear();
+sleep(50ms);
+};
+//#pop
+}
+, true
+, 6
+, function() {
+//#push 1 "Exec.enter"
+//Code executed before entering the node
+
+//#pop
+}
+, function() {
+//#push 1 "Exec.leave"
+//Code executed after leaving the node
+
+//#pop
+}, false, [93.0414, -62.7563]);
+
+//sleep state declaration
+var _root_MSI_face_1._nodes_.sleep = fsm.State.create_("_root_MSI_face_1._nodes_.sleep", _root_MSI_face_1._nodes_.FaceTracker,
+function() {
+//#push 1 "sleep"
+echo("sleeping");
+Global._sleeping_:robot.competency.ActGoSleep(),
+sleep(3s);
+
+at (robot.video.humanDetector.head.faceIsTracking == 1~0.5s)
+{
+robot.body.neck.head.BehaveNormal(1.5s);
+return;
+};
+
+
+//#pop
+}
+, false
+, 7
+, function() {
+//#push 1 "sleep.enter"
+//Code executed before entering the node
+
+//#pop
+}
+, function() {
+//#push 1 "sleep.leave"
+//Code executed after leaving the node
+
+//#pop
+}, false, [-146.585, -109.442]);
+
+/***************************
+ * Transitions declaration *
+ ***************************/
+fsm.Transition.create_(_root_MSI_face_1._nodes_.FaceTracker, _root_MSI_face_1._nodes_.Start, _root_MSI_face_1._nodes_.Main, "done?", "_root_MSI_face_1._nodes_.Transition");
+fsm.Transition.create_(_root_MSI_face_1._nodes_.FaceTracker, _root_MSI_face_1._nodes_.sleep, _root_MSI_face_1._nodes_.Main, "done?", "_root_MSI_face_1._nodes_.Transition_2");
+fsm.Transition.create_(_root_MSI_face_1._nodes_.FaceTracker, _root_MSI_face_1._nodes_.Exec, _root_MSI_face_1._nodes_.sleep, "done?", "_root_MSI_face_1._nodes_.Transition_3");
+
+
+var _root_MSI_face_1.enterChan = Channel.new("enteringNode");
+var _root_MSI_face_1.enterChan.lobby = getSlot("lobby");
+at(_root_MSI_face_1.enteringNode?(var id)) _root_MSI_face_1.enterChan << ["_root_MSI_face_1", id.name];
+var _root_MSI_face_1.leaveChan = Channel.new("leavingNode");
+var _root_MSI_face_1.leaveChan.lobby = getSlot("lobby");
+at(_root_MSI_face_1.leavingNode?(var id)) _root_MSI_face_1.leaveChan << ["_root_MSI_face_1", id.name];
+var _root_MSI_face_1.transitingChan = Channel.new("transiting");
+var _root_MSI_face_1.transitingChan.lobby = getSlot("lobby");
+at(_root_MSI_face_1.transiting?(var node, var trans)) _root_MSI_face_1.transitingChan << ["_root_MSI_face_1", trans.name];
+var _root_MSI_face_1.freezeChan = Channel.new("frozen");
+var _root_MSI_face_1.freezeChan.lobby = getSlot("lobby");
+at(_root_MSI_face_1.graphFrozen?()) _root_MSI_face_1.freezeChan << "_root_MSI_face_1";
+// Start code.
+detach(_root_MSI_face_1.enter_());
+
+// End of graph implementation `_root_MSI_face_1'.
+

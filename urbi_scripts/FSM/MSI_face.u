@@ -1,0 +1,872 @@
+/*
+ * MSI_face: Main graph implementation.
+ *
+ * Load this file in your server to run the graph.
+ *
+ * Created: Pn 1. cze 11:55:58 2015
+ *      by: Gostai Studio 2.7
+ *
+ * WARNING! All changes made in this file will be lost!
+ */
+
+
+// Load urbiscript file.
+load("urbi/fsm.u");
+
+//#line 16 "MSI_faceGostai Studio 2.7"
+
+/*************************
+ * Create the root state *
+ *************************/
+
+//Clean previous code
+if (hasLocalSlot("_root_MSI_face_1"))
+  if (Object.hasLocalSlot("removeLocalSlot"))
+    removeLocalSlot("_root_MSI_face_1")
+  else
+    removeSlot("_root_MSI_face_1");
+
+var _root_MSI_face_1 = fsm.State.new("_root_MSI_face_1");
+_root_MSI_face_1.'$params_dict' = Dictionary.new();
+var _root_MSI_face_1._nodes_ = Object.new;
+
+/**********************
+ * States declaration *
+ **********************/
+
+//FaceTracker state declaration
+var _root_MSI_face_1._nodes_.FaceTracker = fsm.State.create_("_root_MSI_face_1._nodes_.FaceTracker", _root_MSI_face_1,
+function() {
+//#push 1 "FaceTracker"
+//*  Author: Pawel Kaczmarek
+//*  Date: 01.06.2015
+//*  Ver:  1.0 (from MSI)
+
+robot.video.humanDetector.faceTrackingPause=false;
+robot.video.facetDetector.enable=true;
+robot.video.Run(),
+
+loop
+{
+robot.video.display[0].show(robot.video.kinect.faceImage);
+robot.video.display[1].show(robot.video.facetDetector.image);
+sleep(20ms);
+},
+//#pop
+}
+, true
+, 3
+, function() {
+//#push 1 "FaceTracker.enter"
+//Code executed before entering the node
+if (!hasSlot("_readingFaceParams_")) var Global._readingFaceParams_=Tag.new() else { Global._readingFaceParams_.unfreeze | Global._readingFaceParams_.stop;};
+
+
+if (!hasSlot("_eyeOpener_")) var Global._eyeOpener_=Tag.new() else { Global._eyeOpener_.unfreeze | Global._eyeOpener_.stop;};
+
+if (!hasSlot("_faceTrMoveHead_")) var Global._faceTrMoveHead_=Tag.new() else { Global._faceTrMoveHead_.unfreeze | Global._faceTrMoveHead_.stop;};
+
+
+if (!hasSlot("_faceTrMoveLdisc_")) var Global._faceTrMoveLdisc_=Tag.new() else { Global._faceTrMoveLdisc_.unfreeze | Global._faceTrMoveLdisc_.stop;};
+
+
+if (!hasSlot("_faceTrMoveUdisc_")) var Global._faceTrMoveUdisc_=Tag.new() else { Global._faceTrMoveUdisc_.unfreeze | Global._faceTrMoveUdisc_.stop;};
+
+
+if (!hasSlot("_faceTrMoveEyes_")) var Global._faceTrMoveEyes_=Tag.new() else { Global._faceTrMoveEyes_.unfreeze | Global._faceTrMoveEyes_.stop;};
+
+if (!hasSlot("_faceTrMoveEyeLids_")) var Global._faceTrMoveEyeLids_=Tag.new() else { Global._faceTrMoveEyeLids_.unfreeze | Global._faceTrMoveEyeLids_.stop;};
+
+
+if (!hasSlot("_behaveNormal_")) var Global._behaveNormal_=Tag.new() else { Global._behaveNormal_.unfreeze | Global._behaveNormal_.stop;};
+
+if (!hasSlot("_sleeping_")) var Global._sleeping_=Tag.new() else { Global._sleeping_.unfreeze | Global._sleeping_.stop;};
+
+
+if (!hasSlot("lastAngry")) var Global.lastAngry = 0 else Global.lastAngry = 0;
+if (!hasSlot("lastSurprise")) var Global.lastSurprise = 0 else Global.lastSurprise = 0;
+if (!hasSlot("lastFear")) var Global.lastFear = 0 else Global.lastFear = 0;
+
+if (!hasSlot("emotionExecution")) var Global.emotionExecution = 0 else Global.emotionExecution = 0;
+
+
+if (!hasSlot("AU")) {
+	var Global.AU = Object.new();
+
+var AU.readAU = [];
+var AU.au0 = 0; AU.au0->rangemin = -1;  AU.au0->rangemax = 1;
+var AU.au1 = 0; AU.au1->rangemin = -1;  AU.au1->rangemax = 1;
+var AU.au2 = 0; AU.au2->rangemin = -1;  AU.au2->rangemax = 1;
+var AU.au3 = 0; AU.au3->rangemin = -1;  AU.au3->rangemax = 1;
+var AU.au4 = 0; AU.au4->rangemin = -1;  AU.au4->rangemax = 1;
+var AU.au5 = 0; AU.au5->rangemin = -1;  AU.au5->rangemax = 1;
+} else {
+AU.readAU = [];
+AU.au0 = 0; 
+AU.au1 = 0; 
+AU.au2 = 0; 
+AU.au3 = 0; 
+AU.au4 = 0; 
+AU.au5 = 0; 
+};
+
+
+
+if (!hasSlot("SU")) {
+	var Global.SU = Object.new();
+
+var SU.readSU = [];
+var SU.su0 = 0; SU.su0->rangemin = -1;  SU.su0->rangemax = 1;
+var SU.su1 = 0; SU.su1->rangemin = -1;  SU.su1->rangemax = 1;
+var SU.su2 = 0; SU.su2->rangemin = -1;  SU.su2->rangemax = 1;
+var SU.su3 = 0; SU.su3->rangemin = -1;  SU.su3->rangemax = 1;
+var SU.su4 = 0; SU.su4->rangemin = -1;  SU.su4->rangemax = 1;
+var SU.su5 = 0; SU.su5->rangemin = -1;  SU.su5->rangemax = 1;
+var SU.su6 = 0; SU.su6->rangemin = -1;  SU.su6->rangemax = 1;
+var SU.su7 = 0; SU.su7->rangemin = -1;  SU.su7->rangemax = 1;
+var SU.su8 = 0; SU.su8->rangemin = -1;  SU.su8->rangemax = 1;
+var SU.su9 = 0; SU.su9->rangemin = -1;  SU.su9->rangemax = 1;
+var SU.su10 = 0; SU.su10->rangemin = -1;  SU.su10->rangemax = 1;
+} else {
+SU.readSU = [];
+SU.su0 = 0; 
+SU.su1 = 0; 
+SU.su2 = 0; 
+SU.su3 = 0; 
+SU.su4 = 0; 
+SU.su5 = 0; 
+SU.su6 = 0; 
+SU.su7 = 0; 
+SU.su8 = 0; 
+SU.su9 = 0; 
+SU.su10 = 0; 
+};
+
+//facePoints
+if (!hasSlot("FP")) {
+	var Global.FP= Object.new();
+
+var FP.readFP = [];
+var FP.leftEyeTop = 0; 
+var FP.leftEyeBottom = 0; 
+var FP.rightEyeTop = 0; 
+var FP.rightEyeBottom = 0; 
+
+var FP.leftEyeHeight = 0; 
+var FP.rightEyeHeight = 0; 
+
+var FP.leftBrow = 0; 
+var FP.rightBrow = 0; 
+
+var FP.leftBrowEyeHight = 0; 
+var FP.rightBrowEyeHight = 0; 
+
+} else {
+FP.readFP = [];
+FP.leftEyeTop = 0; 
+FP.leftEyeBottom = 0; 
+FP.rightEyeTop = 0; 
+FP.rightEyeBottom = 0; 
+
+FP.leftEyeHeight = 0; 
+FP.rightEyeHeight = 0; 
+
+FP.leftBrow = 0; 
+FP.rightBrow = 0; 
+
+FP.leftBrowEyeHight = 0; 
+FP.rightBrowEyeHight = 0; 
+
+};
+
+
+
+if (!hasSlot("headPos")) {
+	var Global.headPos = Object.new();
+var headPos.readHeadPos = [];
+var headPos.readHeadPosOnImage = [];
+var headPos.dist = 0;
+var headPos.roll = 0;
+var headPos.pitch = 0;
+var headPos.yaw = 0;
+var headPos.XOnImage = 0;
+var headPos.YOnImage = 0;
+var headPos.WidthOnImage = 0;
+var headPos.HeightOnImage = 0;
+} else {
+headPos.readHeadPos = [];
+headPos.readHeadPosOnImage = [];
+headPos.dist = 0;
+headPos.roll = 0;
+headPos.pitch = 0;
+headPos.yaw = 0;
+headPos.XOnImage = 0;
+headPos.YOnImage = 0;
+headPos.WidthOnImage = 0;
+headPos.HeightOnImage = 0;
+};
+
+
+
+if (!hasSlot("facetHead")) {
+	var Global.facetHead = Object.new();
+	
+
+//new 
+var facetHead.faces = 0;
+var facetHead.roix = [];
+var facetHead.roiy = [];
+var facetHead.LEyOpn = [];
+var facetHead.REyOpn = [];
+var facetHead.LEbHgt = [];
+var facetHead.REbHgt = [];
+//
+
+var facetHead.faceIdx = 0;
+var facetHead.leftEyeVis = 0;
+var facetHead.rightEyeVis = 0;
+var facetHead.leftEyePos= 0;
+var facetHead.rightEyePos = 0;
+var facetHead.leftEyePos2= 0;
+var facetHead.rightEyePos2 = 0;
+
+
+} else {
+//new 
+facetHead.faces = 0;
+facetHead.roix = [];
+facetHead.roiy = [];
+facetHead.LEyOpn = [];
+facetHead.REyOpn = [];
+facetHead.LEbHgt = [];
+facetHead.REbHgt = [];
+//
+
+facetHead.faceIdx = 0;
+facetHead.leftEyeVis = 0;
+facetHead.rightEyeVis = 0;
+facetHead.leftEyePos= 0;
+facetHead.rightEyePos = 0;
+facetHead.leftEyePos2 = 0; 
+facetHead.rightEyePos2 = 0;
+
+};
+
+
+
+if (!hasSlot("def")) {
+	var Global.def = Object.new();
+var def.distmin = 1;
+var def.dist0 = 1.2;
+var def.distmax = 1.6;
+
+var def.pitch = -6;
+var def.yaw = 0;
+var def.roll = 0;
+
+var def.eye = 50;
+
+var def.eyeTime = 0.6;
+var def.discTime = 0.6;
+var def.headTime = 0.7;
+
+} else {
+def.distmin = 1;
+def.dist0 = 1.2;
+def.distmax = 1.6;
+def.pitch = -6;
+def.yaw = 0;
+def.roll = 0;
+
+def.eye = 50;
+
+
+def.eyeTime = 0.6;
+def.discTime = 0.6;
+def.headTime = 0.7;
+
+};
+
+
+if (!hasSlot("TestAngry"))
+do (Global)
+{
+function TestAngry()
+{
+if(AU.au0>0.5 && AU.au5<-0.25)
+return 1
+else 
+return 0;
+}|{};
+};
+
+if (!hasSlot("TestSurprise"))
+do (Global)
+{
+function TestSurprise()
+{
+if(AU.au1>0.65 && AU.au4>0.65)
+return 1
+else 
+return 0;
+}|{};
+};
+
+
+/*
+function TestFear()
+{
+if(AU.au1<0.3 && AU.au5>0.35 && AU.au2>0.35)
+return 1
+else 
+return 0;
+}|{};
+};
+*/
+
+if (!hasSlot("TestFear"))
+do (Global)
+{
+function TestFear()
+{
+if(AU.au1<0.1  && AU.au2>0.35 && AU.au5>0.05)
+return 1
+else 
+return 0;
+}|{};
+};
+//#pop
+}
+, function() {
+//#push 1 "FaceTracker.leave"
+//Code executed after leaving the node
+
+//#pop
+}, false, [-13.3133, -223.569]);
+
+//Start state declaration
+var _root_MSI_face_1._nodes_.Start = fsm.State.create_("_root_MSI_face_1._nodes_.Start", _root_MSI_face_1._nodes_.FaceTracker,
+function() {
+//#push 1 "Start"
+robot.body.stop;
+robot.competency.BehaveNormal(); 
+Kinect.faceVisualization = 1;
+//#pop
+}
+, true
+, 4
+, function() {
+//#push 1 "Start.enter"
+//Code executed before entering the node
+
+//#pop
+}
+, function() {
+//#push 1 "Start.leave"
+//Code executed after leaving the node
+
+//#pop
+}, false, [-196.279, 100.371]);
+
+//Main state declaration
+var _root_MSI_face_1._nodes_.Main = fsm.State.create_("_root_MSI_face_1._nodes_.Main", _root_MSI_face_1._nodes_.FaceTracker,
+function() {
+//#push 1 "Main"
+Global._readingFaceParams_: loop
+{
+if (robot.video.humanDetector.head.faceIsTracking == 1)
+{
+Global._sleeping_.stop;
+Global._eyeOpener_.unfreeze;
+};
+
+if(robot.video.humanDetector.head.faceIsTracking == 1)
+{
+AU.readAU = robot.video.kinect.faceAU();
+SU.readSU = robot.video.kinect.faceSU();
+}
+else
+{
+AU.readAU = [];
+SU.readSU = [];
+
+};
+
+headPos.readHeadPos = robot.video.kinect.facePosition();
+headPos.readHeadPosOnImage = robot.video.kinect.facePositionOnImage();
+
+FP.readFP = robot.video.kinect.facePointsOnImage();
+
+if(AU.readAU.size == 6)
+{
+AU.au0 = AU.readAU[0]|
+AU.au1 = AU.readAU[1]|
+AU.au2 = AU.readAU[2]|
+
+AU.au3 = AU.readAU[3]|
+AU.au4 = AU.readAU[4]|
+AU.au5 = AU.readAU[5];
+};
+
+if(SU.readSU.size == 11)
+{
+SU.su0 = SU.readSU[0]|
+SU.su1 = SU.readSU[1]|
+SU.su2 = SU.readSU[2]|
+SU.su3 = SU.readSU[3]|
+SU.su4 = SU.readSU[4]|
+SU.su5 = SU.readSU[5]|
+SU.su6 = SU.readSU[6]|
+SU.su7 = SU.readSU[7]|
+SU.su8 = SU.readSU[8]|
+SU.su9 = SU.readSU[9]|
+SU.su10 = SU.readSU[10];
+};
+
+if (FP.readFP.size ==100)
+{
+FP.leftEyeTop = FP.readFP[10]| 
+FP.leftEyeBottom = FP.readFP[14]|
+FP.rightEyeTop = FP.readFP[2]|
+FP.rightEyeBottom = FP.readFP[6]|
+FP.leftBrow = FP.readFP[34]|
+FP.rightBrow = FP.readFP[24]|
+
+
+FP.leftEyeHeight = -(FP.leftEyeTop[1]-FP.leftEyeBottom[1]); 
+FP.rightEyeHeight = -(FP.rightEyeTop[1]-FP.rightEyeBottom[1]); 
+
+FP.leftBrowEyeHight = -(FP.leftBrow[1]-FP.leftEyeBottom[1]); 
+FP.rightBrowEyeHight = -(FP.rightBrow[1]-FP.rightEyeBottom[1]); 
+
+
+};
+
+if(headPos.readHeadPos.size != 0)
+{
+headPos.dist = headPos.readHeadPos[2];
+headPos.roll = headPos.readHeadPos[5];
+headPos.pitch = headPos.readHeadPos[3];
+headPos.yaw = headPos.readHeadPos[4];
+};
+
+if(headPos.readHeadPosOnImage.size==4)
+{
+headPos.XOnImage = headPos.readHeadPosOnImage[0]|
+headPos.YOnImage = headPos.readHeadPosOnImage[1]|
+headPos.WidthOnImage = headPos.readHeadPosOnImage[2]|
+headPos.HeightOnImage = headPos.readHeadPosOnImage[3];
+};
+
+if (robot.video.facetDetector.faces>0){
+//FACET - reading params:
+facetHead.faces = robot.video.facetDetector.faces|
+facetHead.roix = robot.video.facetDetector.roix|
+facetHead.roiy = robot.video.facetDetector.roiy|
+facetHead.LEyOpn = robot.video.facetDetector.LEyOpn|
+facetHead.REyOpn = robot.video.facetDetector.REyOpn|
+facetHead.LEbHgt = robot.video.facetDetector.LEbHgt|
+facetHead.REbHgt = robot.video.facetDetector.REbHgt;
+};
+
+
+//FACET
+//finding write index
+
+if (facetHead.faces == 0)
+{
+facetHead.leftEyeVis = 0;
+facetHead.rightEyeVis = 0;
+}
+else//there are some faces
+{
+var i;
+facetHead.faceIdx = -1;
+for(i = 0; i<facetHead.faces;i++)
+{
+if(headPos.XOnImage - headPos.WidthOnImage < facetHead.roix[i] &&
+headPos.YOnImage - headPos.HeightOnImage < facetHead.roiy[i] )
+{
+facetHead.faceIdx = i;
+break;
+};
+};
+
+
+if (facetHead.faceIdx == -1)
+{
+facetHead.leftEyeVis = 0;
+facetHead.rightEyeVis = 0;
+}
+else
+{
+facetHead.leftEyePos = facetHead.LEyOpn[facetHead.faceIdx];
+facetHead.rightEyePos = facetHead.REyOpn[facetHead.faceIdx];
+facetHead.leftEyePos2= facetHead.LEbHgt[facetHead.faceIdx];
+facetHead.rightEyePos2 = facetHead.REbHgt[facetHead.faceIdx];
+
+
+
+if (facetHead.leftEyePos !=0)
+facetHead.leftEyeVis = 1
+else
+facetHead.leftEyeVis = 0;
+
+if (facetHead.rightEyePos !=0)
+facetHead.rightEyeVis = 1
+else
+facetHead.rightEyeVis = 0;
+
+};
+
+};
+
+if ((facetHead.rightEyeVis == 1 || facetHead.leftEyeVis == 1) && Global.emotionExecution == 0)
+{
+Global._faceTrMoveEyeLids_.unfreeze;
+//echo("unfreeze");
+};
+sleep(20ms);
+},
+
+
+Global._eyeOpener_:loop
+{
+sleep(2+5.random);
+//echo("opener");
+facetHead.rightEyePos = def.eye;
+facetHead.leftEyePos = def.eye;
+facetHead.rightEyeVis = 0;
+facetHead.leftEyeVis = 0;
+
+Global._faceTrMoveEyeLids_.freeze;
+
+robot.body.neck.head.eye[left].lid.Move(2*(def.eye - facetHead.rightEyePos), def.eyeTime)&
+robot.body.neck.head.eye[right].lid.Move(2*(def.eye -facetHead.leftEyePos), def.eyeTime),
+
+},
+
+
+Global._faceTrMoveHead_:loop
+{
+if(robot.video.humanDetector.head.faceIsTracking==1)
+{
+if (headPos.dist>def.dist0)//move back
+{
+var val_neck = (headPos.dist-def.dist0)/(def.distmax-def.dist0)*20;
+
+robot.body.neck.head.MoveAtPitch(-headPos.yaw, val_neck, headPos.pitch-def.pitch, def.headTime);
+
+}
+else//forward
+{
+var val_neck = (def.dist0-headPos.dist)/(def.dist0-def.distmin)*(-17);
+
+robot.body.neck.head.MoveAtPitch(-headPos.yaw, val_neck, headPos.pitch-def.pitch, def.headTime);
+
+},
+
+},
+sleep(20ms);
+},
+
+
+
+Global._faceTrMoveLdisc_:loop
+{
+if(robot.video.humanDetector.head.faceIsTracking==1)
+{
+
+//val_disc: 1 and above max open, -1 and below max closed
+//var val_ldisc = 0.4*AU.au0 + 0.8* AU.au1-0.8*AU.au2;
+
+var val_ldisc = 0.4*AU.au0 + 0.8* AU.au1-0.8*AU.au2+AU.au4*0.5;
+
+if (val_ldisc>0)//open
+robot.body.neck.head.disc[down].Move(val_ldisc*(-17), def.discTime)
+else
+{
+//echo("val_ldisc: "+val_ldisc);
+robot.body.neck.head.disc[down].Move(val_ldisc*(-7)*2, def.discTime),
+},
+},
+sleep(20ms);
+},
+
+
+
+Global._faceTrMoveUdisc_:loop
+{
+if(robot.video.humanDetector.head.faceIsTracking==1)
+{
+
+//val_udisc: 1 and above max open, -1 and below max closed
+var val_udisc = AU.au4 + AU.au5;
+
+if (val_udisc>0)//open
+robot.body.neck.head.disc[up].Move(val_udisc*(15), def.discTime)
+else
+{
+//echo("val_ldisc: "+val_ldisc);
+robot.body.neck.head.disc[up].Move(val_udisc*(7)*4, def.discTime),
+},
+},
+sleep(20ms);
+},
+
+
+Global._faceTrMoveEyes_:loop
+{
+if(robot.video.humanDetector.head.faceIsTracking==1)
+{
+
+if (headPos.roll>def.roll)
+{
+robot.body.neck.head.eye[left].brow.Move(1.5*(def.roll-headPos.roll), def.eyeTime)&
+robot.body.neck.head.eye[right].brow.Move(1.5*(def.roll-headPos.roll), def.eyeTime),
+}
+else
+{
+robot.body.neck.head.eye[left].brow.Move(1.5*(def.roll-headPos.roll), def.eyeTime)&
+robot.body.neck.head.eye[right].brow.Move(1.5*(def.roll -headPos.roll), def.eyeTime),
+
+},
+},
+sleep(20ms);
+},
+
+//eye lids
+Global._faceTrMoveEyeLids_:loop
+{
+if(robot.video.facetDetector.faces>0)
+{
+robot.body.neck.head.eye[left].lid.Move(2*(def.eye - facetHead.rightEyePos), def.eyeTime)&
+robot.body.neck.head.eye[right].lid.Move(2*(def.eye -facetHead.leftEyePos), def.eyeTime),
+},
+sleep(20ms);
+},
+
+Global._behaveNormal_: {
+robot.body.neck.head.ActAlive(7,3,1,6,3,40,0.8),
+},
+
+
+
+at((robot.video.humanDetector.head.faceIsTracking == 0 && robot.video.facetDetector.faces == 0)~3s)
+{
+facetHead.rightEyePos = def.eye;
+facetHead.leftEyePos = def.eye;
+robot.body.neck.head.eye[left].lid.Move(0, def.eyeTime)&
+robot.body.neck.head.eye[right].lid.Move(0, def.eyeTime)&
+robot.body.neck.head.eye[left].brow.Move(0, def.eyeTime)&
+robot.body.neck.head.eye[right].brow.Move(0, def.eyeTime);
+
+Global._behaveNormal_.unfreeze;
+//echo("unfreeze normal");
+},
+
+at(robot.video.humanDetector.head.faceIsTracking == 1)
+{
+Global._behaveNormal_.freeze;
+//echo("freeze normal");
+},
+//#pop
+}
+, false
+, 5
+, function() {
+//#push 1 "Main.enter"
+//Code executed before entering the node
+
+//#pop
+}
+, function() {
+//#push 1 "Main.leave"
+//Code executed after leaving the node
+
+//#pop
+}, false, [60.3636, -12.1421]);
+
+//Exec state declaration
+var _root_MSI_face_1._nodes_.Exec = fsm.State.create_("_root_MSI_face_1._nodes_.Exec", _root_MSI_face_1._nodes_.Main,
+function() {
+//#push 1 "Exec"
+var faceCountDown = 120;
+
+at(robot.video.humanDetector.head.faceIsTracking == 1~1s)
+{
+faceCountDown = 120;
+},
+
+at( robot.video.facetDetector.faces==1~1s)
+{
+faceCountDown = 120;
+},
+
+every(1s)
+{
+faceCountDown -= 1;
+},
+
+at(faceCountDown <= 0)
+{
+return;
+},
+
+while(1)
+{
+if (robot.video.humanDetector.head.faceIsTracking == 1)
+{
+if (Global.lastAngry == 1 && TestAngry()==1)
+{
+echo("ANGRY");
+Global.emotionExecution = 1;
+Global._faceTrMoveHead_.freeze;
+Global._faceTrMoveLdisc_.freeze;
+Global._faceTrMoveUdisc_.freeze;
+Global._faceTrMoveEyes_.freeze;
+Global._eyeOpener_.freeze;
+Global._faceTrMoveEyeLids_.freeze;
+
+robot.competency.BehaveAngry();
+Global.emotionExecution = 0;
+
+Global._faceTrMoveHead_.unfreeze;
+Global._faceTrMoveLdisc_.unfreeze;
+Global._faceTrMoveUdisc_.unfreeze;
+Global._faceTrMoveEyes_.unfreeze;
+Global._eyeOpener_.unfreeze;
+Global._faceTrMoveEyeLids_.unfreeze;
+
+
+sleep(5+10.random);
+
+}
+else if (Global.lastSurprise == 1 && TestSurprise() == 1)
+{
+echo("SURPRISE");
+Global.emotionExecution = 1;
+Global._faceTrMoveHead_.freeze;
+Global._faceTrMoveLdisc_.freeze;
+Global._faceTrMoveUdisc_.freeze;
+Global._faceTrMoveEyes_.freeze;
+Global._eyeOpener_.freeze;
+Global._faceTrMoveEyeLids_.freeze;
+
+robot.competency.BehaveSurprise();
+Global.emotionExecution = 0;
+
+Global._faceTrMoveHead_.unfreeze;
+Global._faceTrMoveLdisc_.unfreeze;
+Global._faceTrMoveUdisc_.unfreeze;
+Global._faceTrMoveEyes_.unfreeze;
+Global._eyeOpener_.unfreeze;
+Global._faceTrMoveEyeLids_.unfreeze;
+
+sleep(5+10.random);
+}
+
+else if (Global.lastFear == 1 && TestFear()==1)
+{
+echo("FEAR");
+Global.emotionExecution = 1;
+Global._faceTrMoveHead_.freeze;
+Global._faceTrMoveLdisc_.freeze;
+Global._faceTrMoveUdisc_.freeze;
+Global._faceTrMoveEyes_.freeze;
+Global._eyeOpener_.freeze;
+Global._faceTrMoveEyeLids_.freeze;
+
+robot.competency.BehaveFear();
+Global.emotionExecution = 0;
+
+Global._faceTrMoveHead_.unfreeze;
+Global._faceTrMoveLdisc_.unfreeze;
+Global._faceTrMoveUdisc_.unfreeze; 
+Global._faceTrMoveEyes_.unfreeze;
+Global._eyeOpener_.unfreeze;
+Global._faceTrMoveEyeLids_.unfreeze;
+
+sleep(5+10.random);
+
+};
+};
+
+Global.lastAngry = TestAngry()|
+Global.lastSurprise = TestSurprise()|
+Global.lastFear = TestFear();
+sleep(50ms);
+};
+//#pop
+}
+, true
+, 6
+, function() {
+//#push 1 "Exec.enter"
+//Code executed before entering the node
+
+//#pop
+}
+, function() {
+//#push 1 "Exec.leave"
+//Code executed after leaving the node
+
+//#pop
+}, false, [93.0414, -62.7563]);
+
+//sleep state declaration
+var _root_MSI_face_1._nodes_.sleep = fsm.State.create_("_root_MSI_face_1._nodes_.sleep", _root_MSI_face_1._nodes_.FaceTracker,
+function() {
+//#push 1 "sleep"
+echo("sleeping");
+Global._sleeping_:robot.competency.ActGoSleep(),
+sleep(3s);
+
+at (robot.video.humanDetector.head.faceIsTracking == 1~0.5s)
+{
+robot.body.neck.head.BehaveNormal(1.5s);
+return;
+};
+
+
+//#pop
+}
+, false
+, 7
+, function() {
+//#push 1 "sleep.enter"
+//Code executed before entering the node
+
+//#pop
+}
+, function() {
+//#push 1 "sleep.leave"
+//Code executed after leaving the node
+
+//#pop
+}, false, [-146.585, -109.442]);
+
+/***************************
+ * Transitions declaration *
+ ***************************/
+fsm.Transition.create_(_root_MSI_face_1._nodes_.FaceTracker, _root_MSI_face_1._nodes_.Start, _root_MSI_face_1._nodes_.Main, "done?", "_root_MSI_face_1._nodes_.Transition");
+fsm.Transition.create_(_root_MSI_face_1._nodes_.FaceTracker, _root_MSI_face_1._nodes_.sleep, _root_MSI_face_1._nodes_.Main, "done?", "_root_MSI_face_1._nodes_.Transition_2");
+fsm.Transition.create_(_root_MSI_face_1._nodes_.FaceTracker, _root_MSI_face_1._nodes_.Exec, _root_MSI_face_1._nodes_.sleep, "done?", "_root_MSI_face_1._nodes_.Transition_3");
+
+
+var _root_MSI_face_1.enterChan = Channel.new("enteringNode");
+var _root_MSI_face_1.enterChan.lobby = getSlot("lobby");
+at(_root_MSI_face_1.enteringNode?(var id)) _root_MSI_face_1.enterChan << ["_root_MSI_face_1", id.name];
+var _root_MSI_face_1.leaveChan = Channel.new("leavingNode");
+var _root_MSI_face_1.leaveChan.lobby = getSlot("lobby");
+at(_root_MSI_face_1.leavingNode?(var id)) _root_MSI_face_1.leaveChan << ["_root_MSI_face_1", id.name];
+var _root_MSI_face_1.transitingChan = Channel.new("transiting");
+var _root_MSI_face_1.transitingChan.lobby = getSlot("lobby");
+at(_root_MSI_face_1.transiting?(var node, var trans)) _root_MSI_face_1.transitingChan << ["_root_MSI_face_1", trans.name];
+var _root_MSI_face_1.freezeChan = Channel.new("frozen");
+var _root_MSI_face_1.freezeChan.lobby = getSlot("lobby");
+at(_root_MSI_face_1.graphFrozen?()) _root_MSI_face_1.freezeChan << "_root_MSI_face_1";
+// Start code.
+detach(_root_MSI_face_1.enter_());
+
+// End of graph implementation `_root_MSI_face_1'.

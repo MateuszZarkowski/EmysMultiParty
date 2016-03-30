@@ -1,0 +1,44 @@
+// loading robot environment
+// load("_CONFIG_.u");
+// load("../urbi_scripts/_ROBOT_.u");
+// var pwd = Path.cwd|;
+// Path.new("../modules/").cd|;
+// ROBOT();
+// pwd.cd|;
+//***************************
+
+loadModule("UFiles");
+var ufiles = UFiles.new|;
+
+load("Tools.u");
+var file_path = "E:/ChromeExtensions/NativeExample/host/out.txt";
+
+//VANILLA URBI
+// loop {
+// while(!Path.new(file_path).exists) sleep(1ms);
+// var res = []|;
+// var startTime = time;
+// {
+// var f = File.new(file_path);
+// var i = InputStream.new(f);
+// var x;
+// while (!(x = i.getLine.acceptVoid).isVoid) res << x;
+// i.close;
+// f.remove;
+// };
+// cout << time - startTime; // 0.13s
+// cout << "res: " + res.map( function(e) {e.utf;}) ;
+// };
+
+//UFILES
+var size;
+loop {
+  while (!Path.new(file_path).exists) {}; //sleep(2ms);
+  while (File.new(file_path).size == 0) {};
+  var res;
+  var startTime = time;
+  res = ufiles.ReadFile(file_path);
+  File.new(file_path).remove;
+  cout << time - startTime; // 0.0004 s
+  cout << "res: " + res.map( function(e) {e.utf;}) ;
+};

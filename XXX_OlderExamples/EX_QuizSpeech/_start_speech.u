@@ -1,0 +1,15 @@
+loadModule("USpeech_MSP");
+var speech=USpeech.new();
+// speech.&visemeTrig.notifyChange( closure() {robot.setMouth(speech.visemeId,speech.visemeTime);});
+// or just
+speech.&visemeTrig.notifyChange( closure() {echo("viseme no. "+speech.visemeId+" exec. time "+speech.visemeTime);});
+
+speech.AvailableVoices;
+
+speech.Speak("Hello world")|;
+
+
+speech.voiceNo=1|;
+speech.volume=100|;
+speech.rate=-1|;
+speech.Speak("Cześć, nazywam się EMYS.")|;

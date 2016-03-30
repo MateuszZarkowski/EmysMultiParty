@@ -1,0 +1,602 @@
+/* 
+* ARM
+* 
+*
+*  Author: Jan Kedzierski
+*  Date: 03.11.2015
+*  Ver: 8.1
+*/
+
+  
+do(Global) {
+ 
+    
+    echo("INFO: Loading arms...");  
+    
+
+  function LoadArms{
+ 
+    //////////////////////////////////////////////////////////////////////////////////
+    //
+    //
+    //	Load dynamixel driver.
+    //
+    //
+    //////////////////////////////////////////////////////////////////////////////////
+    
+    echo("INFO: Creating arms servos...");
+    
+    if (!_En_DynamixelArms)  { echo("ERROR: Dynamixel module is disabled.");  return false;};
+
+    if (!hasSlot(_UObjN_UDynamixel)) loadModule(_uObjectsDir+_UObjN_UDynamixel);
+    
+    var Global.Dyn2=Dynamixel.new();
+    if (!Dyn2.Open(_com_arms,57600)) { echo("ERROR: Port " + _com_arms + " error.");  return false;};
+	  
+    if (_Dyn_FindServosHands){
+      echo("INFO: Adding arms servos...");
+      echo(Dyn2.FindServos(_Arms_IDs.min,_Arms_IDs.max));
+    } else {
+      for (var n:_Arms_IDs){
+	Dyn2.ForceAddServo(n,1);
+      };
+    };
+  
+    // create servo object
+    if (!hasSlot("Servo")) class Global.Servo{};
+    
+    // create servos instances
+    var Global.servo30=Servo.new();
+    UVar.new(servo30, "position");
+    UVar.new(servo30, "coefficient");
+    var Global.servo31=Servo.new();
+    UVar.new(servo31, "position");
+    UVar.new(servo31, "coefficient");
+    var Global.servo32=Servo.new();
+    UVar.new(servo32, "position");
+    UVar.new(servo32, "coefficient");
+    var Global.servo33=Servo.new();
+    UVar.new(servo33, "position");
+    UVar.new(servo33, "coefficient");
+    var Global.servo34=Servo.new();
+    UVar.new(servo34, "position");
+    UVar.new(servo34, "coefficient");
+    //
+    var Global.servo35=Servo.new();
+    UVar.new(servo35, "position");
+    UVar.new(servo35, "coefficient");
+    var Global.servo36=Servo.new();
+    UVar.new(servo36, "position");
+    UVar.new(servo36, "coefficient");
+    var Global.servo37=Servo.new();
+    UVar.new(servo37, "position");
+    UVar.new(servo37, "coefficient");
+    var Global.servo38=Servo.new();
+    UVar.new(servo38, "position");
+    UVar.new(servo38, "coefficient");
+    var Global.servo39=Servo.new();
+    UVar.new(servo39, "position");
+    UVar.new(servo39, "coefficient");
+
+    // set servos coefficient
+    servo30.coefficient = _Arms_Ratio;
+    servo31.coefficient = _Arms_Ratio;
+    servo32.coefficient = _Arms_Ratio;
+    servo33.coefficient = _Arms_Ratio;
+    servo34.coefficient = _Arms_Ratio;
+    //
+    servo35.coefficient = _Arms_Ratio;
+    servo36.coefficient = _Arms_Ratio;
+    servo37.coefficient = _Arms_Ratio;
+    servo38.coefficient = _Arms_Ratio;
+    servo39.coefficient = _Arms_Ratio;
+    
+    
+    servo30.&position.notifyChange( closure()  {Dyn2.SetGoalPosition(_Arms_IDs[0],servo30.position/servo30.coefficient);});
+    servo31.&position.notifyChange( closure()  {Dyn2.SetGoalPosition(_Arms_IDs[1],servo31.position/servo31.coefficient);});
+    servo32.&position.notifyChange( closure()  {Dyn2.SetGoalPosition(_Arms_IDs[2],servo32.position/servo32.coefficient);});
+    servo33.&position.notifyChange( closure()  {Dyn2.SetGoalPosition(_Arms_IDs[3],servo33.position/servo33.coefficient);});
+    servo34.&position.notifyChange( closure()  {Dyn2.SetGoalPosition(_Arms_IDs[4],servo34.position/servo34.coefficient);});
+    servo35.&position.notifyChange( closure()  {Dyn2.SetGoalPosition(_Arms_IDs[5],servo35.position/servo35.coefficient);});
+    servo36.&position.notifyChange( closure()  {Dyn2.SetGoalPosition(_Arms_IDs[6],servo36.position/servo36.coefficient);});
+    servo37.&position.notifyChange( closure()  {Dyn2.SetGoalPosition(_Arms_IDs[7],servo37.position/servo37.coefficient);});
+    servo38.&position.notifyChange( closure()  {Dyn2.SetGoalPosition(_Arms_IDs[8],servo38.position/servo38.coefficient);});
+    servo39.&position.notifyChange( closure()  {Dyn2.SetGoalPosition(_Arms_IDs[9],servo39.position/servo39.coefficient);});
+	  
+    echo("OK: Arm servos created.");
+    
+    
+    // Configuring servos parameters
+    //Dyn2.SetTorqueMu([30, 31, 32, 33, 34, 35, 36, 37, 38, 39], [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]);
+    sleep(0.1);
+
+    //////////////////////////////////////////////////////////////////////////////////
+    //
+    //
+    //	Load Arms structure.
+    //
+    //
+    //////////////////////////////////////////////////////////////////////////////////
+    
+      echo("INFO: Creating arms structure...");
+      
+
+    if (!hasSlot("_se")) var Global._se;
+    
+    // add arms to the structure
+    _se=robot.body.addComponent(Localizer.new("arm"));
+    _se.set(Localization.left, Localizer.new(""));
+    servo30.getSlot("position").copy( _se.get(Localization.left).get(1), "val")|;
+    servo31.getSlot("position").copy( _se.get(Localization.left).get(2), "val")|;
+    servo32.getSlot("position").copy( _se.get(Localization.left).get(3), "val")|;
+    servo33.getSlot("position").copy( _se.get(Localization.left).get(4), "val")|;
+    servo34.getSlot("position").copy( _se.get(Localization.left).get(5), "val")|;
+    _se.set(Localization.right, Localizer.new(""));
+    servo35.getSlot("position").copy( _se.get(Localization.right).get(1), "val")|;
+    servo36.getSlot("position").copy( _se.get(Localization.right).get(2), "val")|;
+    servo37.getSlot("position").copy( _se.get(Localization.right).get(3), "val")|;
+    servo38.getSlot("position").copy( _se.get(Localization.right).get(4), "val")|;
+    servo39.getSlot("position").copy( _se.get(Localization.right).get(5), "val")|;
+    
+    do (robot.body) 
+    { 
+    
+      if ((arm[left][1].val->rangemax =  Dyn2.GetCCWAngleLimit(  _Arms_IDs[0])*servo30.coefficient)>360){echo("ERROR: Can NOT read head servo ID " + _Arms_IDs[0].asString + " CCW angle limit!"); return false; };
+      if ((arm[left][1].val->rangemin =  Dyn2.GetCWAngleLimit(   _Arms_IDs[0])*servo30.coefficient)>360){echo("ERROR: Can NOT read head servo ID " + _Arms_IDs[0].asString + " CW angle limit!");  return false; };
+      if ((arm[left][1].val 	      =  Dyn2.GetPresentPosition(_Arms_IDs[0])*servo30.coefficient)>360){echo("ERROR: Can NOT read head servo ID " + _Arms_IDs[0].asString + " position!");	   return false; };
+      
+      if ((arm[left][2].val->rangemax =  Dyn2.GetCCWAngleLimit(  _Arms_IDs[1])*servo31.coefficient)>360){echo("ERROR: Can NOT read head servo ID " + _Arms_IDs[1].asString + " CCW angle limit!"); return false; };
+      if ((arm[left][2].val->rangemin =  Dyn2.GetCWAngleLimit(   _Arms_IDs[1])*servo31.coefficient)>360){echo("ERROR: Can NOT read head servo ID " + _Arms_IDs[1].asString + " CW angle limit!");  return false; };
+      if ((arm[left][2].val 	      =  Dyn2.GetPresentPosition(_Arms_IDs[1])*servo31.coefficient)>360){echo("ERROR: Can NOT read head servo ID " + _Arms_IDs[1].asString + " position!");	   return false; };
+      
+      if ((arm[left][3].val->rangemax =  Dyn2.GetCCWAngleLimit(  _Arms_IDs[2])*servo32.coefficient)>360){echo("ERROR: Can NOT read head servo ID " + _Arms_IDs[2].asString + " CCW angle limit!"); return false; };
+      if ((arm[left][3].val->rangemin =  Dyn2.GetCWAngleLimit(   _Arms_IDs[2])*servo32.coefficient)>360){echo("ERROR: Can NOT read head servo ID " + _Arms_IDs[2].asString + " CW angle limit!");  return false; };
+      if ((arm[left][3].val 	      =  Dyn2.GetPresentPosition(_Arms_IDs[2])*servo32.coefficient)>360){echo("ERROR: Can NOT read head servo ID " + _Arms_IDs[2].asString + " position!");	   return false; };
+      
+      if ((arm[left][4].val->rangemax =  Dyn2.GetCCWAngleLimit(  _Arms_IDs[3])*servo33.coefficient)>360){echo("ERROR: Can NOT read head servo ID " + _Arms_IDs[3].asString + " CCW angle limit!"); return false; };
+      if ((arm[left][4].val->rangemin =  Dyn2.GetCWAngleLimit(   _Arms_IDs[3])*servo33.coefficient)>360){echo("ERROR: Can NOT read head servo ID " + _Arms_IDs[3].asString + " CW angle limit!");  return false; };
+      if ((arm[left][4].val 	      =  Dyn2.GetPresentPosition(_Arms_IDs[3])*servo33.coefficient)>360){echo("ERROR: Can NOT read head servo ID " + _Arms_IDs[3].asString + " position!");	   return false; };
+      
+      if ((arm[left][5].val->rangemax =  Dyn2.GetCCWAngleLimit(  _Arms_IDs[4])*servo34.coefficient)>360){echo("ERROR: Can NOT read head servo ID " + _Arms_IDs[4].asString + " CCW angle limit!"); return false; };
+      if ((arm[left][5].val->rangemin =  Dyn2.GetCWAngleLimit(   _Arms_IDs[4])*servo34.coefficient)>360){echo("ERROR: Can NOT read head servo ID " + _Arms_IDs[4].asString + " CW angle limit!");  return false; };
+      if ((arm[left][5].val 	      =  Dyn2.GetPresentPosition(_Arms_IDs[4])*servo34.coefficient)>360){echo("ERROR: Can NOT read head servo ID " + _Arms_IDs[4].asString + " position!");	   return false; };
+      //
+      //
+      if ((arm[right][1].val->rangemax =  Dyn2.GetCCWAngleLimit(  _Arms_IDs[5])*servo35.coefficient)>360){echo("ERROR: Can NOT read head servo ID " + _Arms_IDs[5].asString + " CCW angle limit!"); return false; };
+      if ((arm[right][1].val->rangemin =  Dyn2.GetCWAngleLimit(   _Arms_IDs[5])*servo35.coefficient)>360){echo("ERROR: Can NOT read head servo ID " + _Arms_IDs[5].asString + " CW angle limit!");  return false; };
+      if ((arm[right][1].val 	       =  Dyn2.GetPresentPosition(_Arms_IDs[5])*servo35.coefficient)>360){echo("ERROR: Can NOT read head servo ID " + _Arms_IDs[5].asString + " position!");	    return false; };
+      
+      if ((arm[right][2].val->rangemax =  Dyn2.GetCCWAngleLimit(  _Arms_IDs[6])*servo36.coefficient)>360){echo("ERROR: Can NOT read head servo ID " + _Arms_IDs[6].asString + " CCW angle limit!"); return false; };
+      if ((arm[right][2].val->rangemin =  Dyn2.GetCWAngleLimit(   _Arms_IDs[6])*servo36.coefficient)>360){echo("ERROR: Can NOT read head servo ID " + _Arms_IDs[6].asString + " CW angle limit!");  return false; };
+      if ((arm[right][2].val 	       =  Dyn2.GetPresentPosition(_Arms_IDs[6])*servo36.coefficient)>360){echo("ERROR: Can NOT read head servo ID " + _Arms_IDs[6].asString + " position!");	    return false; };
+      
+      if ((arm[right][3].val->rangemax =  Dyn2.GetCCWAngleLimit(  _Arms_IDs[7])*servo37.coefficient)>360){echo("ERROR: Can NOT read head servo ID " + _Arms_IDs[7].asString + " CCW angle limit!"); return false; };
+      if ((arm[right][3].val->rangemin =  Dyn2.GetCWAngleLimit(   _Arms_IDs[7])*servo37.coefficient)>360){echo("ERROR: Can NOT read head servo ID " + _Arms_IDs[7].asString + " CW angle limit!");  return false; };
+      if ((arm[right][3].val 	       =  Dyn2.GetPresentPosition(_Arms_IDs[7])*servo37.coefficient)>360){echo("ERROR: Can NOT read head servo ID " + _Arms_IDs[7].asString + " position!");	    return false; };
+      
+      if ((arm[right][4].val->rangemax =  Dyn2.GetCCWAngleLimit(  _Arms_IDs[8])*servo38.coefficient)>360){echo("ERROR: Can NOT read head servo ID " + _Arms_IDs[8].asString + " CCW angle limit!"); return false; };
+      if ((arm[right][4].val->rangemin =  Dyn2.GetCWAngleLimit(   _Arms_IDs[8])*servo38.coefficient)>360){echo("ERROR: Can NOT read head servo ID " + _Arms_IDs[8].asString + " CW angle limit!");  return false; };
+      if ((arm[right][4].val 	       =  Dyn2.GetPresentPosition(_Arms_IDs[8])*servo38.coefficient)>360){echo("ERROR: Can NOT read head servo ID " + _Arms_IDs[8].asString + " position!");	    return false; };
+      
+      if ((arm[right][5].val->rangemax =  Dyn2.GetCCWAngleLimit(  _Arms_IDs[9])*servo39.coefficient)>360){echo("ERROR: Can NOT read head servo ID " + _Arms_IDs[9].asString + " CCW angle limit!"); return false; };
+      if ((arm[right][5].val->rangemin =  Dyn2.GetCWAngleLimit(   _Arms_IDs[9])*servo39.coefficient)>360){echo("ERROR: Can NOT read head servo ID " + _Arms_IDs[9].asString + " CW angle limit!");  return false; };
+      if ((arm[right][5].val 	       =  Dyn2.GetPresentPosition(_Arms_IDs[9])*servo39.coefficient)>360){echo("ERROR: Can NOT read head servo ID " + _Arms_IDs[9].asString + " position!");	    return false; };
+      
+
+    };
+    
+    
+    robot.body.arm[right][1].val->rangemax = robot.body.arm[right][1].val->rangemax - 1;
+    robot.body.arm[right][1].val->rangemin = robot.body.arm[right][1].val->rangemin + 1;
+    robot.body.arm[left][1].val->rangemax = robot.body.arm[left][1].val->rangemax - 1;
+    robot.body.arm[left][1].val->rangemin = robot.body.arm[left][1].val->rangemin + 1;
+    //
+    robot.body.arm[right][2].val->rangemax = robot.body.arm[right][2].val->rangemax - 1;
+    robot.body.arm[right][2].val->rangemin = robot.body.arm[right][2].val->rangemin + 1;
+    robot.body.arm[left][2].val->rangemax = robot.body.arm[left][2].val->rangemax - 1;
+    robot.body.arm[left][2].val->rangemin = robot.body.arm[left][2].val->rangemin + 1;
+    //
+    robot.body.arm[right][3].val->rangemax = robot.body.arm[right][3].val->rangemax - 1;
+    robot.body.arm[right][3].val->rangemin = robot.body.arm[right][3].val->rangemin + 1;
+    robot.body.arm[left][3].val->rangemax = robot.body.arm[left][3].val->rangemax - 1;
+    robot.body.arm[left][3].val->rangemin = robot.body.arm[left][3].val->rangemin + 1;
+    //
+    robot.body.arm[right][4].val->rangemax = robot.body.arm[right][4].val->rangemax - 1;
+    robot.body.arm[right][4].val->rangemin = robot.body.arm[right][4].val->rangemin + 1;
+    robot.body.arm[left][4].val->rangemax = robot.body.arm[left][4].val->rangemax - 1;
+    robot.body.arm[left][4].val->rangemin = robot.body.arm[left][4].val->rangemin + 1;
+    //
+    robot.body.arm[right][5].val->rangemax = robot.body.arm[right][5].val->rangemax - 1;
+    robot.body.arm[right][5].val->rangemin = robot.body.arm[right][5].val->rangemin + 1;
+    robot.body.arm[left][5].val->rangemax = robot.body.arm[left][5].val->rangemax - 1;
+    robot.body.arm[left][5].val->rangemin = robot.body.arm[left][5].val->rangemin + 1;
+    
+      
+    // set max speed (0 means max)
+    for (var n:_Arms_IDs){
+      Dyn2.SetMovingSpeed(n, _Arms_MaxSpeed/_Arms_Ratio);
+    };
+    
+    
+    do (robot.body.arm) { 
+      function MoveReset(time) 		{call.m_AReset(time);};
+      
+      function MoveCenterDown(time) 	{call.m_ACenterDown("both",time);};
+      function MoveCenterDown2(time) 	{call.m_ACenterDown2("both",time);};
+      function MoveCenterCenter(time) 	{call.m_ACenterCenter("both",time);};
+      function MoveCenterUp(time) 	{call.m_ACenterUp("both",time);};
+      function MoveCenterUp2(time) 	{call.m_ACenterUp2("both",time);};
+      function MoveCenterUpper(time) 	{call.m_ACenterUpper("both",time);};
+      function MoveFrontCenter(time) 	{call.m_AFrontCenter("both",time);};
+      function MoveFrontUp(time) 	{call.m_AFrontUp("both",time);};
+      function MoveFrontDown(time) 	{call.m_AFrontDown("both",time);};
+      function MoveSideUp(time) 	{call.m_ASideUp("both",time);};
+      function MoveSideSide(time) 	{call.m_ASideSide("both",time);};
+      function MoveSideDown(time) 	{call.m_ASideDown("both",time);};
+      
+      function Stop 			{call.m_AStop;};
+    };
+    
+    do (robot.body.arm[left]) { 
+      function MovePosition(time,in_Joint1,in_Joint2,in_Joint3,in_Joint4,in_Joint5) 
+					{call.m_APositionL(time,in_Joint1,in_Joint2,in_Joint3,in_Joint4,in_Joint5);};
+      
+      function MoveCenterDown(time) 	{call.m_ACenterDown("left",time);};
+      function MoveCenterDown2(time) 	{call.m_ACenterDown2("left",time);};
+      function MoveCenterCenter(time) 	{call.m_ACenterCenter("left",time);};
+      function MoveCenterUp(time) 	{call.m_ACenterUp("left",time);};
+      function MoveCenterUp2(time) 	{call.m_ACenterUp2("left",time);};
+      function MoveCenterUpper(time) 	{call.m_ACenterUpper("left",time);};
+      function MoveFrontCenter(time) 	{call.m_AFrontCenter("left",time);};
+      function MoveFrontUp(time) 	{call.m_AFrontUp("left",time);};
+      function MoveFrontDown(time) 	{call.m_AFrontDown("left",time);};
+      function MoveSideUp(time) 	{call.m_ASideUp("left",time);};
+      function MoveSideSide(time) 	{call.m_ASideSide("left",time);};
+      function MoveSideDown(time) 	{call.m_ASideDown("left",time);};
+      
+
+    };
+    
+    do (robot.body.arm[right]) { 
+      function MovePosition(time,in_Joint1,in_Joint2,in_Joint3,in_Joint4,in_Joint5) 
+					{call.m_APositionR(time,in_Joint1,in_Joint2,in_Joint3,in_Joint4,in_Joint5);};
+     
+      function MoveCenterDown(time) 	{call.m_ACenterDown("right",time);};
+      function MoveCenterDown2(time) 	{call.m_ACenterDown2("right",time);};
+      function MoveCenterCenter(time) 	{call.m_ACenterCenter("right",time);};
+      function MoveCenterUp(time) 	{call.m_ACenterUp("right",time);};
+      function MoveCenterUp2(time) 	{call.m_ACenterUp2("right",time);};
+      function MoveCenterUpper(time) 	{call.m_ACenterUpper("right",time);};
+      function MoveFrontCenter(time) 	{call.m_AFrontCenter("right",time);};
+      function MoveFrontUp(time) 	{call.m_AFrontUp("right",time);};
+      function MoveFrontDown(time) 	{call.m_AFrontDown("right",time);};
+      function MoveSideUp(time) 	{call.m_ASideUp("right",time);};
+      function MoveSideSide(time) 	{call.m_ASideSide("right",time);};
+      function MoveSideDown(time) 	{call.m_ASideDown("right",time);};
+      
+    };
+    
+    echo("OK: Arms structure created.");
+    return true;
+  
+  };
+  
+    //////////////////////////////////////////////////////////////////////////////////
+    //
+    //
+    //	Load Arms behaviours.
+    //
+    //
+    //////////////////////////////////////////////////////////////////////////////////
+
+
+  var a_JointL1 = Tag.new;
+  var a_JointL2 = Tag.new;
+  var a_JointL3 = Tag.new;
+  var a_JointL4 = Tag.new;
+  var a_JointL5 = Tag.new;
+  var a_JointR1 = Tag.new;
+  var a_JointR2 = Tag.new;
+  var a_JointR3 = Tag.new;
+  var a_JointR4 = Tag.new;
+  var a_JointR5 = Tag.new;
+  
+  function m_APositionL(time,in_Joint1,in_Joint2,in_Joint3,in_Joint4,in_Joint5){
+    {a_JointL1.stop| a_JointL1: robot.body.arm[left][1].val = (_Arms_ZeroPositions[0] + in_Joint1) smooth:time,}&
+    {a_JointL2.stop| a_JointL2: robot.body.arm[left][2].val = (_Arms_ZeroPositions[1] - in_Joint2) smooth:time,}&
+    {a_JointL3.stop| a_JointL3: robot.body.arm[left][3].val = (_Arms_ZeroPositions[2] - in_Joint3) smooth:time,}&
+    {a_JointL4.stop| a_JointL4: robot.body.arm[left][4].val = (_Arms_ZeroPositions[3] - in_Joint4) smooth:time,}&
+    {a_JointL5.stop| a_JointL5: robot.body.arm[left][5].val = (_Arms_ZeroPositions[4] - in_Joint5) smooth:time,},
+    sleep(time);
+  };
+  
+  function m_APositionR(time,in_Joint1,in_Joint2,in_Joint3,in_Joint4,in_Joint5){
+    {a_JointR1.stop| a_JointR1: robot.body.arm[right][1].val = (_Arms_ZeroPositions[5] + in_Joint1) smooth:time,}&
+    {a_JointR2.stop| a_JointR2: robot.body.arm[right][2].val = (_Arms_ZeroPositions[6] + in_Joint2) smooth:time,}&
+    {a_JointR3.stop| a_JointR3: robot.body.arm[right][3].val = (_Arms_ZeroPositions[7] - in_Joint3) smooth:time,}&
+    {a_JointR4.stop| a_JointR4: robot.body.arm[right][4].val = (_Arms_ZeroPositions[8] + in_Joint4) smooth:time,}&
+    {a_JointR5.stop| a_JointR5: robot.body.arm[right][5].val = (_Arms_ZeroPositions[9] - in_Joint5) smooth:time,},
+    sleep(time);
+  };
+
+  function m_AReset(time) {
+    m_APositionL(time,_Arms_ZeroPositions[0],_Arms_ZeroPositions[1],_Arms_ZeroPositions[2],_Arms_ZeroPositions[3],_Arms_ZeroPositions[4])&
+    m_APositionR(time,_Arms_ZeroPositions[5],_Arms_ZeroPositions[6],_Arms_ZeroPositions[7],_Arms_ZeroPositions[8],_Arms_ZeroPositions[9]);
+  }|{};
+
+
+  
+  function m_ACenterDown(side,time) {
+  {
+    if ((side=="left")||(side=="both")) m_APositionL(time, 
+      (_Arms_ZeroPositions[0] + 0), 
+      (_Arms_ZeroPositions[1] + 75), 
+      (_Arms_ZeroPositions[2] + 60), 
+      (_Arms_ZeroPositions[3] + 20), 
+      (_Arms_ZeroPositions[4] + 0)
+    );
+  } & {
+    if ((side=="right")||(side=="both"))  m_APositionR(time,
+      (_Arms_ZeroPositions[5] + 0),
+      (_Arms_ZeroPositions[6] + 75),
+      (_Arms_ZeroPositions[7] + 60),
+      (_Arms_ZeroPositions[8] + 20),
+      (_Arms_ZeroPositions[9] + 0)
+    );
+  };
+  }|{};
+  
+  
+  function m_ACenterDown2(side,time) {
+  {
+    if ((side=="left")||(side=="both")) m_APositionL(time, 
+      (_Arms_ZeroPositions[0] + 10), 
+      (_Arms_ZeroPositions[1] + 75), 
+      (_Arms_ZeroPositions[2] + 60), 
+      (_Arms_ZeroPositions[3] + 50), 
+      (_Arms_ZeroPositions[4] + 0)
+    );
+  } & {
+    if ((side=="right")||(side=="both"))  m_APositionR(time,
+      (_Arms_ZeroPositions[5] + 10),
+      (_Arms_ZeroPositions[6] + 75),
+      (_Arms_ZeroPositions[7] + 60),
+      (_Arms_ZeroPositions[8] + 50),
+      (_Arms_ZeroPositions[9] + 0)
+    );
+  };
+  }|{};
+  
+  
+   
+  function m_ACenterCenter(side,time) {
+  {
+    if ((side=="left")||(side=="both")) m_APositionL(time, 
+      (_Arms_ZeroPositions[0] + 50), 
+      (_Arms_ZeroPositions[1] + 75), 
+      (_Arms_ZeroPositions[2] + 50), 
+      (_Arms_ZeroPositions[3] + 100), 
+      (_Arms_ZeroPositions[4] - 60)
+    );
+  } & {
+    if ((side=="right")||(side=="both"))  m_APositionR(time,
+      (_Arms_ZeroPositions[5] + 50),
+      (_Arms_ZeroPositions[6] + 75),
+      (_Arms_ZeroPositions[7] + 50),
+      (_Arms_ZeroPositions[8] + 100),
+      (_Arms_ZeroPositions[9] - 60)
+    );
+  };
+  }|{};
+  
+    
+   
+  function m_ACenterUp(side,time) {
+  {
+    if ((side=="left")||(side=="both")) m_APositionL(time, 
+      (_Arms_ZeroPositions[0] + 100), 
+      (_Arms_ZeroPositions[1] + 65), 
+      (_Arms_ZeroPositions[2] + 50), 
+      (_Arms_ZeroPositions[3] + 100), 
+      (_Arms_ZeroPositions[4] - 60)
+    );
+  } & {
+    if ((side=="right")||(side=="both"))  m_APositionR(time,
+      (_Arms_ZeroPositions[5] + 100),
+      (_Arms_ZeroPositions[6] + 65),
+      (_Arms_ZeroPositions[7] + 50),
+      (_Arms_ZeroPositions[8] + 100),
+      (_Arms_ZeroPositions[9] - 60)
+    );
+  };
+  }|{};
+  
+   
+   
+  function m_ACenterUp2(side,time) {
+  {
+    if ((side=="left")||(side=="both")) m_APositionL(time, 
+      (_Arms_ZeroPositions[0] + 70), 
+      (_Arms_ZeroPositions[1] + 75), 
+      (_Arms_ZeroPositions[2] + 60), 
+      (_Arms_ZeroPositions[3] + 100), 
+      (_Arms_ZeroPositions[4] + 0)
+    );
+  } & {
+    if ((side=="right")||(side=="both"))  m_APositionR(time,
+      (_Arms_ZeroPositions[5] + 70),
+      (_Arms_ZeroPositions[6] + 75),
+      (_Arms_ZeroPositions[7] + 60),
+      (_Arms_ZeroPositions[8] + 100),
+      (_Arms_ZeroPositions[9] + 0)
+    );
+  };
+  }|{};
+  
+     
+  function m_ACenterUpper(side,time) {
+  {
+    if ((side=="left")||(side=="both")) m_APositionL(time, 
+      (_Arms_ZeroPositions[0] - 25), 
+      (_Arms_ZeroPositions[1] - 70), 
+      (_Arms_ZeroPositions[2] + 140), 
+      (_Arms_ZeroPositions[3] + 30), 
+      (_Arms_ZeroPositions[4] + 0)
+    );
+  } & {
+    if ((side=="right")||(side=="both"))  m_APositionR(time,
+      (_Arms_ZeroPositions[5] - 25),
+      (_Arms_ZeroPositions[6] - 70),
+      (_Arms_ZeroPositions[7] + 140),
+      (_Arms_ZeroPositions[8] + 30),
+      (_Arms_ZeroPositions[9] + 0)
+    );
+  };
+  }|{};
+  
+  function m_AFrontCenter(side,time) {
+  {
+    if ((side=="left")||(side=="both")) m_APositionL(time, 
+      (_Arms_ZeroPositions[0] + 90), 
+      (_Arms_ZeroPositions[1] + 70), 
+      (_Arms_ZeroPositions[2] + 0), 
+      (_Arms_ZeroPositions[3] + 30), 
+      (_Arms_ZeroPositions[4] + 0)
+    );
+  } & {
+    if ((side=="right")||(side=="both"))  m_APositionR(time,
+      (_Arms_ZeroPositions[5] + 90),
+      (_Arms_ZeroPositions[6] + 70),
+      (_Arms_ZeroPositions[7] + 0),
+      (_Arms_ZeroPositions[8] + 30),
+      (_Arms_ZeroPositions[9] + 0)
+    );
+  };
+  }|{};
+  
+    
+  function m_AFrontUp(side,time) {
+  {
+    if ((side=="left")||(side=="both")) m_APositionL(time, 
+      (_Arms_ZeroPositions[0] + 140), 
+      (_Arms_ZeroPositions[1] + 60), 
+      (_Arms_ZeroPositions[2] - 50), 
+      (_Arms_ZeroPositions[3] + 30), 
+      (_Arms_ZeroPositions[4] - 50)
+    );
+  } & {
+    if ((side=="right")||(side=="both"))  m_APositionR(time,
+      (_Arms_ZeroPositions[5] + 140),
+      (_Arms_ZeroPositions[6] + 60),
+      (_Arms_ZeroPositions[7] - 50),
+      (_Arms_ZeroPositions[8] + 30),
+      (_Arms_ZeroPositions[9] - 50)
+    );
+  };
+  }|{};
+  
+  
+  function m_AFrontDown(side,time) {
+  {
+    if ((side=="left")||(side=="both")) m_APositionL(time, 
+      (_Arms_ZeroPositions[0] + 30), 
+      (_Arms_ZeroPositions[1] + 75), 
+      (_Arms_ZeroPositions[2] + 50), 
+      (_Arms_ZeroPositions[3] + 70), 
+      (_Arms_ZeroPositions[4] - 60)
+    );
+  } & {
+    if ((side=="right")||(side=="both"))  m_APositionR(time,
+      (_Arms_ZeroPositions[5] + 30),
+      (_Arms_ZeroPositions[6] + 75),
+      (_Arms_ZeroPositions[7] + 50),
+      (_Arms_ZeroPositions[8] + 70),
+      (_Arms_ZeroPositions[9] - 60)
+    );
+  };
+  }|{};
+  
+  
+  function m_ASideUp(side,time) {
+  {
+    if ((side=="left")||(side=="both")) m_APositionL(time, 
+    (_Arms_ZeroPositions[0] + 120), 
+    (_Arms_ZeroPositions[1] + 30), 
+    (_Arms_ZeroPositions[2] + 30), 
+    (_Arms_ZeroPositions[3] + 30), 
+    (_Arms_ZeroPositions[4] + 0)
+    );
+  } & {
+    if ((side=="right")||(side=="both"))  m_APositionR(time,
+      (_Arms_ZeroPositions[5] + 120),
+      (_Arms_ZeroPositions[6] + 30),
+      (_Arms_ZeroPositions[7] + 30),
+      (_Arms_ZeroPositions[8] + 30),
+      (_Arms_ZeroPositions[9] + 0)
+    );
+  };
+  }|{};
+  
+  
+
+  function m_ASideSide(side,time) {
+  {
+    if ((side=="left")||(side=="both")) m_APositionL(time, 
+      (_Arms_ZeroPositions[0] + 0), 
+      (_Arms_ZeroPositions[1] + 60), 
+      (_Arms_ZeroPositions[2] + 140), 
+      (_Arms_ZeroPositions[3] + 90), 
+      (_Arms_ZeroPositions[4] + 0)
+    );
+  } & {
+    if ((side=="right")||(side=="both"))  m_APositionR(time,
+      (_Arms_ZeroPositions[5] + 0),
+      (_Arms_ZeroPositions[6] + 60),
+      (_Arms_ZeroPositions[7] + 140),
+      (_Arms_ZeroPositions[8] + 90),
+      (_Arms_ZeroPositions[9] + 0)
+    );
+  };
+  }|{};
+  
+ 
+  function m_ASideDown(side,time) {
+  {
+    if ((side=="left")||(side=="both")) m_APositionL(time, 
+      (_Arms_ZeroPositions[0] - 10), 
+      (_Arms_ZeroPositions[1] + 55), 
+      (_Arms_ZeroPositions[2] + 0), 
+      (_Arms_ZeroPositions[3] + 20), 
+      (_Arms_ZeroPositions[4] + 0)
+    );
+  } & {
+    if ((side=="right")||(side=="both"))  m_APositionR(time,
+      (_Arms_ZeroPositions[5] - 10),
+      (_Arms_ZeroPositions[6] + 55),
+      (_Arms_ZeroPositions[7] + 0),
+      (_Arms_ZeroPositions[8] + 20),
+      (_Arms_ZeroPositions[9] + 0)
+    );
+  };
+  }|{};
+  
+
+  function m_AStop() { 
+   a_JointL1.stop;
+   a_JointL2.stop;
+   a_JointL3.stop;
+   a_JointL4.stop;
+   a_JointL5.stop;
+   //
+   a_JointR1.stop;
+   a_JointR2.stop;
+   a_JointR3.stop;
+   a_JointR4.stop;
+   a_JointR5.stop;
+  }|{};
+
+
+  echo("OK: Arms loaded.");
+    
+};
+

@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<grammar version="1.0" xml:lang="pl-PL" root="RepeatRule" tag-format="semantics/1.0-literals" xmlns="http://www.w3.org/2001/06/grammar">
+	<rule id="RepeatRule" >
+		<item>
+		<tag>REPEAT</tag>
+		<one-of>
+			<item>jeszcze raz</item>
+			<item>jeszcze raz proszę</item>
+			<item>co powiedziałeś</item>
+			<item>o co pytasz</item>
+			<item>słucham</item>
+			<item>powtórz</item>
+			<item>powtórz proszę</item>
+			<item>możesz powtórzyć</item>
+		</one-of>
+		</item>
+	</rule>
+</grammar>

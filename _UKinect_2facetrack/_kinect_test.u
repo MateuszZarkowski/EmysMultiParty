@@ -1,0 +1,12 @@
+
+//EX1
+loadModule("UKinect");
+var Global.Kinect= UKinect.new();
+Kinect.Open(0,true,true,true,false,true,false,false);
+Kinect.depthNearMode=1;
+Kinect.skeletonChooserMode=3;
+Kinect.speechLoadGrammar("speech.grxml");
+t: loop {
+	Kinect.PollVideo(true); // - wait for new data
+	Kinect.PollAudio(false); // - do NOT wait for new data
+},

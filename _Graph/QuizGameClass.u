@@ -1,0 +1,120 @@
+//************ QUIZ GAME *******************
+
+load("Tools.u")|;
+
+class Global.QuizGame {
+	
+	
+	// model of a question
+	// by default answer[0] is correct
+	class QuizQuestion {
+		var id = "";
+		var question="";
+		var answers = [""] *4;
+		var order = 4.seq;
+		function init(){
+			order = 4.seq.shuffle;
+		};
+		
+		function GetMixedAnswers() {
+			return order.map(closure(i) { answers[i]});
+		};
+		
+		function GetQuestion() {
+			return question;
+		};
+		
+		function IsAnswerCorrect(i){
+			return order[i] == 0;
+		};
+		
+		function Copy(){ 
+			var copy = new;
+			copy.id = id.clone;
+			copy.question = question.clone;
+			copy.answers = answers.clone;
+			return copy;
+			};
+		function asString() { "(["+id+"] " + question + ", " + answers + ")"; };
+	}|;
+
+
+	var questions = [];
+	var currentQuestion = 0;
+	var order;
+	
+	var playerCount =0;
+	var currentPlayer=0;
+	// [correct,total]* playerCount;
+	var scores= [];
+	
+	// read QuizQuestions from file by line
+	// id \ question \ answers[0-3]
+	function init(file, _playerCount){
+		// read in questions
+		var i = InputStream.new(File.new(file));
+		var q = QuizQuestion.new;
+		while (
+				!(q.id = i.getLine.acceptVoid).isVoid &&
+				!(q.question = i.getLine.acceptVoid).isVoid &&
+				!(q.answers[0] = i.getLine.acceptVoid).isVoid &&
+				!(q.answers[1] = i.getLine.acceptVoid).isVoid &&
+				!(q.answers[2] = i.getLine.acceptVoid).isVoid &&
+				!(q.answers[3] = i.getLine.acceptVoid).isVoid ) {
+			questions << q.Copy;
+		};
+		i.close;
+		
+		playerCount = _playerCount;
+		// shuffle questions, reset scores
+		Reset();
+
+	};
+	
+	// shuffle the order in which questions are presented
+	function Reset() {
+		order = questions.size.seq.shuffle;
+		currentQuestion = 0;
+		scores = []; 
+		for(4) scores << [0,0];
+		currentPlayer = 0;
+	};
+	
+	function NextQuestion() {
+		currentQuestion = (currentQuestion+1) % questions.size;
+	};
+	
+	function GetQuizQuestion() {
+		return questions[order[currentQuestion]];
+	};
+	
+	function SelectPlayer(p){
+		currentPlayer = p;
+	};
+	
+	function NextPlayer(){
+		currentPlayer = (currentPlayer + 1) % playerCount;
+	};
+	
+	function PostAnswer(answer) {
+		if ( GetQuizQuestion().IsAnswerCorrect(answer) ) {
+			scores[currentPlayer][0]++ ;
+			scores[currentPlayer][1]++ ;
+			// NextQuestion();
+			return true;
+		} else {
+			scores[currentPlayer][1]++ ;
+			// NextQuestion();
+			return false;
+		};
+			
+	};
+	
+	function GetScores() {
+		return scores;
+	};
+
+	function asString() { "(size: " + questions.size + ", order: " + order + ")"; };
+
+}|;
+

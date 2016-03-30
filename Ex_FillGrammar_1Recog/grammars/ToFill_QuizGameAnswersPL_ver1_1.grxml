@@ -1,0 +1,183 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<grammar version="1.0" xml:lang="pl-PL" root="rootRule" tag-format="semantics/1.0" xmlns="http://www.w3.org/2001/06/grammar">
+	<rule id="rootRule">
+		<one-of>
+			<item>emys</item>
+			<item></item>
+    </one-of>
+		<one-of>
+			<item><ruleref uri="#AnswerRule"/><tag> 
+				out.Tag = "ANSWER"; 
+				out.Answer = rules.AnswerRule.Answer; 
+				out.AnswerType = rules.AnswerRule.Type; 
+				</tag> </item>
+			<item><ruleref uri="RepeatPL.grxml"/><tag> 
+				out.Tag = rules.RepeatRule;
+			</tag> </item>
+		</one-of>
+	</rule>
+	
+	<rule id="AnswerRule" scope="private">
+		<item repeat="0-1"> proszę </item>
+		<one-of>
+			<item>zaznacz</item>
+			<item>zaznaczyć</item>
+			<item>wybierz</item>
+			<item>wybieram</item>
+			<item>podaję</item>
+			<item></item>
+		</one-of>
+		<item repeat="0-1"> proszę </item>
+		<one-of>
+			<item>odpowiadam</item>
+			<item>odpowiedź</item>
+			<item></item>
+    </one-of>
+		<one-of>
+			<item><ruleref uri="#AnswerList"/><tag> out = rules.AnswerList; </tag> </item>
+		</one-of>
+	</rule>
+	
+	<rule id="AnswerList" scope="private">
+    <tag>out.Type = "letter";</tag>	
+		<one-of>
+			<item>
+				<tag>out.Answer = 0;</tag>
+				<one-of>
+				
+					<item>a</item>
+					<item>A</item>
+					<item>ha</item>	
+					
+					<item>
+						<tag>out.Type = "full";</tag>	
+						<ruleref special="GARBAGE" />
+						<item>REPLACE_TEXT_0</item>	
+					</item>
+					
+					<item>
+						<one-of>
+							<item>a</item>
+							<item>A</item>
+							<item>ha</item>
+						</one-of>
+						
+						<item>
+							<tag>out.Type = "full";</tag>	
+							<ruleref special="GARBAGE" />
+							<item>REPLACE_TEXT_0</item>	
+						</item>
+					</item>
+
+				</one-of>
+			</item>
+			
+		 	<item>
+				<tag>out.Answer = 1;</tag>
+				<one-of>
+				
+					<item>b</item>
+					<item>B</item>
+					<!--  <item>by</item> -->
+					<item>be</item>
+
+					<item>
+						<tag>out.Type = "full";</tag>	
+						<ruleref special="GARBAGE" />
+						<item>REPLACE_TEXT_1</item>	
+					</item>
+
+					<item>
+						<one-of>
+							<item>b</item>
+							<item>B</item>
+							<!--  <item>by</item> -->
+							<item>be</item>
+						</one-of>
+						
+						<item>
+							<tag>out.Type = "full";</tag>	
+							<ruleref special="GARBAGE" />
+							<item>REPLACE_TEXT_1</item>	
+						</item>
+					</item>
+
+				</one-of>
+			</item>
+			
+			<item>
+				<tag>out.Answer = 2;</tag>
+				<one-of>
+					<item>c</item>
+					<item>C</item>	
+					<!-- <item>cy</item> -->
+					<item>ce</item>		
+					
+					<item>
+						<tag>out.Type = "full";</tag>	
+						<ruleref special="GARBAGE" />
+						<item>REPLACE_TEXT_2</item>	
+					</item>
+					
+					<item>
+						<one-of>
+							<item>c</item>
+							<item>C</item>	
+							<!-- <item>cy</item> -->
+							<item>ce</item>		
+						</one-of>
+						
+						<item>
+							<tag>out.Type = "full";</tag>	
+							<ruleref special="GARBAGE" />
+							<item>REPLACE_TEXT_2</item>	
+						</item>
+					</item>
+					
+				</one-of>
+			</item> 
+			
+			<item>
+				<tag>out.Answer = 3;</tag>
+				<one-of>
+					<item>d</item>
+					<item>D</item>
+					<!-- <item>dy</item> -->
+					<item>de</item>	
+					
+					<item>
+						<tag>out.Type = "full";</tag>	
+						<ruleref special="GARBAGE" />
+						<item>REPLACE_TEXT_3</item>	
+					</item>
+					
+					<item>
+						<one-of>
+							<item>d</item>
+							<item>D</item>
+							<!-- <item>dy</item> -->
+							<item>de</item>	
+						</one-of>
+						
+						<item>
+							<tag>out.Type = "full";</tag>	
+							<ruleref special="GARBAGE" />
+							<item>REPLACE_TEXT_3</item>	
+						</item>
+					</item>
+					
+				</one-of>
+			</item> 
+    </one-of>
+  </rule>	
+	
+	<rule id="DontKnow" scope="private">
+		<tag>out = "NO ANSWER";</tag>
+		<one-of>
+			<item>nie wiem</item>
+			<!-- <item>pass</item> -->  <!-- mylone z 'A' -->
+			<item>następne</item>
+		</one-of>
+	</rule>
+
+</grammar>

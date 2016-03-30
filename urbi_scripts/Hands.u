@@ -1,0 +1,629 @@
+/* 
+*  Author: Jan Kedzierski
+*  Date: 03.11.2015
+*  Ver: 7.0.3
+*/
+
+
+do(Global) {
+
+
+  echo("INFO: Loading hands...");  
+  
+
+  function LoadHands {
+  
+    //////////////////////////////////////////////////////////////////////////////////
+    //
+    //
+    //	Load dynamixel driver.
+    //
+    //
+    //////////////////////////////////////////////////////////////////////////////////
+   
+    echo("INFO: Creating hands servos...");
+      
+    if (!_En_DynamixelHands)  { echo("ERROR: Dynamixel module is disabled.");  return false;};
+
+    if (!hasSlot(_UObjN_UDynamixel)) loadModule(_uObjectsDir+_UObjN_UDynamixel);
+    
+    var Global.Dyn3=Dynamixel.new();
+    var Global.Dyn4=Dynamixel.new();
+    if (!Dyn3.Open(_com_Lhands,57600)) { echo("ERROR: Port " + _com_Lhands + " error.");  return false;};	
+    if (!Dyn4.Open(_com_Rhands,57600)) { echo("ERROR: Port " + _com_Rhands + " error.");  return false;};
+		
+    if (_Dyn_FindServosHands){
+      echo("INFO: Adding left hand servos...");
+      echo(Dyn3.FindServos(_Hands_LIDs.min,_Hands_LIDs.max));
+	
+      echo("INFO: Adding right hand servos...");
+      echo(Dyn4.FindServos(_Hands_RIDs.min,_Hands_RIDs.max));
+    } else {
+      for (var n:_Hands_LIDs){
+	Dyn3.ForceAddServo(n,1);
+      };
+      for (var n:_Hands_RIDs){
+	Dyn4.ForceAddServo(n,1);
+      };
+    };
+    
+    if (!hasSlot("Servo")) class Global.Servo{};
+      
+	  
+    var Global.servo50=Servo.new();
+    UVar.new(servo50, "position");
+    UVar.new(servo50, "coefficient");
+    var Global.servo51=Servo.new();
+    UVar.new(servo51, "position");
+    UVar.new(servo51, "coefficient");
+    var Global.servo52=Servo.new();
+    UVar.new(servo52, "position");
+    UVar.new(servo52, "coefficient");
+    var Global.servo53=Servo.new();
+    UVar.new(servo53, "position");
+    UVar.new(servo53, "coefficient");
+    var Global.servo54=Servo.new();
+    UVar.new(servo54, "position");
+    UVar.new(servo54, "coefficient");
+    var Global.servo55=Servo.new();
+    UVar.new(servo55, "position");
+    UVar.new(servo55, "coefficient");
+    var Global.servo56=Servo.new();
+    UVar.new(servo56, "position");
+    UVar.new(servo56, "coefficient");
+    var Global.servo57=Servo.new();
+    UVar.new(servo57, "position");
+    UVar.new(servo57, "coefficient");
+    var Global.servo58=Servo.new();
+    UVar.new(servo58, "position");
+    UVar.new(servo58, "coefficient");
+    var Global.servo59=Servo.new();
+    UVar.new(servo59, "position");
+    UVar.new(servo59, "coefficient");
+    var Global.servo60=Servo.new();
+    UVar.new(servo60, "position");
+    UVar.new(servo60, "coefficient");
+    var Global.servo61=Servo.new();
+    UVar.new(servo61, "position");
+    UVar.new(servo61, "coefficient");
+    //
+    var Global.servo62=Servo.new();
+    UVar.new(servo62, "position");
+    UVar.new(servo62, "coefficient");
+    var Global.servo63=Servo.new();
+    UVar.new(servo63, "position");
+    UVar.new(servo63, "coefficient");
+
+    var Global.servo70=Servo.new();
+    UVar.new(servo70, "position");
+    UVar.new(servo70, "coefficient");
+    var Global.servo71=Servo.new();
+    UVar.new(servo71, "position");
+    UVar.new(servo71, "coefficient");
+    var Global.servo72=Servo.new();
+    UVar.new(servo72, "position");
+    UVar.new(servo72, "coefficient");
+    var Global.servo73=Servo.new();
+    UVar.new(servo73, "position");
+    UVar.new(servo73, "coefficient");
+    var Global.servo74=Servo.new();
+    UVar.new(servo74, "position");
+    UVar.new(servo74, "coefficient");
+    var Global.servo75=Servo.new();
+    UVar.new(servo75, "position");
+    UVar.new(servo75, "coefficient");
+    var Global.servo76=Servo.new();
+    UVar.new(servo76, "position");
+    UVar.new(servo76, "coefficient");
+    var Global.servo77=Servo.new();
+    UVar.new(servo77, "position");
+    UVar.new(servo77, "coefficient");
+    var Global.servo78=Servo.new();
+    UVar.new(servo78, "position");
+    UVar.new(servo78, "coefficient");
+    var Global.servo79=Servo.new();
+    UVar.new(servo79, "position");
+    UVar.new(servo79, "coefficient");
+    var Global.servo80=Servo.new();
+    UVar.new(servo80, "position");
+    UVar.new(servo80, "coefficient");
+    var Global.servo81=Servo.new();
+    UVar.new(servo81, "position");
+    UVar.new(servo81, "coefficient");
+    //
+    var Global.servo82=Servo.new();
+    UVar.new(servo82, "position");
+    UVar.new(servo82, "coefficient");
+    var Global.servo83=Servo.new();
+    UVar.new(servo83, "position");
+    UVar.new(servo83, "coefficient");
+    
+    servo50.coefficient = _Hands_Finger_Ratio;
+    servo51.coefficient = _Hands_Finger_Ratio;
+    servo52.coefficient = _Hands_Finger_Ratio;
+    servo53.coefficient = _Hands_Finger_Ratio;
+    servo54.coefficient = _Hands_Finger_Ratio;
+    servo55.coefficient = _Hands_Finger_Ratio;
+    servo56.coefficient = _Hands_Finger_Ratio;
+    servo57.coefficient = _Hands_Finger_Ratio;
+    servo58.coefficient = _Hands_Finger_Ratio;
+    servo59.coefficient = _Hands_Finger_Ratio;
+    servo60.coefficient = _Hands_Finger_Ratio;
+    servo61.coefficient = _Hands_Finger_Ratio;
+    //
+    servo62.coefficient = _Hands_Wrist_Ratio;
+    servo63.coefficient = _Hands_Wrist_Ratio;
+    
+    servo70.coefficient = _Hands_Finger_Ratio;
+    servo71.coefficient = _Hands_Finger_Ratio;
+    servo72.coefficient = _Hands_Finger_Ratio;
+    servo73.coefficient = _Hands_Finger_Ratio;
+    servo74.coefficient = _Hands_Finger_Ratio;
+    servo75.coefficient = _Hands_Finger_Ratio;
+    servo76.coefficient = _Hands_Finger_Ratio;
+    servo77.coefficient = _Hands_Finger_Ratio;
+    servo78.coefficient = _Hands_Finger_Ratio;
+    servo79.coefficient = _Hands_Finger_Ratio;
+    servo80.coefficient = _Hands_Finger_Ratio;
+    servo81.coefficient = _Hands_Finger_Ratio;
+    //
+    servo82.coefficient = _Hands_Wrist_Ratio;
+    servo83.coefficient = _Hands_Wrist_Ratio;
+
+    servo50.&position.notifyChange( closure()  {Dyn3.SetGoalPosition(_Hands_LIDs[0],servo50.position/servo50.coefficient);});
+    servo51.&position.notifyChange( closure()  {Dyn3.SetGoalPosition(_Hands_LIDs[1],servo51.position/servo51.coefficient);});
+    servo52.&position.notifyChange( closure()  {Dyn3.SetGoalPosition(_Hands_LIDs[2],servo52.position/servo52.coefficient);});
+    servo53.&position.notifyChange( closure()  {Dyn3.SetGoalPosition(_Hands_LIDs[3],servo53.position/servo53.coefficient);});
+    servo54.&position.notifyChange( closure()  {Dyn3.SetGoalPosition(_Hands_LIDs[4],servo54.position/servo54.coefficient);});
+    servo55.&position.notifyChange( closure()  {Dyn3.SetGoalPosition(_Hands_LIDs[5],servo55.position/servo55.coefficient);});
+    servo56.&position.notifyChange( closure()  {Dyn3.SetGoalPosition(_Hands_LIDs[6],servo56.position/servo56.coefficient);});
+    servo57.&position.notifyChange( closure()  {Dyn3.SetGoalPosition(_Hands_LIDs[7],servo57.position/servo57.coefficient);});
+    servo58.&position.notifyChange( closure()  {Dyn3.SetGoalPosition(_Hands_LIDs[8],servo58.position/servo58.coefficient);});
+    servo59.&position.notifyChange( closure()  {Dyn3.SetGoalPosition(_Hands_LIDs[9],servo59.position/servo59.coefficient);});
+    servo60.&position.notifyChange( closure()  {Dyn3.SetGoalPosition(_Hands_LIDs[10],servo60.position/servo60.coefficient);});
+    servo61.&position.notifyChange( closure()  {Dyn3.SetGoalPosition(_Hands_LIDs[11],servo61.position/servo61.coefficient);});
+    //
+    servo62.&position.notifyChange( closure()  {Dyn3.SetGoalPosition(_Hands_LIDs[12],servo62.position/servo62.coefficient);});
+    servo63.&position.notifyChange( closure()  {Dyn3.SetGoalPosition(_Hands_LIDs[13],servo63.position/servo63.coefficient);});
+
+    servo70.&position.notifyChange( closure()  {Dyn4.SetGoalPosition(_Hands_RIDs[0],servo70.position/servo70.coefficient);});
+    servo71.&position.notifyChange( closure()  {Dyn4.SetGoalPosition(_Hands_RIDs[1],servo71.position/servo71.coefficient);});
+    servo72.&position.notifyChange( closure()  {Dyn4.SetGoalPosition(_Hands_RIDs[2],servo72.position/servo72.coefficient);});
+    servo73.&position.notifyChange( closure()  {Dyn4.SetGoalPosition(_Hands_RIDs[3],servo73.position/servo73.coefficient);});
+    servo74.&position.notifyChange( closure()  {Dyn4.SetGoalPosition(_Hands_RIDs[4],servo74.position/servo74.coefficient);});
+    servo75.&position.notifyChange( closure()  {Dyn4.SetGoalPosition(_Hands_RIDs[5],servo75.position/servo75.coefficient);});
+    servo76.&position.notifyChange( closure()  {Dyn4.SetGoalPosition(_Hands_RIDs[6],servo76.position/servo76.coefficient);});
+    servo77.&position.notifyChange( closure()  {Dyn4.SetGoalPosition(_Hands_RIDs[7],servo77.position/servo77.coefficient);});
+    servo78.&position.notifyChange( closure()  {Dyn4.SetGoalPosition(_Hands_RIDs[8],servo78.position/servo78.coefficient);});
+    servo79.&position.notifyChange( closure()  {Dyn4.SetGoalPosition(_Hands_RIDs[9],servo79.position/servo79.coefficient);});
+    servo80.&position.notifyChange( closure()  {Dyn4.SetGoalPosition(_Hands_RIDs[10],servo80.position/servo80.coefficient);});
+    servo81.&position.notifyChange( closure()  {Dyn4.SetGoalPosition(_Hands_RIDs[11],servo81.position/servo81.coefficient);});
+    //
+    servo82.&position.notifyChange( closure()  {Dyn4.SetGoalPosition(_Hands_RIDs[12],servo82.position/servo82.coefficient);});
+    servo83.&position.notifyChange( closure()  {Dyn4.SetGoalPosition(_Hands_RIDs[13],servo83.position/servo83.coefficient);});
+      
+	    
+    echo("OK: Hands servos created.");
+
+    //////////////////////////////////////////////////////////////////////////////////
+    //
+    //
+    //	Load Hands structure.
+    //
+    //
+    //////////////////////////////////////////////////////////////////////////////////
+    
+    echo("INFO: Creating hands structure...");
+
+    if (!hasSlot("_se")) var Global._se;
+
+    if (!robot.body.hasSlot("arm")) {
+      _se = robot.body.addComponent(Localizer.new("arm"));
+      _se.set(Localization.right, Localizer.new(""));
+      _se.set(Localization.left,  Localizer.new(""));
+    };
+    //
+    
+    
+    robot.body.arm[left].addComponent("hand");
+    robot.body.arm[right].addComponent("hand");
+
+
+    _se=robot.body.arm[left].hand.addComponent("yaw");
+    servo62.getSlot("position").copy(robot.body.arm[left].hand.yaw,"val")|;
+    _se=robot.body.arm[left].hand.addComponent("pitch");
+    servo63.getSlot("position").copy(robot.body.arm[left].hand.pitch,"val")|;
+      
+    _se=robot.body.arm[left].hand.addComponent(Localizer.new("finger"));
+    
+    _se.set(1, Localizer.new(""));
+    servo50.getSlot("position").copy( _se.get(1).get(1), "val");
+    servo51.getSlot("position").copy( _se.get(1).get(2), "val");
+    servo52.getSlot("position").copy( _se.get(1).get(3), "val");
+    _se.set(2, Localizer.new(""));
+    servo53.getSlot("position").copy( _se.get(2).get(1), "val");
+    servo54.getSlot("position").copy( _se.get(2).get(2), "val");
+    servo55.getSlot("position").copy( _se.get(2).get(3), "val");
+    _se.set(3, Localizer.new(""));
+    servo56.getSlot("position").copy( _se.get(3).get(1), "val");
+    servo57.getSlot("position").copy( _se.get(3).get(2), "val");
+    servo58.getSlot("position").copy( _se.get(3).get(3), "val");
+    _se.set(4, Localizer.new(""));
+    servo59.getSlot("position").copy( _se.get(4).get(1), "val");
+    servo60.getSlot("position").copy( _se.get(4).get(2), "val");
+    servo61.getSlot("position").copy( _se.get(4).get(3), "val");
+    
+    _se=robot.body.arm[right].hand.addComponent("yaw");
+    servo82.getSlot("position").copy(robot.body.arm[right].hand.yaw,"val")|;
+    _se=robot.body.arm[right].hand.addComponent("pitch");
+    servo83.getSlot("position").copy(robot.body.arm[right].hand.pitch,"val")|;
+    
+    _se=robot.body.arm[right].hand.addComponent(Localizer.new("finger"));
+    
+    _se.set(1, Localizer.new(""));
+    servo70.getSlot("position").copy( _se.get(1).get(1), "val");
+    servo71.getSlot("position").copy( _se.get(1).get(2), "val");
+    servo72.getSlot("position").copy( _se.get(1).get(3), "val");
+    _se.set(2, Localizer.new(""));
+    servo73.getSlot("position").copy( _se.get(2).get(1), "val");
+    servo74.getSlot("position").copy( _se.get(2).get(2), "val");
+    servo75.getSlot("position").copy( _se.get(2).get(3), "val");
+    _se.set(3, Localizer.new(""));
+    servo76.getSlot("position").copy( _se.get(3).get(1), "val");
+    servo77.getSlot("position").copy( _se.get(3).get(2), "val");
+    servo78.getSlot("position").copy( _se.get(3).get(3), "val");
+    _se.set(4, Localizer.new(""));
+    servo79.getSlot("position").copy( _se.get(4).get(1), "val");
+    servo80.getSlot("position").copy( _se.get(4).get(2), "val");
+    servo81.getSlot("position").copy( _se.get(4).get(3), "val");
+
+
+    do (robot.body.arm[left].hand) 
+    { 
+      if ((finger[1][1].val->rangemax =  Dyn3.GetCCWAngleLimit(  _Hands_LIDs[0])*servo50.coefficient)>360){echo("ERROR: Can NOT read hand servo ID " + _Hands_LIDs[0].asString + " CCW angle limit!"); return false; };
+      if ((finger[1][1].val->rangemin =  Dyn3.GetCWAngleLimit(   _Hands_LIDs[0])*servo50.coefficient)>360){echo("ERROR: Can NOT read hand servo ID " + _Hands_LIDs[0].asString + " CW angle limit!");  return false; };
+      if ((finger[1][1].val 	      =  Dyn3.GetPresentPosition(_Hands_LIDs[0])*servo50.coefficient)>360){echo("ERROR: Can NOT read hand servo ID " + _Hands_LIDs[0].asString + " position!");	     return false; };
+      //
+      if ((finger[1][2].val->rangemax =  Dyn3.GetCCWAngleLimit(  _Hands_LIDs[1])*servo51.coefficient)>360){echo("ERROR: Can NOT read hand servo ID " + _Hands_LIDs[1].asString + " CCW angle limit!"); return false; };
+      if ((finger[1][2].val->rangemin =  Dyn3.GetCWAngleLimit(   _Hands_LIDs[1])*servo51.coefficient)>360){echo("ERROR: Can NOT read hand servo ID " + _Hands_LIDs[1].asString + " CW angle limit!");  return false; };
+      if ((finger[1][2].val 	      =  Dyn3.GetPresentPosition(_Hands_LIDs[1])*servo51.coefficient)>360){echo("ERROR: Can NOT read hand servo ID " + _Hands_LIDs[1].asString + " position!");	     return false; };
+      //
+      if ((finger[1][3].val->rangemax =  Dyn3.GetCCWAngleLimit(  _Hands_LIDs[2])*servo52.coefficient)>360){echo("ERROR: Can NOT read hand servo ID " + _Hands_LIDs[2].asString + " CCW angle limit!"); return false; };
+      if ((finger[1][3].val->rangemin =  Dyn3.GetCWAngleLimit(   _Hands_LIDs[2])*servo52.coefficient)>360){echo("ERROR: Can NOT read hand servo ID " + _Hands_LIDs[2].asString + " CW angle limit!");  return false; };
+      if ((finger[1][3].val 	      =  Dyn3.GetPresentPosition(_Hands_LIDs[2])*servo52.coefficient)>360){echo("ERROR: Can NOT read hand servo ID " + _Hands_LIDs[2].asString + " position!");	     return false; };
+      //
+      if ((finger[2][1].val->rangemax =  Dyn3.GetCCWAngleLimit(  _Hands_LIDs[3])*servo53.coefficient)>360){echo("ERROR: Can NOT read hand servo ID " + _Hands_LIDs[3].asString + " CCW angle limit!"); return false; };
+      if ((finger[2][1].val->rangemin =  Dyn3.GetCWAngleLimit(   _Hands_LIDs[3])*servo53.coefficient)>360){echo("ERROR: Can NOT read hand servo ID " + _Hands_LIDs[3].asString + " CW angle limit!");  return false; };
+      if ((finger[2][1].val 	      =  Dyn3.GetPresentPosition(_Hands_LIDs[3])*servo53.coefficient)>360){echo("ERROR: Can NOT read hand servo ID " + _Hands_LIDs[3].asString + " position!");	     return false; };
+      //
+      if ((finger[2][2].val->rangemax =  Dyn3.GetCCWAngleLimit(  _Hands_LIDs[4])*servo54.coefficient)>360){echo("ERROR: Can NOT read hand servo ID " + _Hands_LIDs[4].asString + " CCW angle limit!"); return false; };
+      if ((finger[2][2].val->rangemin =  Dyn3.GetCWAngleLimit(   _Hands_LIDs[4])*servo54.coefficient)>360){echo("ERROR: Can NOT read hand servo ID " + _Hands_LIDs[4].asString + " CW angle limit!");  return false; };
+      if ((finger[2][2].val 	      =  Dyn3.GetPresentPosition(_Hands_LIDs[4])*servo54.coefficient)>360){echo("ERROR: Can NOT read hand servo ID " + _Hands_LIDs[4].asString + " position!");	     return false; };
+      //
+      if ((finger[2][3].val->rangemax =  Dyn3.GetCCWAngleLimit(  _Hands_LIDs[5])*servo55.coefficient)>360){echo("ERROR: Can NOT read hand servo ID " + _Hands_LIDs[5].asString + " CCW angle limit!"); return false; };
+      if ((finger[2][3].val->rangemin =  Dyn3.GetCWAngleLimit(   _Hands_LIDs[5])*servo55.coefficient)>360){echo("ERROR: Can NOT read hand servo ID " + _Hands_LIDs[5].asString + " CW angle limit!");  return false; };
+      if ((finger[2][3].val 	      =  Dyn3.GetPresentPosition(_Hands_LIDs[5])*servo55.coefficient)>360){echo("ERROR: Can NOT read hand servo ID " + _Hands_LIDs[5].asString + " position!");	     return false; };
+      //
+      if ((finger[3][1].val->rangemax =  Dyn3.GetCCWAngleLimit(  _Hands_LIDs[6])*servo56.coefficient)>360){echo("ERROR: Can NOT read hand servo ID " + _Hands_LIDs[6].asString + " CCW angle limit!"); return false; };
+      if ((finger[3][1].val->rangemin =  Dyn3.GetCWAngleLimit(   _Hands_LIDs[6])*servo56.coefficient)>360){echo("ERROR: Can NOT read hand servo ID " + _Hands_LIDs[6].asString + " CW angle limit!");  return false; };
+      if ((finger[3][1].val 	      =  Dyn3.GetPresentPosition(_Hands_LIDs[6])*servo56.coefficient)>360){echo("ERROR: Can NOT read hand servo ID " + _Hands_LIDs[6].asString + " position!");	     return false; };
+      //
+      if ((finger[3][2].val->rangemax =  Dyn3.GetCCWAngleLimit(  _Hands_LIDs[7])*servo57.coefficient)>360){echo("ERROR: Can NOT read hand servo ID " + _Hands_LIDs[7].asString + " CCW angle limit!"); return false; };
+      if ((finger[3][2].val->rangemin =  Dyn3.GetCWAngleLimit(   _Hands_LIDs[7])*servo57.coefficient)>360){echo("ERROR: Can NOT read hand servo ID " + _Hands_LIDs[7].asString + " CW angle limit!");  return false; };
+      if ((finger[3][2].val 	      =  Dyn3.GetPresentPosition(_Hands_LIDs[7])*servo57.coefficient)>360){echo("ERROR: Can NOT read hand servo ID " + _Hands_LIDs[7].asString + " position!");	     return false; };
+      //
+      if ((finger[3][3].val->rangemax =  Dyn3.GetCCWAngleLimit(  _Hands_LIDs[8])*servo58.coefficient)>360){echo("ERROR: Can NOT read hand servo ID " + _Hands_LIDs[8].asString + " CCW angle limit!"); return false; };
+      if ((finger[3][3].val->rangemin =  Dyn3.GetCWAngleLimit(   _Hands_LIDs[8])*servo58.coefficient)>360){echo("ERROR: Can NOT read hand servo ID " + _Hands_LIDs[8].asString + " CW angle limit!");  return false; };
+      if ((finger[3][3].val 	      =  Dyn3.GetPresentPosition(_Hands_LIDs[8])*servo58.coefficient)>360){echo("ERROR: Can NOT read hand servo ID " + _Hands_LIDs[8].asString + " position!");	     return false; };
+      //
+      if ((finger[4][1].val->rangemax =  Dyn3.GetCCWAngleLimit(  _Hands_LIDs[9])*servo59.coefficient)>360){echo("ERROR: Can NOT read hand servo ID " + _Hands_LIDs[9].asString + " CCW angle limit!"); return false; };
+      if ((finger[4][1].val->rangemin =  Dyn3.GetCWAngleLimit(   _Hands_LIDs[9])*servo59.coefficient)>360){echo("ERROR: Can NOT read hand servo ID " + _Hands_LIDs[9].asString + " CW angle limit!");  return false; };
+      if ((finger[4][1].val 	      =  Dyn3.GetPresentPosition(_Hands_LIDs[9])*servo59.coefficient)>360){echo("ERROR: Can NOT read hand servo ID " + _Hands_LIDs[9].asString + " position!");	     return false; };
+      //
+      if ((finger[4][2].val->rangemax =  Dyn3.GetCCWAngleLimit(  _Hands_LIDs[10])*servo60.coefficient)>360){echo("ERROR: Can NOT read hand servo ID " + _Hands_LIDs[10].asString + " CCW angle limit!"); return false; };
+      if ((finger[4][2].val->rangemin =  Dyn3.GetCWAngleLimit(   _Hands_LIDs[10])*servo60.coefficient)>360){echo("ERROR: Can NOT read hand servo ID " + _Hands_LIDs[10].asString + " CW angle limit!");  return false; };
+      if ((finger[4][2].val 	      =  Dyn3.GetPresentPosition(_Hands_LIDs[10])*servo60.coefficient)>360){echo("ERROR: Can NOT read hand servo ID " + _Hands_LIDs[10].asString + " position!");	       return false; };
+      //
+      if ((finger[4][3].val->rangemax =  Dyn3.GetCCWAngleLimit(  _Hands_LIDs[11])*servo61.coefficient)>360){echo("ERROR: Can NOT read hand servo ID " + _Hands_LIDs[11].asString + " CCW angle limit!"); return false; };
+      if ((finger[4][3].val->rangemin =  Dyn3.GetCWAngleLimit(   _Hands_LIDs[11])*servo61.coefficient)>360){echo("ERROR: Can NOT read hand servo ID " + _Hands_LIDs[11].asString + " CW angle limit!");  return false; };
+      if ((finger[4][3].val 	      =  Dyn3.GetPresentPosition(_Hands_LIDs[11])*servo61.coefficient)>360){echo("ERROR: Can NOT read hand servo ID " + _Hands_LIDs[11].asString + " position!");	       return false; };
+      //
+      if ((yaw.val->rangemax 	=  Dyn3.GetCCWAngleLimit(  _Hands_LIDs[12])*servo62.coefficient)>360){echo("ERROR: Can NOT read hand servo ID " + _Hands_LIDs[12].asString + " CCW angle limit!"); return false; };
+      if ((yaw.val->rangemin 	=  Dyn3.GetCWAngleLimit(   _Hands_LIDs[12])*servo62.coefficient)>360){echo("ERROR: Can NOT read hand servo ID " + _Hands_LIDs[12].asString + " CW angle limit!");  return false; };
+      if ((yaw.val 	      	=  Dyn3.GetPresentPosition(_Hands_LIDs[12])*servo62.coefficient)>360){echo("ERROR: Can NOT read hand servo ID " + _Hands_LIDs[12].asString + " position!");	 return false; };
+      //
+      if ((pitch.val->rangemax 	=  Dyn3.GetCCWAngleLimit(  _Hands_LIDs[13])*servo63.coefficient)>360){echo("ERROR: Can NOT read hand servo ID " + _Hands_LIDs[13].asString + " CCW angle limit!"); return false; };
+      if ((pitch.val->rangemin 	=  Dyn3.GetCWAngleLimit(   _Hands_LIDs[13])*servo63.coefficient)>360){echo("ERROR: Can NOT read hand servo ID " + _Hands_LIDs[13].asString + " CW angle limit!");  return false; };
+      if ((pitch.val 	      	=  Dyn3.GetPresentPosition(_Hands_LIDs[13])*servo63.coefficient)>360){echo("ERROR: Can NOT read hand servo ID " + _Hands_LIDs[13].asString + " position!");	 return false; };
+    };
+      
+      
+
+    do (robot.body.arm[right].hand) 
+    { 
+      if ((finger[1][1].val->rangemax =  Dyn4.GetCCWAngleLimit(  _Hands_RIDs[0])*servo70.coefficient)>360){echo("ERROR: Can NOT read hand servo ID " + _Hands_RIDs[0].asString + " CCW angle limit!"); return false; };
+      if ((finger[1][1].val->rangemin =  Dyn4.GetCWAngleLimit(   _Hands_RIDs[0])*servo70.coefficient)>360){echo("ERROR: Can NOT read hand servo ID " + _Hands_RIDs[0].asString + " CW angle limit!");  return false; };
+      if ((finger[1][1].val 	      =  Dyn4.GetPresentPosition(_Hands_RIDs[0])*servo70.coefficient)>360){echo("ERROR: Can NOT read hand servo ID " + _Hands_RIDs[0].asString + " position!");	     return false; };
+      //
+      if ((finger[1][2].val->rangemax =  Dyn4.GetCCWAngleLimit(  _Hands_RIDs[1])*servo71.coefficient)>360){echo("ERROR: Can NOT read hand servo ID " + _Hands_RIDs[1].asString + " CCW angle limit!"); return false; };
+      if ((finger[1][2].val->rangemin =  Dyn4.GetCWAngleLimit(   _Hands_RIDs[1])*servo71.coefficient)>360){echo("ERROR: Can NOT read hand servo ID " + _Hands_RIDs[1].asString + " CW angle limit!");  return false; };
+      if ((finger[1][2].val 	      =  Dyn4.GetPresentPosition(_Hands_RIDs[1])*servo71.coefficient)>360){echo("ERROR: Can NOT read hand servo ID " + _Hands_RIDs[1].asString + " position!");	     return false; };
+      //
+      if ((finger[1][3].val->rangemax =  Dyn4.GetCCWAngleLimit(  _Hands_RIDs[2])*servo72.coefficient)>360){echo("ERROR: Can NOT read hand servo ID " + _Hands_RIDs[2].asString + " CCW angle limit!"); return false; };
+      if ((finger[1][3].val->rangemin =  Dyn4.GetCWAngleLimit(   _Hands_RIDs[2])*servo72.coefficient)>360){echo("ERROR: Can NOT read hand servo ID " + _Hands_RIDs[2].asString + " CW angle limit!");  return false; };
+      if ((finger[1][3].val 	      =  Dyn4.GetPresentPosition(_Hands_RIDs[2])*servo72.coefficient)>360){echo("ERROR: Can NOT read hand servo ID " + _Hands_RIDs[2].asString + " position!");	     return false; };
+      //
+      if ((finger[2][1].val->rangemax =  Dyn4.GetCCWAngleLimit(  _Hands_RIDs[3])*servo73.coefficient)>360){echo("ERROR: Can NOT read hand servo ID " + _Hands_RIDs[3].asString + " CCW angle limit!"); return false; };
+      if ((finger[2][1].val->rangemin =  Dyn4.GetCWAngleLimit(   _Hands_RIDs[3])*servo73.coefficient)>360){echo("ERROR: Can NOT read hand servo ID " + _Hands_RIDs[3].asString + " CW angle limit!");  return false; };
+      if ((finger[2][1].val 	      =  Dyn4.GetPresentPosition(_Hands_RIDs[3])*servo73.coefficient)>360){echo("ERROR: Can NOT read hand servo ID " + _Hands_RIDs[3].asString + " position!");	     return false; };
+      //
+      if ((finger[2][2].val->rangemax =  Dyn4.GetCCWAngleLimit(  _Hands_RIDs[4])*servo74.coefficient)>360){echo("ERROR: Can NOT read hand servo ID " + _Hands_RIDs[4].asString + " CCW angle limit!"); return false; };
+      if ((finger[2][2].val->rangemin =  Dyn4.GetCWAngleLimit(   _Hands_RIDs[4])*servo74.coefficient)>360){echo("ERROR: Can NOT read hand servo ID " + _Hands_RIDs[4].asString + " CW angle limit!");  return false; };
+      if ((finger[2][2].val 	      =  Dyn4.GetPresentPosition(_Hands_RIDs[4])*servo74.coefficient)>360){echo("ERROR: Can NOT read hand servo ID " + _Hands_RIDs[4].asString + " position!");	     return false; };
+      //
+      if ((finger[2][3].val->rangemax =  Dyn4.GetCCWAngleLimit(  _Hands_RIDs[5])*servo75.coefficient)>360){echo("ERROR: Can NOT read hand servo ID " + _Hands_RIDs[5].asString + " CCW angle limit!"); return false; };
+      if ((finger[2][3].val->rangemin =  Dyn4.GetCWAngleLimit(   _Hands_RIDs[5])*servo75.coefficient)>360){echo("ERROR: Can NOT read hand servo ID " + _Hands_RIDs[5].asString + " CW angle limit!");  return false; };
+      if ((finger[2][3].val 	      =  Dyn4.GetPresentPosition(_Hands_RIDs[5])*servo75.coefficient)>360){echo("ERROR: Can NOT read hand servo ID " + _Hands_RIDs[5].asString + " position!");	     return false; };
+      //
+      if ((finger[3][1].val->rangemax =  Dyn4.GetCCWAngleLimit(  _Hands_RIDs[6])*servo76.coefficient)>360){echo("ERROR: Can NOT read hand servo ID " + _Hands_RIDs[6].asString + " CCW angle limit!"); return false; };
+      if ((finger[3][1].val->rangemin =  Dyn4.GetCWAngleLimit(   _Hands_RIDs[6])*servo76.coefficient)>360){echo("ERROR: Can NOT read hand servo ID " + _Hands_RIDs[6].asString + " CW angle limit!");  return false; };
+      if ((finger[3][1].val 	      =  Dyn4.GetPresentPosition(_Hands_RIDs[6])*servo76.coefficient)>360){echo("ERROR: Can NOT read hand servo ID " + _Hands_RIDs[6].asString + " position!");	     return false; };
+      //
+      if ((finger[3][2].val->rangemax =  Dyn4.GetCCWAngleLimit(  _Hands_RIDs[7])*servo77.coefficient)>360){echo("ERROR: Can NOT read hand servo ID " + _Hands_RIDs[7].asString + " CCW angle limit!"); return false; };
+      if ((finger[3][2].val->rangemin =  Dyn4.GetCWAngleLimit(   _Hands_RIDs[7])*servo77.coefficient)>360){echo("ERROR: Can NOT read hand servo ID " + _Hands_RIDs[7].asString + " CW angle limit!");  return false; };
+      if ((finger[3][2].val 	      =  Dyn4.GetPresentPosition(_Hands_RIDs[7])*servo77.coefficient)>360){echo("ERROR: Can NOT read hand servo ID " + _Hands_RIDs[7].asString + " position!");	     return false; };
+      //
+      if ((finger[3][3].val->rangemax =  Dyn4.GetCCWAngleLimit(  _Hands_RIDs[8])*servo78.coefficient)>360){echo("ERROR: Can NOT read hand servo ID " + _Hands_RIDs[8].asString + " CCW angle limit!"); return false; };
+      if ((finger[3][3].val->rangemin =  Dyn4.GetCWAngleLimit(   _Hands_RIDs[8])*servo78.coefficient)>360){echo("ERROR: Can NOT read hand servo ID " + _Hands_RIDs[8].asString + " CW angle limit!");  return false; };
+      if ((finger[3][3].val 	      =  Dyn4.GetPresentPosition(_Hands_RIDs[8])*servo78.coefficient)>360){echo("ERROR: Can NOT read hand servo ID " + _Hands_RIDs[8].asString + " position!");	     return false; };
+      //
+      if ((finger[4][1].val->rangemax =  Dyn4.GetCCWAngleLimit(  _Hands_RIDs[9])*servo79.coefficient)>360){echo("ERROR: Can NOT read hand servo ID " + _Hands_RIDs[9].asString + " CCW angle limit!"); return false; };
+      if ((finger[4][1].val->rangemin =  Dyn4.GetCWAngleLimit(   _Hands_RIDs[9])*servo79.coefficient)>360){echo("ERROR: Can NOT read hand servo ID " + _Hands_RIDs[9].asString + " CW angle limit!");  return false; };
+      if ((finger[4][1].val 	      =  Dyn4.GetPresentPosition(_Hands_RIDs[9])*servo79.coefficient)>360){echo("ERROR: Can NOT read hand servo ID " + _Hands_RIDs[9].asString + " position!");	     return false; };
+      //
+      if ((finger[4][2].val->rangemax =  Dyn4.GetCCWAngleLimit(  _Hands_RIDs[10])*servo80.coefficient)>360){echo("ERROR: Can NOT read hand servo ID " + _Hands_RIDs[10].asString + " CCW angle limit!"); return false; };
+      if ((finger[4][2].val->rangemin =  Dyn4.GetCWAngleLimit(   _Hands_RIDs[10])*servo80.coefficient)>360){echo("ERROR: Can NOT read hand servo ID " + _Hands_RIDs[10].asString + " CW angle limit!");  return false; };
+      if ((finger[4][2].val 	      =  Dyn4.GetPresentPosition(_Hands_RIDs[10])*servo80.coefficient)>360){echo("ERROR: Can NOT read hand servo ID " + _Hands_RIDs[10].asString + " position!");	       return false; };
+      //
+      if ((finger[4][3].val->rangemax =  Dyn4.GetCCWAngleLimit(  _Hands_RIDs[11])*servo81.coefficient)>360){echo("ERROR: Can NOT read hand servo ID " + _Hands_RIDs[11].asString + " CCW angle limit!"); return false; };
+      if ((finger[4][3].val->rangemin =  Dyn4.GetCWAngleLimit(   _Hands_RIDs[11])*servo81.coefficient)>360){echo("ERROR: Can NOT read hand servo ID " + _Hands_RIDs[11].asString + " CW angle limit!");  return false; };
+      if ((finger[4][3].val 	      =  Dyn4.GetPresentPosition(_Hands_RIDs[11])*servo81.coefficient)>360){echo("ERROR: Can NOT read hand servo ID " + _Hands_RIDs[11].asString + " position!");	       return false; };
+      //
+      if ((yaw.val->rangemax 	=  Dyn4.GetCCWAngleLimit(  _Hands_RIDs[12])*servo62.coefficient)>360){echo("ERROR: Can NOT read hand servo ID " + _Hands_RIDs[12].asString + " CCW angle limit!"); return false; };
+      if ((yaw.val->rangemin 	=  Dyn4.GetCWAngleLimit(   _Hands_RIDs[12])*servo62.coefficient)>360){echo("ERROR: Can NOT read hand servo ID " + _Hands_RIDs[12].asString + " CW angle limit!");  return false; };
+      if ((yaw.val 	      	=  Dyn4.GetPresentPosition(_Hands_RIDs[12])*servo62.coefficient)>360){echo("ERROR: Can NOT read hand servo ID " + _Hands_RIDs[12].asString + " position!");	 return false; };
+      //
+      if ((pitch.val->rangemax 	=  Dyn4.GetCCWAngleLimit(  _Hands_RIDs[13])*servo63.coefficient)>360){echo("ERROR: Can NOT read hand servo ID " + _Hands_RIDs[13].asString + " CCW angle limit!"); return false; };
+      if ((pitch.val->rangemin 	=  Dyn4.GetCWAngleLimit(   _Hands_RIDs[13])*servo63.coefficient)>360){echo("ERROR: Can NOT read hand servo ID " + _Hands_RIDs[13].asString + " CW angle limit!");  return false; };
+      if ((pitch.val 	      	=  Dyn4.GetPresentPosition(_Hands_RIDs[13])*servo63.coefficient)>360){echo("ERROR: Can NOT read hand servo ID " + _Hands_RIDs[13].asString + " position!");	 return false; };
+    };
+      
+
+
+      do (robot.body.arm[left].hand) { 
+	function MoveOpen(time) 			{call.m_HOpen("left",time);};
+	function MovePoint(time) 			{call.m_HPoint("left",time);};
+	function MoveOK(time) 				{call.m_HOK("left",time);};
+	function MoveClose(intensity,time) 		{call.m_HClose("left",intensity,time);};
+	function MoveFingerClose(finger,intensity,time) {call.m_HFingerClose("left",finger,intensity,time);};
+	function MovePosition(time,in_Fin11,in_Fin12,in_Fin13,in_Fin21,in_Fin22,in_Fin23,in_Fin31,in_Fin32,in_Fin33,in_Fin41,in_Fin42,in_Fin43) 
+		{call.m_HPositionL(time,in_Fin11,in_Fin12,in_Fin13,in_Fin21,in_Fin22,in_Fin23,in_Fin31,in_Fin32,in_Fin33,in_Fin41,in_Fin42,in_Fin43);};
+	function MoveOrientation(time, in_Yaw, in_Pitch) 	{call.m_HOrientationL(time, in_Yaw, in_Pitch);};
+      };
+      
+      do (robot.body.arm[right].hand) { 
+	function MoveOpen(time) 			{call.m_HOpen("right",time);};
+	function MovePoint(time) 			{call.m_HPoint("right",time);};
+	function MoveOK(time) 				{call.m_HOK("right",time);};
+	function MoveClose(intensity,time) 		{call.m_HClose("right",intensity,time);};
+	function MoveFingerClose(finger,intensity,time) {call.m_HFingerClose("right",finger,intensity,time);};
+	function MovePosition(time,in_Fin11,in_Fin12,in_Fin13,in_Fin21,in_Fin22,in_Fin23,in_Fin31,in_Fin32,in_Fin33,in_Fin41,in_Fin42,in_Fin43) 
+		{call.m_HPositionR(time,in_Fin11,in_Fin12,in_Fin13,in_Fin21,in_Fin22,in_Fin23,in_Fin31,in_Fin32,in_Fin33,in_Fin41,in_Fin42,in_Fin43);};
+	function MoveOrientation(time, in_Yaw, in_Pitch) 	{call.m_HOrientationR(time, in_Yaw, in_Pitch);};
+      };
+      
+      do (robot.body.arm.hand) { 
+	function MoveOpen(time) 			{call.m_HOpen("both",time); };
+	function MovePoint(time) 			{call.m_HPoint("both",time);};
+	function MoveOK(time) 				{call.m_HOK("both",time);};
+	function MoveFingerClose(finger,intensity,time) {call.m_HFingerClose("both",finger,intensity,time);};
+	function MoveClose(intensity,time) 		{call.m_HClose("both",intensity,time); };
+	function Stop 					{call.m_HStop;};
+      };
+  
+      echo("OK: Hands structure created.");
+      return true;
+    };
+
+    //////////////////////////////////////////////////////////////////////////////////
+    //
+    //
+    //	Load Hands behaviours.
+    //
+    //
+    //////////////////////////////////////////////////////////////////////////////////
+    
+  var a_FingerL11 = Tag.new;
+  var a_FingerL12 = Tag.new;
+  var a_FingerL13 = Tag.new;
+  var a_FingerL21 = Tag.new;
+  var a_FingerL22 = Tag.new;
+  var a_FingerL23 = Tag.new;
+  var a_FingerL31 = Tag.new;
+  var a_FingerL32 = Tag.new;
+  var a_FingerL33 = Tag.new;
+  var a_FingerL41 = Tag.new;
+  var a_FingerL42 = Tag.new;
+  var a_FingerL43 = Tag.new;
+  //
+  var a_WristLYaw   = Tag.new;
+  var a_WristLPitch = Tag.new;
+  //
+  //
+  var a_FingerR11 = Tag.new;
+  var a_FingerR12 = Tag.new;
+  var a_FingerR13 = Tag.new;
+  var a_FingerR21 = Tag.new;
+  var a_FingerR22 = Tag.new;
+  var a_FingerR23 = Tag.new;
+  var a_FingerR31 = Tag.new;
+  var a_FingerR32 = Tag.new;
+  var a_FingerR33 = Tag.new;
+  var a_FingerR41 = Tag.new;
+  var a_FingerR42 = Tag.new;
+  var a_FingerR43 = Tag.new;
+  //
+  var a_WristRYaw   = Tag.new;
+  var a_WristRPitch = Tag.new;
+
+  function m_HPositionL(time,in_Fin11,in_Fin12,in_Fin13,in_Fin21,in_Fin22,in_Fin23,in_Fin31,in_Fin32,in_Fin33,in_Fin41,in_Fin42,in_Fin43) {
+    {a_FingerL11.stop| a_FingerL11: robot.body.arm[left].hand.finger[1][1].val= (_Hands_LZeroPosition[0] + in_Fin11)  smooth:time,}&
+    {a_FingerL12.stop| a_FingerL12: robot.body.arm[left].hand.finger[1][2].val= (_Hands_LZeroPosition[1] + in_Fin12)  smooth:time,}&
+    {a_FingerL13.stop| a_FingerL13: robot.body.arm[left].hand.finger[1][3].val= (_Hands_LZeroPosition[2] + in_Fin13)  smooth:time,}&
+    {a_FingerL21.stop| a_FingerL21: robot.body.arm[left].hand.finger[2][1].val= (_Hands_LZeroPosition[3] + in_Fin21)  smooth:time,}&
+    {a_FingerL22.stop| a_FingerL22: robot.body.arm[left].hand.finger[2][2].val= (_Hands_LZeroPosition[4] + in_Fin22)  smooth:time,}&
+    {a_FingerL23.stop| a_FingerL23: robot.body.arm[left].hand.finger[2][3].val= (_Hands_LZeroPosition[5] + in_Fin23)  smooth:time,}&
+    {a_FingerL31.stop| a_FingerL31: robot.body.arm[left].hand.finger[3][1].val= (_Hands_LZeroPosition[6] + in_Fin31)  smooth:time,}&
+    {a_FingerL32.stop| a_FingerL32: robot.body.arm[left].hand.finger[3][2].val= (_Hands_LZeroPosition[7] + in_Fin32)  smooth:time,}&
+    {a_FingerL33.stop| a_FingerL33: robot.body.arm[left].hand.finger[3][3].val= (_Hands_LZeroPosition[8] + in_Fin33)  smooth:time,}&
+    {a_FingerL41.stop| a_FingerL41: robot.body.arm[left].hand.finger[4][1].val= (_Hands_LZeroPosition[9] + in_Fin41)  smooth:time,}&
+    {a_FingerL42.stop| a_FingerL42: robot.body.arm[left].hand.finger[4][2].val= (_Hands_LZeroPosition[10] + in_Fin42) smooth:time,}&
+    {a_FingerL43.stop| a_FingerL43: robot.body.arm[left].hand.finger[4][3].val= (_Hands_LZeroPosition[11] + in_Fin43) smooth:time,};
+  }|{};
+
+  function m_HPositionR(time,in_Fin11,in_Fin12,in_Fin13,in_Fin21,in_Fin22,in_Fin23,in_Fin31,in_Fin32,in_Fin33,in_Fin41,in_Fin42,in_Fin43) {
+    {a_FingerR11.stop| a_FingerR11: robot.body.arm[right].hand.finger[1][1].val= (_Hands_RZeroPosition[0] + in_Fin11)  smooth:time,}&
+    {a_FingerR12.stop| a_FingerR12: robot.body.arm[right].hand.finger[1][2].val= (_Hands_RZeroPosition[1] + in_Fin12)  smooth:time,}&
+    {a_FingerR13.stop| a_FingerR13: robot.body.arm[right].hand.finger[1][3].val= (_Hands_RZeroPosition[2] + in_Fin13)  smooth:time,}&
+    {a_FingerR21.stop| a_FingerR21: robot.body.arm[right].hand.finger[2][1].val= (_Hands_RZeroPosition[3] + in_Fin21)  smooth:time,}&
+    {a_FingerR22.stop| a_FingerR22: robot.body.arm[right].hand.finger[2][2].val= (_Hands_RZeroPosition[4] + in_Fin22)  smooth:time,}&
+    {a_FingerR23.stop| a_FingerR23: robot.body.arm[right].hand.finger[2][3].val= (_Hands_RZeroPosition[5] + in_Fin23)  smooth:time,}&
+    {a_FingerR31.stop| a_FingerR31: robot.body.arm[right].hand.finger[3][1].val= (_Hands_RZeroPosition[6] + in_Fin31)  smooth:time,}&
+    {a_FingerR32.stop| a_FingerR32: robot.body.arm[right].hand.finger[3][2].val= (_Hands_RZeroPosition[7] + in_Fin32)  smooth:time,}&
+    {a_FingerR33.stop| a_FingerR33: robot.body.arm[right].hand.finger[3][3].val= (_Hands_RZeroPosition[8] + in_Fin33)  smooth:time,}&
+    {a_FingerR41.stop| a_FingerR41: robot.body.arm[right].hand.finger[4][1].val= (_Hands_RZeroPosition[9] + in_Fin41)  smooth:time,}&
+    {a_FingerR42.stop| a_FingerR42: robot.body.arm[right].hand.finger[4][2].val= (_Hands_RZeroPosition[10] + in_Fin42) smooth:time,}&
+    {a_FingerR43.stop| a_FingerR43: robot.body.arm[right].hand.finger[4][3].val= (_Hands_RZeroPosition[11] + in_Fin43) smooth:time,};
+  }|{};
+  
+  function m_HOrientationL(time,in_Yaw,in_Pitch) {
+    {a_WristLYaw.stop  | a_WristLYaw:   robot.body.arm[left].hand.yaw.val   = (_Hands_LZeroPosition[12] + in_Yaw)   smooth:time,}&
+    {a_WristLPitch.stop| a_WristLPitch: robot.body.arm[left].hand.pitch.val = (_Hands_LZeroPosition[13] + in_Pitch) smooth:time,};
+  }|{};
+
+  function m_HOrientationR(time,in_Yaw,in_Pitch) {
+    {a_WristRYaw.stop  | a_WristRYaw:   robot.body.arm[right].hand.yaw.val   = (_Hands_RZeroPosition[12] + in_Yaw)   smooth:time,}&
+    {a_WristRPitch.stop| a_WristRPitch: robot.body.arm[right].hand.pitch.val = (_Hands_RZeroPosition[13] + in_Pitch) smooth:time,};
+  }|{};
+  
+  
+  function m_HOpen(side,time) {
+    {if ((side=="left")||(side=="both")) 
+	m_HPositionL(time,0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);}&
+    {if ((side=="right")||(side=="both")) 
+	m_HPositionR(time,0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);};
+  }|{};
+  
+    
+  function m_HClose(side,intensity,time) {
+    {if ((side=="left")||(side=="both"))  m_HPositionL(time, (14*intensity), (12*intensity), 0, (14*intensity), (12*intensity), 0, (14*intensity), (12*intensity), 0, (14*intensity), 80, 0);}&
+    {if ((side=="right")||(side=="both")) m_HPositionR(time, (14*intensity), (12*intensity), 0, (14*intensity), (12*intensity), 0, (14*intensity), (12*intensity), 0, (14*intensity), 80, 0);};
+  }|{};
+  
+  function m_HFingerClose(side,finger,intensity,time){
+    {
+      if ((side=="left")||(side=="both")) {
+	if (finger==1) {
+	 {a_FingerL11.stop| a_FingerL11: robot.body.arm[left].hand.finger[1][1].val= (14*intensity) smooth:time,}&
+	 {a_FingerL12.stop| a_FingerL12: robot.body.arm[left].hand.finger[1][2].val= (12*intensity) smooth:time,};
+	};
+	if (finger==2) {
+	 {a_FingerL21.stop| a_FingerL21: robot.body.arm[left].hand.finger[2][1].val= (14*intensity) smooth:time,}&
+	 {a_FingerL22.stop| a_FingerL22: robot.body.arm[left].hand.finger[2][2].val= (12*intensity) smooth:time,};
+	};
+	if (finger==3) {
+	 {a_FingerL31.stop| a_FingerL31: robot.body.arm[left].hand.finger[3][1].val= (14*intensity) smooth:time,}&
+	 {a_FingerL32.stop| a_FingerL32: robot.body.arm[left].hand.finger[3][2].val= (12*intensity) smooth:time,};
+	};
+	if (finger==4) {
+	 {a_FingerL41.stop| a_FingerL41: robot.body.arm[left].hand.finger[4][1].val= (14*intensity) smooth:time,}&
+	 {a_FingerL42.stop| a_FingerL42: robot.body.arm[left].hand.finger[4][2].val= (12*intensity) smooth:time,};
+	};
+      };
+    } & {
+      if ((side=="right")||(side=="both")) {
+      	if (finger==1) {
+	 {a_FingerR11.stop| a_FingerR11: robot.body.arm[right].hand.finger[1][1].val= (14*intensity) smooth:time,}&
+	 {a_FingerR12.stop| a_FingerR12: robot.body.arm[right].hand.finger[1][2].val= (12*intensity) smooth:time,};
+	};
+	if (finger==2) {
+	 {a_FingerR21.stop| a_FingerR21: robot.body.arm[right].hand.finger[2][1].val= (14*intensity) smooth:time,}&
+	 {a_FingerR22.stop| a_FingerR22: robot.body.arm[right].hand.finger[2][2].val= (12*intensity) smooth:time,};
+	};
+	if (finger==3) {
+	 {a_FingerR31.stop| a_FingerR31: robot.body.arm[right].hand.finger[3][1].val= (14*intensity) smooth:time,}&
+	 {a_FingerR32.stop| a_FingerR32: robot.body.arm[right].hand.finger[3][2].val= (12*intensity) smooth:time,};
+	};
+	if (finger==4) {
+	 {a_FingerR41.stop| a_FingerR41: robot.body.arm[right].hand.finger[4][1].val= (14*intensity) smooth:time,}&
+	 {a_FingerR42.stop| a_FingerR42: robot.body.arm[right].hand.finger[4][2].val= (12*intensity) smooth:time,};
+	};
+      };
+    };
+  }|{};
+  
+   
+  function m_HPoint(side,time) {
+    {if ((side=="left")||(side=="both"))  m_HPositionL(time, 0, 0, 0, 140, 120, 0, 140, 120, 0, 140, 80, 0);}&
+    {if ((side=="right")||(side=="both")) m_HPositionR(time, 0, 0, 0, 140, 120, 0, 140, 120, 0, 140, 80, 0);};
+  }|{};
+  
+  
+  
+  function m_HOK(side,time) {
+    {if ((side=="left")||(side=="both"))  m_HPositionL(time, 140, 120, 0, 140, 120, 0, 140, 120, 0, 0, 120, 80);}&
+    {if ((side=="right")||(side=="both")) m_HPositionR(time, 140, 120, 0, 140, 120, 0, 140, 120, 0, 0, 120, 80);};
+  }|{};
+  
+  
+  function m_HStop() { 
+    a_FingerL11.stop();
+    a_FingerL12.stop();
+    a_FingerL13.stop();
+    a_FingerL21.stop();
+    a_FingerL22.stop();
+    a_FingerL23.stop();
+    a_FingerL31.stop();
+    a_FingerL32.stop();
+    a_FingerL33.stop();
+    a_FingerL41.stop();
+    a_FingerL42.stop();
+    a_FingerL43.stop();
+    //
+    a_WristLYaw.stop();
+    a_WristLPitch.stop();
+    //
+    a_FingerR11.stop();
+    a_FingerR12.stop();
+    a_FingerR13.stop();
+    a_FingerR21.stop();
+    a_FingerR22.stop();
+    a_FingerR23.stop();
+    a_FingerR31.stop();
+    a_FingerR32.stop();
+    a_FingerR33.stop();
+    a_FingerR41.stop();
+    a_FingerR42.stop();
+    a_FingerR43.stop();
+    //
+    a_WristRYaw.stop();
+    a_WristRPitch.stop();
+  }|{};
+
+
+
+
+  echo("OK: Hands loaded");
+
+};
+

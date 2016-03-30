@@ -1,0 +1,16 @@
+// loading robot environment
+// load("_CONFIG_.u");
+// var pwd = Path.cwd|;
+// Path.new("../modules/").cd|;
+// load("../urbi_scripts/_ROBOT_.u");
+// pwd.cd|;
+// ***************************
+
+// loading a module
+// var pwd = Path.cwd|;
+// Path.new("../modules/").cd|;
+// loadModule("../modules/URecog_MSP");
+// loadModule("../modules/USpeech_SAPI");
+// pwd.cd|;
+//***************************
+

@@ -1,0 +1,132 @@
+﻿<grammar version="1.0" xml:lang="en-US" root="rootRule" tag-format="semantics/1.0-literals" xmlns="http://www.w3.org/2001/06/grammar">
+  <rule id="rootRule">
+    <one-of>
+      <item>
+        <tag>FORWARD</tag>
+        <one-of>
+          <item> forwards </item>
+          <item> forward </item>
+          <item> straight </item>
+        </one-of>
+      </item>
+      <item>
+        <tag>BACKWARD</tag>
+        <one-of>
+          <item> backward </item>
+          <item> backwards </item>
+          <item> back </item>
+        </one-of>
+      </item>
+      <item>
+        <tag>LEFT</tag>
+        <one-of>
+          <item> turn left </item>
+        </one-of>
+      </item>
+      <item>
+        <tag>RIGHT</tag>
+        <one-of>
+          <item> turn right </item>
+        </one-of>
+      </item>
+	  <item>
+        <tag>LOOK</tag>
+        <one-of>
+          <item> look here </item>
+          <item> look there </item>
+          <item> look at this </item>
+          <item> look at me </item>
+          <item> look </item>
+        </one-of>
+      </item>
+	  <item>
+        <tag>FOLLOW</tag>
+        <one-of>
+          <item> please follow me </item>
+          <item> follow me </item>
+        </one-of>
+      </item> 
+	  <item>
+        <tag>STOP</tag>
+        <one-of>
+          <item> stop it </item>
+          <item> ok stop </item>
+          <item> that is enough </item>
+        </one-of>
+      </item> 
+	  <item>
+        <tag>HI</tag>
+        <one-of>
+          <item> hi emys </item>
+          <item> hello emys </item>
+          <item> hi </item>
+        </one-of>
+      </item> 
+	  <item>
+        <tag>YES</tag>
+        <one-of>
+          <item> yes </item>
+          <item> yeap </item>
+        </one-of>
+      </item> 
+	  <item>
+        <tag>NO</tag>
+        <one-of>
+          <item> no </item>
+        </one-of>
+      </item> 
+	  <item>
+        <tag>EMYS</tag>
+        <one-of>
+          <item> emys </item>
+          <item> robot </item>
+        </one-of>
+      </item> 
+	  <item>
+        <tag>NEWS</tag>
+        <one-of>
+          <item> read news </item>
+          <item> read some news </item>
+          <item> read todays news </item>
+          <item> read some news please</item>
+        </one-of>
+      </item> 
+	  <item>
+        <tag>EMAIL</tag>
+        <one-of>
+          <item> check my email </item>
+          <item> check my email please</item>
+          <item> check email </item>
+        </one-of>
+      </item>  
+	  <item>
+        <tag>READ</tag>
+        <one-of>
+          <item> read it please</item>
+          <item> read it</item>
+        </one-of>
+      </item> 
+	  <item>
+        <tag>WEATHER</tag>
+        <one-of>
+          <item> check the weather </item>
+          <item> check the weather forecast </item>
+        </one-of>
+      </item>
+	  <item>
+        <tag>PICTURE</tag>
+        <one-of>
+          <item> take a photo </item>
+          <item> do the snapshot </item>
+        </one-of>
+      </item>
+	  <item>
+        <tag>SEND</tag>
+        <one-of>
+          <item> send a message to michael </item>
+          <item> send to michael please </item>
+        </one-of>
+      </item>
+    </one-of>
+  </rule>
+</grammar>

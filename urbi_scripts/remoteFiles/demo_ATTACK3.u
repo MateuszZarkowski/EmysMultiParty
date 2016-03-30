@@ -1,0 +1,223 @@
+/*
+* Initialize JoystickActions
+*
+*
+*  Author: Jan Kedzierski
+*  Date: 04.06.2012
+*  Ver: 1.0
+*/
+
+
+////////////////////
+//
+ if (!hasSlot("j_togg1")) {var Global.j_togg1=1;}  else {Global.j_togg1=1;};
+ if (!hasSlot("j_togg2")) {var Global.j_togg2=1;}  else {Global.j_togg2=1;};
+ if (!hasSlot("j_togg3")) {var Global.j_togg3=1;}  else {Global.j_togg3=1;};
+ if (!hasSlot("j_count1")){var Global.j_count1=0;} else {Global.j_count1=0;};
+ if (!hasSlot("j_tag1")) var Global.j_tag1=Tag.new;
+//
+////////////////////
+
+ 
+/////////////////////////////////////////////////////////////
+//
+// Logitech Attack 3
+//
+/////////////////////////////////////////////////////////////
+//
+
+//     
+      if (joystick.name=="Logitech Attack 3"){
+	
+	////////////////////////////////////////////////////////////
+	// axis
+	////////////////////////////////////////////////////////////
+	
+	joystick.&axis1.notifyChange( closure() {
+	  if (Global.j_togg3==0) {
+	    if ((joystick.axis1 > 2000 )||(joystick.axis1 < - 2000 )) {robot.body.x.speed=-((robot.body.x.speed->rangemax*joystick.axis1)/32768);} 
+	    else {robot.body.x.speed=0;};
+	  };
+	});
+	
+	joystick.&axis0.notifyChange( closure() {
+	  if (Global.j_togg3==0) {
+	    if ((joystick.axis0 > 2000 )||(joystick.axis0 < - 2000 )) {robot.body.yaw.speed=-((robot.body.yaw.speed->rangemax*joystick.axis0)/32768);} 
+	    else {robot.body.yaw.speed=0;};
+	  };
+	});
+	
+	
+	
+	////////////////////////////////////////////////////////////
+	// buttons
+	////////////////////////////////////////////////////////////
+
+	
+	joystick.&button10.notifyChange( closure() {
+	  if (joystick.button10 ==1) {
+	    Global.j_togg2=1;
+	    j_tag1.stop;
+	    robot.audio.player.stop;
+	    j_tag1:detach({
+	      robot.BehaveIntroduce4("left");
+	    }),
+	    //
+	  };
+	});
+	
+	
+	joystick.&button9.notifyChange( closure() {
+	  if (joystick.button9 ==1) {
+	    Global.j_togg2=1;
+	    j_tag1.stop;
+	    robot.audio.player.stop;
+	    j_tag1:detach({
+	      robot.BehaveIntroduce3();
+	    }),
+	    //
+	  };
+	});
+
+	
+	joystick.&button6.notifyChange( closure() {
+	  if (joystick.button6 ==1) {
+	    Global.j_togg2=1;
+	    j_tag1.stop;
+	    robot.audio.player.stop;
+	    j_tag1:detach({
+	      robot.BehaveIntroduce2();
+	    }),
+	    //
+	  };
+	});
+	
+			
+	joystick.&button5.notifyChange( closure() {
+	  if (joystick.button5 ==1) {
+	    Global.j_togg2=1;
+	    j_tag1.stop;
+	    robot.audio.player.stop;
+	    j_tag1:detach({
+	      robot.BehaveIntroduce1();
+	    }),
+	    //
+	  };
+	});
+
+	
+	joystick.&button0.notifyChange( closure() {
+	  if (joystick.button0 ==1) {
+	    Global.j_togg2=1;
+	    Global.j_count1=0;
+	    Global.j_togg3=0;
+	    j_tag1.stop;
+	    robot.audio.player.stop;
+	    j_tag1:detach({
+	      robot.BehaveNormal(1);
+	    }),
+	  };
+	});
+
+
+		
+	joystick.&button1.notifyChange( closure() {
+	  if (joystick.button1 == 1) {
+	    Global.j_togg2=1;
+	    j_tag1.stop;
+	    robot.audio.player.stop;
+	    j_tag1:detach({
+	      robot.body.neck.head.ActAlive(6,3,8,3,10,0.5),
+	    }),
+	    //
+	  };
+	});
+	
+	
+		
+	joystick.&button2.notifyChange( closure() {
+	  if (joystick.button2 == 1) { 
+	    Global.j_togg2=1;
+	    Global.j_togg3=1;
+	    j_tag1.stop;
+	    robot.audio.player.stop;
+	    j_tag1:detach({
+	      robot.ActFollowPerson,
+	    }),
+	  };
+	});
+	
+	joystick.&button3.notifyChange( closure() {
+	  if (joystick.button3 == 1) {
+	    Global.j_togg2=1;
+	    j_tag1.stop;
+	    robot.audio.player.stop;
+	    j_tag1:detach({
+	      robot.BehaveGreetings(6, 4, true,2.6);
+	    }),
+	    //
+	  },
+	});
+	
+	
+	joystick.&button4.notifyChange( closure() {
+	  if (joystick.button4 ==1) {
+	    Global.j_togg2=1;
+	    j_tag1.stop;
+	    robot.audio.player.stop;
+	    j_tag1:detach({
+	      robot.body.arm[right].MoveForward(2)&
+	      robot.body.neck.head.BehaveJoy(10,2);
+	    }),
+	  };
+	});
+	
+	joystick.&button7.notifyChange( closure() {
+	  if (joystick.button7 ==1) {
+	    Global.j_togg2=1;
+	    Global.j_count1=Global.j_count1-1;
+	    if (j_count1<1) Global.j_count1=1;
+	    j_tag1.stop;
+	    robot.audio.player.stop;
+	    sleep(0.3);
+	    j_tag1:detach({
+	      if (j_count1==1) { robot.body.neck.head.Say(_uFilesDir+"speech_sequences/chirurdzy_015_For_example_I_can_be",4); robot.BehaveAngry(true); };
+	      if (j_count1==2) { robot.BehaveHappy(true); };
+	      if (j_count1==3) { robot.BehaveSad(true); };
+	      if (j_count1==4) { robot.BehaveFear(true); };
+	      if (j_count1==5) { robot.BehaveDisgust(true); };
+	      if (j_count1==6) { robot.BehaveSuprise(true); };
+	    }),
+	    //
+	  };
+	});
+	
+			
+	joystick.&button8.notifyChange( closure() {
+	  if (joystick.button8 ==1) {
+	    Global.j_togg2=1;
+	    Global.j_count1=Global.j_count1+1;
+	    if (j_count1>6) Global.j_count1=6;
+	    j_tag1.stop;
+	    robot.audio.player.stop;
+	    sleep(0.3);
+	    j_tag1:detach({
+	      if (j_count1==1) { robot.body.neck.head.Say(_uFilesDir+"speech_sequences/chirurdzy_015_For_example_I_can_be",4); robot.BehaveAngry(true); };
+	      if (j_count1==2) { robot.BehaveHappy(true); };
+	      if (j_count1==3) { robot.BehaveSad(true); };
+	      if (j_count1==4) { robot.BehaveFear(true); };
+	      if (j_count1==5) { robot.BehaveDisgust(true); };
+	      if (j_count1==6) { robot.BehaveSuprise(true); };
+	      //if (j_count1==7) { robot.body.neck.head.Say(_uFilesDir+"speech_sequences/chirurdzy_015_For_example_I_can_be",4);};
+	    }),
+	    //
+	  };
+	});
+		
+
+		
+
+
+	
+      };
+      

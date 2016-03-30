@@ -1,0 +1,101 @@
+
+//EX1
+loadModule("UKinect");
+var Global.Kinect= UKinect.new();
+Kinect.Open(0,  //kinect_number
+	true, //color
+	true, //depth
+	true, //skeleton
+	true, //face
+	true, //interaction
+	true, //audio
+	true)|;//speech
+Kinect.depthNearMode=1|;
+Kinect.skeletonChooserMode=3|;
+Kinect.speechLoadGrammar("speech.grxml")|;
+
+// t: every(20ms) 	Kinect.PollAudio(false), // - do NOT wait for new data
+// t: every(20ms) 	Kinect.PollVideo(false), // - do NOT wait for new data
+
+// t: loop	Kinect.PollAudio(true), // - do NOT wait for new data
+// t: loop	Kinect.PollVideo(true), // - wait for new data
+var frames = 0;
+t: loop{ 
+	Kinect.PollVideo(true);
+	frames++;
+}, // - wait for new data
+
+var Global.faceX = 0;
+Global.faceX->rangemin= -1;
+Global.faceX->rangemax= 1;
+var Global.faceY = 0;
+Global.faceY->rangemin= -1;
+Global.faceY->rangemax= 1;
+
+var Global.facePitch = 0;
+Global.facePitch->rangemin= -90;
+Global.facePitch->rangemax= 90;
+
+var Global.faceYaw = 0;
+Global.faceYaw->rangemin= -90;
+Global.faceYaw->rangemax= 90;
+
+var Global.faceRoll = 0;
+Global.faceRoll->rangemin= -90;
+Global.faceRoll->rangemax= 90;
+
+
+
+
+var Global.facePosition = [0,0,0,0,0,0];
+t: at(watch(Kinect.faceIsTracking)? if Kinect.faceIsTracking) {
+		Global.facePosition = Kinect.facePosition;
+		Global.faceX = facePosition[0];
+		Global.faceY = facePosition[1];
+		
+		Global.facePitch = facePosition[3];
+		Global.faceYaw = facePosition[4];
+		Global.faceRoll = facePosition[5];
+		
+};
+	
+var log = [];
+every(250ms){
+	echo("");
+	echo("FPS Urbi: " +frames + " , Kinect: " + Kinect.fps)|
+	frames =0|;
+ 	echo(Kinect.faceIsTracking);
+	echo("X: " + facePosition[0]);
+	echo("Z: " + facePosition[2]);
+	echo("Yaw: " + facePosition[4]);
+	var Yaw_Correct = facePosition[4] - facePosition[0]*35|;
+	echo("Yaw_Correct: " + Yaw_Correct);
+	if (Kinect.faceIsTracking){
+		log << [facePosition[0],facePosition[2],facePosition[4]];
+	};
+},
+	
+sleep(120s);
+echo(log);
+{
+	var to_write = log;
+	var o = OutputStream.new(File.create("log2.txt"))|;
+	o << to_write;
+	// to_write.each(function(e) { o << e << "\n" ;} );
+	o.close;
+};
+
+ // at (Kinect.speechResultTag=="LOOK"){
+    // echo(Kinect.speechResultTag);
+    // Kinect.speechResultTag="";
+      // echo(pos[3]);
+      // g.freeze;
+      // robot.body.neck.head.MoveAt(-pos[4],pos[3],1); 
+      // sleep(2);
+      // g.unfreeze;
+  // }
+
+// every(500ms) 	echo(Kinect.speechResult),
+
+// sleep(10s)|
+// t.stop;

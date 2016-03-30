@@ -1,0 +1,62 @@
+// Example
+loadModule("URecog_MSP");
+
+// var recog=URecog.new("InProc",0 , 0);
+
+var recog1=URecog.new("InProc",2 , 0);
+var recog2=URecog.new("InProc",2 , 1);
+
+// URecog.AvailableRecognizers;
+recog1.AvailableInputs;
+// ["Headset Microphone (4- Microsof", "Microphone Array (Kinect for Wi"]
+recog1.debug = true;
+recog2.debug = true;
+
+// new grammar with semantics
+// recog.LoadGrammar("EX_simple_mtags.grxml");
+// recog.LoadGrammar("NumberPL.grxml");
+recog1.LoadGrammar("ToFill_QuizGameAnswersPL.grxml");
+recog2.LoadGrammar("ToFill_QuizGameAnswersPL.grxml");
+// recog.LoadGrammar("RepeatPL.grxml");
+// recog.LoadGrammar("ToFill_QuizGameAnswersPL.grxml");
+// old grammar for compatibility
+// recog.LoadGrammar("EX_movement_literal.grxml");
+
+loop { 
+  sleep(20ms);	
+  recog1.Poll(false);
+  recog2.Poll(false);
+},
+
+
+// function WaitQuizResponse() {
+	// recog.ClearResult;
+
+	 
+	// resp_tag: at (recog.resultTag!="")
+	// {
+	  // resp_tag.stop;
+		// echo("test");
+		// echo(recog.semantics);
+	  // return recog.resultTag;
+	// },
+
+
+
+	// sleep(10s)|
+	// resp_tag.stop|
+	// return "TIMEOUT";
+// } |{};
+
+
+
+// echo("START!");
+
+every(1s){
+	echo("1: " + recog1.resultTag);
+	echo("1: " + recog1.semantics);
+	echo("2: " + recog2.resultTag);
+	echo("2: " + recog2.semantics);
+},
+
+

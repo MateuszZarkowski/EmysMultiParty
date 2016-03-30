@@ -1,0 +1,21 @@
+loadModule("UTester");
+
+
+
+
+var t1 = UTester.new;
+
+poll_loop:loop{
+t1.Poll();
+sleep(10ms);
+},
+
+t1.intVar = 5000000;
+
+
+read_loop:loop{
+	echo(t1.dictVar.size);
+	sleep(100ms);
+},
+
+;

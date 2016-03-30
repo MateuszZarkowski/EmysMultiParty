@@ -1,0 +1,149 @@
+#D_EASY_Q_0005
+Jakie rzeczy odłożymy do lamusa?
+przestarzałe
+modne
+uprasowane
+nowe
+Lamus to pomieszczenie do przechowywania starych rzeczy.
+#D_EASY_Q_0006
+Onucami owijano:
+stopy
+szyję
+głowę
+ręce
+Onuca to prostokątny kawałek tkaniny lnianej lub bawełnianej.
+#D_EASY_Q_0007
+Jaka substancja zawarta w papierosach powoduje uzależnienie?
+nikotyna 
+tiamina
+kofeina
+kodeina
+Nikotyna była również stosowana jako środek owadobójczy.
+#D_EASY_Q_0008
+Wahadłowiec to inna nazwa dla:
+statku kosmicznego
+huśtawki
+zegara
+barometru
+Amerykanie zrezygnowali już z używania wahadłowców.
+#D_EASY_Q_0009
+Co to są szarawary?
+spodnie 
+strusie pióra
+koronki
+woalki
+Szarawary to inaczej hajdawery.
+#D_MEDIUM_Q_0005
+Co to jest Wielka Pardubicka?
+gonitwa 
+miasto
+szczyt w Słowacji
+stadion sportowy
+Dystans, który mają do pokonania jeźdźcy i konie, wynosi 6900 metrów
+#D_MEDIUM_Q_0006
+Republika San Marino jest enklawą na terytorium:
+Włoch
+Hiszpanii
+Portugalii
+Francji
+San Marino to jedno z najmniejszych państw Europy, mniejsze są tylko Watykan i Monako.
+#D_MEDIUM_Q_0007
+Owocom jakiej rośliny dżin zawdzięcza swój specyficzny smak ?
+jałowca
+cisu
+tarniny
+widłaka
+Dżin powstał w dawnej Holandii w siedemnastym wieku.
+#D_MEDIUM_Q_0008
+Co nie stanowi jednej z trzech konkurencji szermierki jako dyscypliny sportowej?
+miecz 
+floret
+szpada
+szabla
+Szermierka była dawniej zwana fechtunkiem.
+#D_MEDIUM_Q_0009
+Rzymskim bogiem miłości był?
+Amor 
+Jowisz 
+Merkury 
+Eros
+Amor uchodził za syna bogini Wenus i boga Marsa.
+#D_HARD_Q_0005
+Jak nazywa się rzeźba na dziobie żaglowca?
+galion
+reja
+bukszpryt
+sztag
+Galion zwykle przedstawiał postać ludzką, zwierzęcą lub fikcyjne stworzenie alegoryczne.
+#D_HARD_Q_0006
+Który kwas nie ma w cząsteczce tlenu?
+solny
+siarkowy
+fosforowy
+węglowy
+Kwas solny to inaczej kwas chlorowodorowy.
+#D_HARD_Q_0007
+Iloma kondygnacjami arkad jest otoczone rzymskie Koloseum ?
+trzema
+dwoma
+czterema
+pięcioma
+Koloseum nazywane było oficjalnie w starożytności Amfiteatrem Flawiuszów.
+#D_HARD_Q_0008
+Ilu zawodników liczy drużyna hokeja na trawie ?
+jedenastu
+siedmiu
+dziewięciu
+pięciu
+Hokej na trawie jest dyscypliną olimpijską.
+#D_HARD_Q_0009
+Do jakiej grupy instrumentów zaliczany jest saksofon?
+dętych drewnianych 
+strunowych
+dętych blaszanych
+dętych klawiszowych
+Saksofon, mimo metalowego korpusu, zaliczany jest do drewnianych ze względu na materiał stroika, czyli części która wydaje dźwięk.
+#d_medium
+Jak nazywa się słynny jarmark, który odbywa się w Gdańsku od ponad siedmiuset pięćdziesięciu lat 
+Jarmark Dominikański
+Jarmark Morski
+Jarmark Neptuna
+Jarmark Piracki
+
+#d_easy
+Gorąca dwudziestka  to lista przebojów radia 
+Eska
+Zet
+RMF FM
+Złote Przeboje
+
+#d_easy
+Hasło które otwierało skarbiec Alibaby to 
+sezamie otwórz się
+Darek otwórz
+wrota rozstąpcie się
+pukpuk, proszę otworzyć
+
+#d_easy
+Jaką nazwę nosiła legendarna, wielozadaniowa peerelowska pralka
+frania
+zosia
+bryza
+dominika
+
+#d_easy
+Który popularny taniec towarzyski nieodłącznie kojarzy się z Brazylią 
+Samba
+tango
+rumba
+hip hop
+
+#d_hard
+Od którego zwierzęcia pochodzi nazwa Wysp Kanaryjskich
+od psa
+kanarka
+owcy
+słonia
+Pies po łacinie to kanis
+
+

@@ -1,0 +1,236 @@
+/*
+ * randomTry: Main graph implementation.
+ *
+ * Load this file in your server to run the graph.
+ *
+ * Created: Œr 2. mar 07:49:10 2016
+ *      by: Gostai Studio 2.7
+ *
+ * WARNING! All changes made in this file will be lost!
+ */
+
+
+// Load urbiscript file.
+load("urbi/fsm.u");
+
+//#line 16 "randomTryGostai Studio 2.7"
+
+/*************************
+ * Create the root state *
+ *************************/
+
+//Clean previous code
+if (hasLocalSlot("_root_randomTry_3"))
+  if (Object.hasLocalSlot("removeLocalSlot"))
+    removeLocalSlot("_root_randomTry_3")
+  else
+    removeSlot("_root_randomTry_3");
+
+var _root_randomTry_3 = fsm.State.new("_root_randomTry_3");
+_root_randomTry_3.'$params_dict' = Dictionary.new();
+var _root_randomTry_3._nodes_ = Object.new;
+
+/**********************
+ * States declaration *
+ **********************/
+
+//Init state declaration
+var _root_randomTry_3._nodes_.Init = fsm.State.create_("_root_randomTry_3._nodes_.Init", _root_randomTry_3,
+function() {
+//#push 1 "Init"
+var parent.successNb = 0;
+var parent.failuresNb = 0;
+//#pop
+}
+, true
+, 272
+, function() {
+//#push 1 "Init.enter"
+//Code executed before entering the node
+
+//#pop
+}
+, function() {
+//#push 1 "Init.leave"
+//Code executed after leaving the node
+
+//#pop
+}, false, [203.119, 757.565]);
+
+//workFail state declaration
+var _root_randomTry_3._nodes_.workFail = fsm.State.create_("_root_randomTry_3._nodes_.workFail", _root_randomTry_3,
+function() {
+//#push 1 "workFail"
+parent.failuresNb++;
+//#pop
+}
+, false
+, 273
+, function() {
+//#push 1 "workFail.enter"
+//Code executed before entering the node
+
+//#pop
+}
+, function() {
+//#push 1 "workFail.leave"
+//Code executed after leaving the node
+
+//#pop
+}, false, [955.5, 127.6]);
+
+//WorkSuccess state declaration
+var _root_randomTry_3._nodes_.WorkSuccess = fsm.State.create_("_root_randomTry_3._nodes_.WorkSuccess", _root_randomTry_3,
+function() {
+//#push 1 "WorkSuccess"
+parent.successNb++;
+//#pop
+}
+, false
+, 274
+, function() {
+//#push 1 "WorkSuccess.enter"
+//Code executed before entering the node
+
+//#pop
+}
+, function() {
+//#push 1 "WorkSuccess.leave"
+//Code executed after leaving the node
+
+//#pop
+}, false, [1177.4, 611.8]);
+
+//time_out state declaration
+var _root_randomTry_3._nodes_.time_out = fsm.State.create_("_root_randomTry_3._nodes_.time_out", _root_randomTry_3,
+function() {
+//#push 1 "time_out"
+echo("Here are your statistics:"); 
+echo("failures nb = " + parent.failuresNb + " - success nb = " + parent.successNb);
+//#pop
+}
+, false
+, 278
+, function() {
+//#push 1 "time_out.enter"
+
+//#pop
+}
+, function() {
+//#push 1 "time_out.leave"
+
+//#pop
+}, false, [1083.8, 361.6]);
+_root_randomTry_3._nodes_.time_out.'$params_dict' = Dictionary.new("time_out", 2s);
+var _root_randomTry_3._nodes_.time_out._nodes_ = Object.new;
+
+//TimeOut state declaration
+var _root_randomTry_3._nodes_.time_out._nodes_.TimeOut = fsm.State.create_("_root_randomTry_3._nodes_.time_out._nodes_.TimeOut", _root_randomTry_3._nodes_.time_out,
+function() {
+//#push 1 "TimeOut"
+sleep(getParameter("time_out"))|
+parent.workEnded!,
+//#pop
+}
+, true
+, 308
+, function() {
+//#push 1 "TimeOut.enter"
+//Code executed before entering the node
+
+//#pop
+}
+, function() {
+//#push 1 "TimeOut.leave"
+//Code executed after leaving the node
+
+//#pop
+}, false, [267.7, 238.1]);
+
+//random state declaration
+var _root_randomTry_3._nodes_.random = fsm.State.create_("_root_randomTry_3._nodes_.random", _root_randomTry_3,
+function() {
+//#push 1 "random"
+
+//#pop
+}
+, false
+, 279
+, function() {
+//#push 1 "random.enter"
+//this.random_value is created and initialized
+
+if (!this.hasSlot("random_value"))
+  var this.random_value;
+
+this.random_value = -1;
+//#pop
+}
+, function() {
+//#push 1 "random.leave"
+
+//#pop
+}, false, [502.373, 619.3]);
+_root_randomTry_3._nodes_.random.'$params_dict' = Dictionary.new("rand_name", "random_value", "init_value", -1, "range", 2, "time", 500ms);
+var _root_randomTry_3._nodes_.random._nodes_ = Object.new;
+
+//Random state declaration
+var _root_randomTry_3._nodes_.random._nodes_.Random = fsm.State.create_("_root_randomTry_3._nodes_.random._nodes_.Random", _root_randomTry_3._nodes_.random,
+function() {
+//#push 1 "Random"
+// Random
+// between 0 to (range - 1)
+var range = getParameter("range");
+var freq = getParameter("time");
+loop
+{
+  if(freq > 0)
+  {
+    parent.updateSlot(getParameter("rand_name"), random(range));
+    sleep(freq);
+  };
+};
+//#pop
+}
+, true
+, 311
+, function() {
+//#push 1 "Random.enter"
+//Code executed before entering the node
+
+//#pop
+}
+, function() {
+//#push 1 "Random.leave"
+//Code executed after leaving the node
+
+//#pop
+}, false, [208, 198.1]);
+
+/***************************
+ * Transitions declaration *
+ ***************************/
+fsm.Transition.create_(_root_randomTry_3, _root_randomTry_3._nodes_.random, _root_randomTry_3._nodes_.WorkSuccess, "this.random_value == 1", "_root_randomTry_3._nodes_.Unnamed_transition_2");
+fsm.Transition.create_(_root_randomTry_3, _root_randomTry_3._nodes_.random, _root_randomTry_3._nodes_.workFail, "this.random_value == 0", "_root_randomTry_3._nodes_.Unnamed_transition_3");
+fsm.Transition.create_(_root_randomTry_3, _root_randomTry_3._nodes_.time_out, _root_randomTry_3._nodes_.random, "done?", "_root_randomTry_3._nodes_.Unnamed_transition_6");
+fsm.Transition.create_(_root_randomTry_3, _root_randomTry_3._nodes_.WorkSuccess, _root_randomTry_3._nodes_.time_out, "done?", "_root_randomTry_3._nodes_.Transition");
+fsm.Transition.create_(_root_randomTry_3, _root_randomTry_3._nodes_.workFail, _root_randomTry_3._nodes_.time_out, "done?", "_root_randomTry_3._nodes_.Transition_2");
+fsm.Transition.create_(_root_randomTry_3, _root_randomTry_3._nodes_.Init, _root_randomTry_3._nodes_.random, "done?", "_root_randomTry_3._nodes_.Transition_3");
+
+
+var _root_randomTry_3.enterChan = Channel.new("enteringNode");
+var _root_randomTry_3.enterChan.lobby = getSlot("lobby");
+at(_root_randomTry_3.enteringNode?(var id)) _root_randomTry_3.enterChan << ["_root_randomTry_3", id.name];
+var _root_randomTry_3.leaveChan = Channel.new("leavingNode");
+var _root_randomTry_3.leaveChan.lobby = getSlot("lobby");
+at(_root_randomTry_3.leavingNode?(var id)) _root_randomTry_3.leaveChan << ["_root_randomTry_3", id.name];
+var _root_randomTry_3.transitingChan = Channel.new("transiting");
+var _root_randomTry_3.transitingChan.lobby = getSlot("lobby");
+at(_root_randomTry_3.transiting?(var node, var trans)) _root_randomTry_3.transitingChan << ["_root_randomTry_3", trans.name];
+var _root_randomTry_3.freezeChan = Channel.new("frozen");
+var _root_randomTry_3.freezeChan.lobby = getSlot("lobby");
+at(_root_randomTry_3.graphFrozen?()) _root_randomTry_3.freezeChan << "_root_randomTry_3";
+// Start code.
+detach(_root_randomTry_3.enter_());
+
+// End of graph implementation `_root_randomTry_3'.

@@ -1,0 +1,31 @@
+
+// loading robot environment
+load("_CONFIG_.u");
+var pwd = Path.cwd|;
+Path.new("../modules/").cd|;
+load("../urbi_scripts/_ROBOT_.u");
+loadModule("../modules/UFiles");
+// robot.RunServices,
+pwd.cd|;
+//***************************
+
+var Global.LogFile = UFiles.new|;
+
+// EMYS INIT
+robot.body.neck.head.BehaveNormal(1s),
+
+
+// VIDEO INIT
+Kinect.skeletonTrackingMode = 1|; //seatedMode
+Kinect.faceVisualization = true|;
+Kinect.skeletonVisualization = true|;
+
+robot.video.humanDetector.chooserMode = 4|;
+robot.video.humanDetector.faceTrackingPause = false|;
+robot.video.humanDetector.enable = true|;
+robot.video.Run(),
+
+
+// AUDIO INIT
+Recogs[0].debug= true;
+robot.audio.Run,

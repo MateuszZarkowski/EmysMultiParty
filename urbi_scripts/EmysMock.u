@@ -1,0 +1,466 @@
+/* 
+* Emys head consist of three horizontal discs. Top and bottom discs are movable 
+* while the middle one is permanently fixed to the cylinder shape supporting structure. 
+* Emys eyeballs endowed with eyelids are located in the middle disc and are able to 
+* rotate and eject.
+*
+*  From mechanical point of view Emys has 11 degrees of freedom: 
+*	- 1 in neck,
+*	- 2 in head,
+*	- 1 in each eyelid,
+* 	- 2 in each eye,
+* 	- 1 in upper disk,
+*	- 1 in lower disk. 
+*
+*
+*  Author: Jan Kedzierski
+*  Date: 11.11.2015
+*  Ver: 11.0
+*/
+
+do(Global){
+  
+  
+  echo("INFO: Loading mock EMYS...");  
+  //NOTE: what about .val ?
+  
+  function LoadEmys {
+    
+    echo("INFO: Creating head structure...");
+	  
+    //==========================================
+    // 	NECK (pitch)
+    //==========================================
+    robot.body.addComponent("neck"); 
+    robot.body.neck.addComponent("pitch"); 
+    
+    
+    //==========================================
+    // 	HEAD (pitch,yaw) 
+    //==========================================
+    robot.body.neck.addComponent("head");
+    robot.body.neck.head.addComponent("pitch"); 
+    robot.body.neck.head.addComponent("yaw"); 
+    
+    //==========================================
+    // 	DISCs (up,down) 
+    //==========================================
+    robot.body.neck.head.addComponent(Localizer.new("disc"));
+    
+    //============================================================
+    // 	EYEs (left,right) 
+    //============================================================
+    robot.body.neck.head.addComponent(Localizer.new("eye"));
+    robot.body.neck.head.eye[left].addComponent("lid");
+    robot.body.neck.head.eye[left].addComponent("brow");
+    robot.body.neck.head.eye[left].addComponent("trans");
+    robot.body.neck.head.eye[right].addComponent("lid");
+    robot.body.neck.head.eye[right].addComponent("brow");
+    robot.body.neck.head.eye[right].addComponent("trans");
+    
+    if (_Head_IDs.size>12){   
+      //============================================================
+      // 	TOUCH SENSORS 
+      //============================================================
+      robot.body.neck.head.addComponent(Localizer.new("sensor"));
+    };
+    
+    do (robot.body.neck.head){ 
+      function MoveBack(intensity,time){call.local_head_MoveBack(intensity,time,true);		};
+      function MoveForward(intensity,time){call.local_head_MoveForward(intensity,time,true);	};
+      function MoveLeft(intensity,time){call.local_head_MoveLeft(intensity,time,true);		};
+      function MoveRight(intensity,time){call.local_head_MoveRight(intensity,time,true);	};
+      function MoveUp(intensity,time){call.local_head_MoveUp(intensity,time,true);		};
+      function MoveDown(intensity,time){call.local_head_MoveDown(intensity,time,true);		};
+      function MoveVertical(time){call.local_head_MoveVertical(time,true);		};
+      function MoveNo(intensity,time){call.local_head_MoveNo(intensity,time,true);		};
+      function MoveYes(intensity,time){call.local_head_MoveYes(intensity,time,true);		};
+      function MoveAt(yaw,pitch,time){call.local_head_MoveAt(yaw,pitch,time,true);		};
+      function MoveAtSpeed(yaw,pitch,speed){call.local_head_MoveAtSpeed(yaw,pitch,speed,true);	};
+      
+      function MoveAtPitch(yaw,pitchNeck,pitchTotal,time){call.local_head_MoveAtPitch(yaw,pitchNeck,pitchTotal,time,true);		};
+      function MoveAtPitchSpeed(yaw,pitchNeck,pitchTotal,speed){call.local_head_MoveAtPitchSpeed(yaw,pitchNeck,pitchTotal,speed,true);	};
+      
+      
+      function MoveEyeClose(intensity,time){call.local_head_MoveEyeClose(intensity,time,true);	};
+      //
+      function ExpSmile(intensity,time){call.local_head_ExpSmile(intensity,time,true);		};
+      function ExpAngry(intensity,time){call.local_head_ExpAngry(intensity,time,true);		};
+      function ExpDisgust(intensity,time){call.local_head_ExpDisgust(intensity,time,true);	};
+      function ExpSurprise(intensity,time){call.local_head_ExpSurprise(intensity,time,true);	};
+      function ExpSad(intensity,time){call.local_head_ExpSad(intensity,time,true);		};
+      function ExpFear(intensity,time){call.local_head_ExpFear(intensity,time,true);		};
+      function ExpNormal(time){call.local_head_ExpNormal(time,true);			};
+      //
+      function BehaveJoy(intensity,time){call.local_head_BehaveJoy(intensity,time,true);	};
+      function BehaveAngry(intensity,time){call.local_head_BehaveAngry(intensity,time,true);	};
+      function BehaveDisgust(intensity,time){call.local_head_BehaveDisgust(intensity,time,true);	};
+      function BehaveSurprise(intensity,time){call.local_head_BehaveSurprise(intensity,time,true);	};
+      function BehaveSad(intensity,time){call.local_head_BehaveSad(intensity,time,true);	};
+      function BehaveFear(intensity,time){call.local_head_BehaveFear(intensity,time,true);	};
+      function BehaveYawn(time){call.local_head_BehaveYawn(time,true);			};
+      function BehaveNormal(time){call.local_head_BehaveNormal(time,true);		};
+      //
+      function ActAround(intensity,time,freq){call.local_head_ActAround(intensity,time,freq);	};
+      function ActBreathe(intensity,time){call.local_head_ActBreathe(intensity,time);		};
+      function ActWalking(intensity,time){call.local_head_ActWalking(intensity,time);		};
+      function ActQuake(intensity){call.local_head_ActQuake(intensity);			};
+      function ActBlinking(frequency,time){call.local_head_ActBlinking(frequency,time);		};
+      function ActGnashing(intensity,time){call.local_head_ActGnashing(intensity,time);		};
+      function ActAlive(A_inten,A_time,A_freq,BR_inten,BR_time,BL_frequency,BL_time){call.local_head_ActAlive(A_inten,A_time,A_freq,BR_inten,BR_time,BL_frequency,BL_time);};
+      //
+      function Stop 				{call.local_head_Stop;					};
+      //function Initialize			{call.local_head_Initialize;				};
+    };  
+    do (robot.body.neck.head.eye[right]){  
+      function Blink(time){call.local_head_RBlink(time,true);			}; 			
+    };
+    
+    do (robot.body.neck.head.eye[left]){  
+      function Blink(time){call.local_head_LBlink(time,true);			};	
+    };
+    //
+    // Speech functions
+    //
+    if ((robot.hasLocalSlot("audio"))&&(robot.audio.hasLocalSlot("speech"))) 
+    do (robot.body.neck.head){ 
+      function Say(text, intensity, voice){call.local_head_SaySpeech(text, intensity, voice, true);};	
+    };
+    if ((robot.hasLocalSlot("audio"))&&(robot.audio.hasLocalSlot("player"))) 
+    do (robot.body.neck.head){ 
+      function SayFile(file, intensity){call.local_head_SayFile(file, intensity, true);	};
+      function SayYawn(){call.local_head_SayYawn(true);				};	
+    };
+    
+    
+    //
+    // Trajectory generators
+    //
+    do (robot.body.neck.pitch){ 
+      function Move(pos, time){call.local_head_MoveNeckPitch(pos, time);		};	
+      function MoveSpeed(pos, speed){call.local_head_MoveNeckPitchS(pos, speed);		};	
+    };
+    do (robot.body.neck.head.pitch){ 
+      function Move(pos, time){call.local_head_MoveHeadPitch(pos, time);		};	
+      function MoveSpeed(pos, speed){call.local_head_MoveHeadPitchS(pos, speed);		};	
+    };
+    do (robot.body.neck.head.yaw){ 
+      function Move(pos, time){call.local_head_MoveHeadYaw(pos, time);		};
+      function MoveSpeed(pos, speed){call.local_head_MoveHeadYawS(pos, speed);		};
+    };
+    do (robot.body.neck.head.disc[up]){ 
+      function Move(pos, time){call.local_head_MoveDiscUp(pos,time);			};
+      function MoveSpeed(pos, speed){call.local_head_MoveDiscUpS(pos,time);			};
+      function MoveI(intensity,time){call.local_head_MoveDiscUpI(intensity,time,true);	};   
+    };	
+    do (robot.body.neck.head.disc[down]){ 
+      function Move(pos, time){call.local_head_MoveDiscDown(pos,time);		};  
+      function MoveSpeed(pos,speed){call.local_head_MoveDiscDownS(pos,speed);		};   
+      function MoveI(intensity,time){call.local_head_MoveDiscDownI(intensity,time,true);	}; 
+    };
+    do (robot.body.neck.head.eye[right].brow){ 
+      function Move(pos, time){call.local_head_MoveEyeBrowRight(pos,time);		}; 
+      function MoveSpeed(pos, speed){call.local_head_MoveEyeBrowRightS(pos,speed);		}; 	
+    };
+    do (robot.body.neck.head.eye[left].brow){ 
+      function Move(pos, time){call.local_head_MoveEyeBrowLeft(pos,time);		}; 
+      function MoveSpeed(pos, speed){call.local_head_MoveEyeBrowLeftS(pos,speed);		}; 	
+    };
+    do (robot.body.neck.head.eye[right].trans){ 
+      function Move(pos, time){call.local_head_MoveEyeTransRight(pos,time);		}; 
+      function MoveSpeed(pos,speed){call.local_head_MoveEyeTransRightS(pos,speed);		}; 	//
+    };
+    do (robot.body.neck.head.eye[left].trans){ 
+      function Move(pos, time){call.local_head_MoveEyeTransLeft(pos,time);		}; 
+      function MoveSpeed(pos,speed){call.local_head_MoveEyeTransLeftS(pos,speed);		}; 	//
+    };
+    do (robot.body.neck.head.eye[right].lid){ 
+      function Move(pos, time){call.local_head_MoveEyeLidRight(pos,time);		}; 
+      function MoveSpeed(pos,speed){call.local_head_MoveEyeLidRightS(pos,speed);		}; 	//
+    };
+    do (robot.body.neck.head.eye[left].lid){ 
+      function Move(pos, time){call.local_head_MoveEyeLidLeft(pos,time);		}; 
+      function MoveSpeed(pos, speed){call.local_head_MoveEyeLidLeft(pos,speed);		}; 	//
+    };
+    
+    
+    echo("OK: Head structure created.");
+    return true;
+  }|{};
+  
+  //////////////////////////////////////////////////////////////////////////////////
+  //
+  //
+  //	EMYS joints trajectory generators
+  //
+  //
+  //////////////////////////////////////////////////////////////////////////////////
+  //
+  //  
+  var a_NeckPitch = Tag.new;
+  var a_HeadPitch = Tag.new;
+  var a_HeadYaw = Tag.new;
+  var a_DiscUp = Tag.new;
+  var a_DiscDown = Tag.new;
+  var a_EyeLeftTrans = Tag.new;
+  var a_EyeRightTrans = Tag.new;
+  var a_EyeLeftLid = Tag.new;
+  var a_EyeRightLid = Tag.new;
+  var a_EyeLeftBrow = Tag.new;
+  var a_EyeRightBrow = Tag.new;
+  //
+  //////////////////////////////////////////////////////////////////////////////////
+  
+  function local_head_MoveNeckPitch(pos, time){
+  }|{};
+  
+  function local_head_MoveHeadPitch(pos, time){
+  }|{}; 
+  
+  function local_head_MoveHeadYaw(pos, time){
+  }|{}; 
+  
+  function local_head_MoveDiscUp(pos,time){
+  }|{}; 
+  
+  function local_head_MoveDiscDown(pos,time){
+  }|{}; 
+  
+  function local_head_MoveEyeTransRight(pos,time){
+  }|{}; 
+  
+  function local_head_MoveEyeBrowRight(pos,time){
+  }|{}; 
+  
+  function local_head_MoveEyeLidRight(pos,time){
+  }|{}; 
+  
+  function local_head_MoveEyeTransLeft(pos,time){
+  }|{}; 
+  
+  function local_head_MoveEyeBrowLeft(pos,time){
+  }|{}; 
+  
+  function local_head_MoveEyeLidLeft(pos,time){
+  }|{}; 
+  
+  /////////////
+  
+  function local_head_MoveNeckPitchS(pos, speed){
+  }|{};
+  
+  function local_head_MoveHeadPitchS(pos, speed){
+  }|{}; 
+  
+  function local_head_MoveHeadYawS(pos, speed){
+  }|{}; 
+  
+  function local_head_MoveDiscDownS(pos,speed){
+  }|{}; 
+  
+  function local_head_MoveDiscUpS(pos,speed){
+  }|{}; 
+  
+  function local_head_MoveEyeBrowRightS(pos,speed){
+  }|{}; 
+  
+  function local_head_MoveEyeTransRightS(pos,speed){
+  }|{}; 
+  
+  function local_head_MoveEyeLidRightS(pos,speed){
+  }|{}; 
+  
+  function local_head_MoveEyeBrowLeftS(pos,speed){
+  }|{}; 
+  
+  function local_head_MoveEyeTransLeftS(pos,speed){
+  }|{}; 
+  
+  function local_head_MoveEyeLidLeftS(pos,speed){
+  }|{}; 
+  //////////////////////////////////////////////////////////////////////////////////
+  //
+  //
+  //	Load EMYS behaviours.
+  //
+  //
+  //////////////////////////////////////////////////////////////////////////////////
+  //
+  var h_tagg_neck=Tag.new;
+  var h_tagg_discs=Tag.new;
+  var h_tagg_eyes=Tag.new;
+  
+  //
+  
+  function local_head_MoveBack(intensity,time,lock){
+  }|{};
+  
+  function local_head_MoveForward(intensity,time,lock){
+  }|{};
+  
+  function local_head_MoveLeft(intensity,time,lock){
+  }|{};
+  
+  
+  function local_head_MoveRight(intensity,time,lock){
+  }|{};
+  
+  
+  function local_head_MoveUp(intensity,time,lock){
+  }|{};
+  
+  
+  function local_head_MoveDown(intensity,time,lock){
+  }|{};
+  
+  
+  function local_head_MoveVertical(time,lock){
+  }|{};
+  
+  
+  function local_head_MoveAt(yaw,pitch,time,lock){
+  }|{};
+  
+  
+  function local_head_MoveAtSpeed(yaw,pitch,speed,lock){
+  }|{};  
+  
+  
+  
+  function local_head_MoveAtPitch(yaw,pitchNeck,pitchTotal,time,lock){
+  }|{};
+  
+  
+  function local_head_MoveAtPitchSpeed(yaw,pitchNeck,pitchTotal,speed,lock){
+  }|{};  
+  
+  
+	
+  function local_head_RBlink(time,lock){
+  }|{};
+  
+  function local_head_LBlink(time,lock){
+  }|{};
+  
+  function local_head_MoveEyeClose(intensity,time,lock){
+  }|{};
+  
+  
+  function local_head_MoveNo(intensity,time,lock){
+  }|{};
+  
+  function local_head_MoveYes(intensity,time,lock){
+  }|{};
+  
+	
+  function local_head_MoveDiscUpI(intensity,time,lock){
+  }|{};
+  
+  function local_head_MoveDiscDownI(intensity,time,lock){
+  }|{};   
+  
+  function local_head_ExpSmile(intensity,time,lock){
+  }|{};
+  
+  function local_head_ExpAngry(intensity,time,lock){
+  }|{};
+  
+  function local_head_ExpDisgust(intensity,time,lock){
+  }|{};
+  
+  
+  function local_head_ExpSurprise(intensity,time,lock){
+  }|{}; 
+  
+  
+  function local_head_ExpSad(intensity,time,lock){
+  }|{}; 
+  
+  
+  function local_head_ExpFear(intensity,time,lock){
+  }|{}; 
+  
+  function local_head_ExpNormal(time,lock){
+  }|{};
+  
+  function local_head_BehaveNormal(time,lock){
+  }|{};
+  
+  function local_head_BehaveYawn(time,lock){
+  }|{};
+  
+  function local_head_BehaveFear(intensity,time,lock){
+  }|{};
+  
+	
+  function local_head_BehaveSad(intensity,time,lock){
+  }|{};
+  
+  function local_head_BehaveSurprise(intensity,time,lock){
+  }|{};
+  
+  function local_head_BehaveDisgust(intensity,time,lock){
+  }|{};
+  
+  function local_head_BehaveAngry(intensity,time,lock){
+  }|{};
+  
+  
+  function local_head_BehaveJoy(intensity,time,lock){
+  }|{};
+  
+  function local_head_ActAround(intensity,time,freq){ 
+  }|{};
+  
+  
+  function local_head_ActBreathe(intensity,time){ 
+  }|{};
+  
+  
+  
+  function local_head_ActWalking(intensity,time){ 
+  }|{};
+  
+  
+  function local_head_ActQuake(intensity){ 
+  }|{};
+	
+  
+  function local_head_ActBlinking(frequency,time){ 
+  }|{};
+  
+  
+  
+  function local_head_ActGnashing(intensity,time){
+  }|{};
+  
+  
+  function local_head_ActAlive(A_inten,A_time,A_freq,BR_inten,BR_time,BL_frequency,BL_time){   
+  }|{};
+  
+  
+  function local_head_SayYawn(lock){
+  }|{};
+  
+  
+  function local_head_SayFile(file,intensity,lock){
+  }|{};
+  
+	
+	
+  function trig_SaySpeech(toggle,reye, leye, disc, viseme, intensity){ 
+  }|{};
+  
+  
+  
+  function local_head_SaySpeech(text, intensity, voice, lock){
+  }|{};
+  
+  
+  function local_head_Stop(){ 
+  }|{};  
+  
+  
+  
+  echo("OK: EMYS loaded."); 
+  };

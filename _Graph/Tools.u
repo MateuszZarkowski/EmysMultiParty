@@ -1,0 +1,65 @@
+
+// **************List******************
+	//helper funtion for shuffling list based on cpp std::shuffle
+	if(!List.hasSlot("shuffle"))
+	function List.shuffle() {
+		var l = this.new;
+		var size = l.size;
+		var temp;
+		var rnd;
+		for(var i : size){
+			rnd = (i+1).random;
+			temp = l[i];
+			l[i] = l[rnd];
+			l[rnd] = temp;
+		};
+		return l;
+	}|;
+	
+	if(!List.hasSlot("GetRandom"))
+	function List.GetRandom() {
+		this[this.size.random];
+	}|;
+	
+
+// **************String******************
+
+// Fills in string in format "arg: {0}, {1}" with list elements
+if(!String.hasSlot("^"))
+function String.'^'(list){
+	var res = this;
+	list.eachi( function(v,i){ res=res.replace("{"+i+"}", v.asString); } );
+	res;
+}|;
+
+if(!String.hasSlot("ReplacePolishChars"))
+function String.ReplacePolishChars(){
+// a	\xc4\x85   	A  \xc4\x84
+// c	\xc4\x87   	C  \xc4\x86
+// e	\xc4\x99	E  \xc4\x98
+// l	\xc5\x82 	L  \xc5\x81
+// n	\xc5\x84 	N  \xc5\x83
+// o	\xc3\xb3	O  \xc3\x93
+// s	\xc5\x9b	S  \xc5\x9a
+// z,	\xc5\xba	Z, \xc5\xb9
+// z.	\xc5\xbc	Z. \xc5\xbb
+	return this
+		.replace("\xc4\x85","a")
+		.replace("\xc4\x84","A")
+		.replace("\xc4\x87","c")
+		.replace("\xc4\x86","C")
+		.replace("\xc4\x99","e")
+		.replace("\xc4\x98","E")
+		.replace("\xc5\x82","l")
+		.replace("\xc5\x81","L")
+		.replace("\xc5\x84","n")
+		.replace("\xc5\x83","N")
+		.replace("\xc3\xb3","o")
+		.replace("\xc3\x93","O")
+		.replace("\xc5\x9b","s")
+		.replace("\xc5\x9a","S")
+		.replace("\xc5\xba","z")
+		.replace("\xc5\xb9","Z")
+		.replace("\xc5\xbc","z")
+		.replace("\xc5\xbb","Z");
+}|;

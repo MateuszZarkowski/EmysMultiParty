@@ -1,0 +1,17 @@
+// loading robot environment
+load("_CONFIG_.u");
+var pwd = Path.cwd|;
+Path.new("../modules/").cd|;
+load("../urbi_scripts/_ROBOT_.u");
+// robot.RunServices,
+pwd.cd|;
+//***************************
+
+Kinect.depthVisualization = true|;
+Kinect.skeletonVisualization = true|;
+Kinect.faceVisualization = true|;
+
+robot.video.humanDetector.chooserMode = 4|;
+robot.video.humanDetector.faceTrackingPause = false|;
+robot.video.humanDetector.enable = true|;
+robot.video.Run(),

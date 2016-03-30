@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<grammar
+  xml:lang="en-US"
+  root="root"
+  tag-format="properties-ms/1.0"
+  version="1.0" xmlns="http://www.w3.org/2001/06/grammar">
+  <rule
+    id="root"
+    scope="private">
+    <one-of>
+      <item>draw</item>
+    </one-of>
+    <ruleref
+      special="GARBAGE" />
+    <one-of>
+      <item>red</item>
+      <item>green</item>
+      <item>blue</item>
+    </one-of>
+    <one-of>
+      <item>circle</item>
+      <item>square</item>
+    </one-of>
+  </rule>
+</grammar>

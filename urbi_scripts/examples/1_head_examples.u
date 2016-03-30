@@ -1,0 +1,69 @@
+//////////////////////////////////////////////////
+//
+// Examples pack
+// ver 1.0
+// date: 16.09.2015
+//
+//////////////////////////////////////////////////
+//
+
+// Ex 1.1
+
+// make neutral (starting) position
+robot.body.neck.head.BehaveNormal(2s);
+
+// Ex 1.2
+
+// look up
+robot.body.neck.head.MoveUp(10,2s);
+
+// Ex 1.3
+
+// close EMYS' eyes
+robot.body.neck.head.MoveEyeClose(10,3s);
+
+// Ex 1.4
+
+// open EMYS' eyes
+robot.body.neck.head.MoveEyeOpen(1s);
+
+// Ex 1.5
+
+// make angry behaviour with intensity 10 in 2 sec.
+robot.body.neck.head.BehaveAngry(10, 2s);
+
+// Ex 1.6
+
+// make sad behaviour with intensity 10 in 2 sec.
+robot.body.neck.head.BehaveSad(10, 3s);
+
+// Ex 1.7
+
+// make surprise behaviour with intensity 10 in 2 sec.
+robot.body.neck.head.BehaveSurprise(10, 3s);
+
+sleep(1s);
+
+
+// Ex 1.8
+
+// start random moving with intensity 6.
+t:{
+  robot.body.neck.head.ActAround(6,3,0),
+},
+//after 10 sec. stop random movement
+sleep(10s);
+t.stop;
+
+
+// Ex 1.8
+
+// say sth.
+robot.body.neck.head.Say("Use these function to speaking by EMYS head.", 6, 0);
+
+
+
+// see more examples on the docu page
+// http://lirec.iiar.pwr.edu.pl/~flashdocu
+// Head API:
+// http://lirec.iiar.pwr.edu.pl/~flashdocu/index.php/software/robot-api-structure/head-emys

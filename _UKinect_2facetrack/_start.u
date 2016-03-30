@@ -1,0 +1,108 @@
+
+//EX1
+loadModule("UKinect");
+var Global.Kinect= UKinect.new();
+Kinect.Open(0,  //kinect_number
+true, //color
+true, //depth
+true, //skeleton
+true, //face
+true, //interaction
+true, //audio
+true)|;//speech
+Kinect.depthNearMode=1|;
+Kinect.skeletonChooserMode=4|;
+Kinect.speechLoadGrammar("speech.grxml")|;
+
+// t: every(20ms) 	Kinect.PollAudio(false), // - do NOT wait for new data
+// t: every(20ms) 	Kinect.PollVideo(false), // - do NOT wait for new data
+
+// t: loop	Kinect.PollAudio(true), // - do NOT wait for new data
+// t: loop	Kinect.PollVideo(true), // - wait for new data
+
+var users = [0,0];
+var facePosition0 = [0,0,0,0,0,0];
+var facePosition1 = [0,0,0,0,0,0];
+
+function distance(a,b){
+	if(!a) return Float.inf;
+	if(!b) return Float.inf;
+	var dif = [0]*3; for(var i:3) dif[i] = a[i]-b[i];
+	dif.foldl(function (a, b) { a + b*b }, 0).sqrt;
+}|;
+
+
+var sh_len = [Float.inf]*2;
+var hip2head_len = [Float.inf]*2;
+var hip2sh_len = [Float.inf]*2;
+var hip2hip_len = [Float.inf]*2;
+t: loop{ 
+	Kinect.PollVideo(true);
+	if (Kinect.faceIsTracking[0]) facePosition0 = Kinect.facePosition(0)|
+	if (Kinect.faceIsTracking[1]) facePosition1 = Kinect.facePosition(1)|
+	users = Kinect.skeletonTrackedIDs;
+  
+	users.eachi(closure(u,i){
+		if (u==0) continue;
+		
+		var sh_left = Kinect.skeletonJointPosition(u, 4);
+		var sh_right = Kinect.skeletonJointPosition(u, 8);
+		sh_len[i] = distance(sh_left, sh_right);
+		
+		var hip = Kinect.skeletonJointPosition(u, 0);
+		var head = Kinect.skeletonJointPosition(u, 3);
+		hip2head_len[i] = distance(hip, head);
+		
+		var sh_cen = Kinect.skeletonJointPosition(u, 2);
+		hip2sh_len[i] = distance(hip, sh_cen);
+		
+		var hip_left = Kinect.skeletonJointPosition(u, 12);
+		var hip_right = Kinect.skeletonJointPosition(u, 16);
+		hip2hip_len[i] = distance(hip_left, hip_right);
+		
+	});
+  
+	
+}, // - wait for new data
+
+
+
+
+// var log = [];
+every(500ms){
+	echo("");
+	echo("");
+	echo("FPS: " + Kinect.fps)|
+	echo("users: " + users)|
+ 	echo("Tracking0: " + Kinect.faceIsTracking[0]);
+ 	echo("Position0: " + facePosition0);
+	echo("Tracking1: " + Kinect.faceIsTracking[1]);
+ 	echo("Position1: " + facePosition1);
+  
+	
+},
+
+// sleep(120s);
+// echo(log);
+// {
+// var to_write = log;
+// var o = OutputStream.new(File.create("log2.txt"))|;
+// o << to_write;
+// to_write.each(function(e) { o << e << "\n" ;} );
+// o.close;
+// };
+
+// at (Kinect.speechResultTag=="LOOK"){
+// echo(Kinect.speechResultTag);
+// Kinect.speechResultTag="";
+// echo(pos[3]);
+// g.freeze;
+// robot.body.neck.head.MoveAt(-pos[4],pos[3],1); 
+// sleep(2);
+// g.unfreeze;
+// }
+
+// every(500ms) 	echo(Kinect.speechResult),
+
+// sleep(10s)|
+// t.stop;

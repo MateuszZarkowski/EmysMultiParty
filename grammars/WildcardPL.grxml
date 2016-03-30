@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<grammar version="1.0" xml:lang="pl-PL" root="rootRule" tag-format="semantics/1.0" xmlns="http://www.w3.org/2001/06/grammar">
+	<rule id="rootRule">
+    <item>
+      <tag> 
+        out.Tag = "ANSWER"; 
+      </tag>
+      <ruleref special="GARBAGE" />
+    </item>
+  </rule>
+  
+</grammar>
+

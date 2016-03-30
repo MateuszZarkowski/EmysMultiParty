@@ -1,0 +1,81 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<grammar version="1.0" xml:lang="en-US" root="rootRule" tag-format="semantics/1.0-literals" xmlns="http://www.w3.org/2001/06/grammar">
+	<rule id="rootRule">
+		<one-of>
+			<item><ruleref uri="#AnswerRule"/></item>
+			<item><ruleref uri="#DontKnowRule"/></item>
+			<item><ruleref uri="#Repeat"/></item>
+		</one-of>
+	</rule>
+	
+	<rule id="AnswerRule">
+        <one-of>
+			<item>select</item>
+			<item>choose</item>
+			<item></item>
+        </one-of>
+		<one-of>
+			<item>answer</item>
+			<item></item>
+        </one-of>
+		<one-of>
+			<item><ruleref uri="#AnswerList"/></item>
+		</one-of>
+	</rule>
+	
+	<rule id="AnswerList" scope="private">
+        <one-of>
+			<item>
+				<one-of>
+					<item>a</item>
+					<item>A</item>
+					<item>ay</item>
+					<item>say</item>	
+					<item>hay</item>
+					<item>day</item>
+					<item>ray</item>
+					<item>hey</item>
+					<item>ey</item>
+				</one-of>
+				<tag>ANSWER A</tag>
+			</item>
+			<item>
+				<one-of>
+					<item>b</item>
+					<item>bee</item>	
+				</one-of>
+				<tag>ANSWER B</tag>
+			</item>
+			<item>
+				<one-of>
+					<item>c</item>
+					<item>cee</item>	
+					<item>sea</item>
+				</one-of>
+				<tag>ANSWER C</tag>
+			</item>
+			<item>
+				<one-of>
+					<item>d</item>
+					<item>dee</item>
+				</one-of>
+				<tag>ANSWER D</tag>
+			</item>
+        </one-of>
+    </rule>	
+	
+	<rule id="AnswerRule">
+        <one-of>
+			<item>select</item>
+			<item>choose</item>
+			<item></item>
+        </one-of>
+		<one-of>
+			<item>answer</item>
+			<item></item>
+        </one-of>
+		<one-of>
+			<item><ruleref uri="#AnswerList"/></item>
+		</one-of>
+	</rule>
+</grammar>

@@ -1,0 +1,162 @@
+class Global.DialogueManager {
+  
+	var debug = true;
+	
+	var language = 1|; //polish
+	var timeOut = 0|;
+	var defaultTimeOutValue = 12|;
+	var grammarsDir = "grammars/" |;
+	var enableSounds = false;
+	/*
+	function ResetTimeout(_time) 
+  function BeepSound() { ;}|;
+	function BeepTimeout() { ;}|;
+  
+	function WaitTimeout() 
+	function GetGrammarPath(grammar)
+	function FillGrammar(grammar,fillers)
+	function Print(str)
+	function AskQuestion(question, answerGrammar, enableRepeat) 
+	function AskQuestionFill(question, answers, answerGrammar, enableRepeat) 
+  */
+	
+	
+	function ResetTimeout(_time) {
+    if (_time<0)
+    timeOut = defaultTimeOutValue
+    else
+    timeOut = _time;
+  }|;
+  
+	function BeepSound() {
+    //robot.audio.player.Play(_uFilesDir+"sounds/samples/beep.mp3");
+		if (enableSounds)
+    robot.audio.player.Play(_uFilesDir+"sounds/samples/heard_sound.mp3");
+  };
+  
+  function BeepTimeout() {
+		if (enableSounds)
+    robot.audio.player.Play(_uFilesDir+"sounds/samples/down_double_beep.mp3");
+  };
+  
+	// function BeepSound() { ;}|;
+	// function BeepTimeout() { ;}|;
+  
+	function WaitTimeout() {
+		every(1s) timeOut--,
+		waituntil (timeOut<=0);
+    
+	}|;
+	
+	function GetGrammarPath(grammar){
+		return grammarsDir + grammar + "PL.grxml";
+	}|;
+	
+	// Fills a prepared grammar with given fillers 
+	// in place of REPLACE_TEXT_0 up to REPLACE_TEXT_{fillers.size-1}
+	function FillGrammar(grammar,fillers){
+		var file = GetGrammarPath(grammar);
+		var str = "";
+		{
+			var i = InputStream.new(File.new(file));
+			var x;
+			while (!(x = i.getChar.acceptVoid).isVoid)
+      str += x;
+			i.close;
+		};
+    
+		for(var i: fillers.size){
+			str = str.replace("REPLACE_TEXT_"+i, fillers[i] )|;
+		};
+		
+		{
+			var o = OutputStream.new(File.create(
+      grammarsDir + "_tmp" +
+      file[file.length -8, file.length]
+      ))|;
+			o << str;
+			o.close;
+		};
+	}|;
+	
+	
+	function PrintResult(){
+		var str = "[Dialogue]: RESULT: "+
+		robot.audio.recognition.result + 
+		"  , confidence: " + robot.audio.recognition.confidence	+
+		" ,A: "+ robot.audio.recognition.semantics["Answer"] +
+		" ,T: "+ robot.audio.recognition.semantics["AnswerType"] |;
+		echo(str.utf);
+	}|;
+	
+	function Speak(str){
+		str.utf.split("\n")
+    .each(function(s){ echo("[Dialogue]: SPEAK: "+s);});
+		robot.audio.speech.Speak(str);
+	}|;
+  
+	function AskQuestion(question, answerGrammar, enableRepeat) {
+		robot.audio.recognition.Pause;
+		robot.audio.recognition.ResetGrammar;
+		
+		// TODO: fix language, set it as a dialog property
+		// if (robot.dialogue.language==0) robot.audio.recognition.LoadGrammar(_uFilesDir+"grammars/" + answerGrammar + "EN.grxml");
+    
+		// robot.audio.recognition.LoadGrammar("grammars/" + answerGrammar + "PL.grxml");
+		//load in background to speed up
+		robot.audio.recognition.LoadGrammar("grammars/" + answerGrammar + "PL.grxml"),
+		//note: should be like this, but c++ msp wont let load multiple grammars
+		// if (enableRepeat) robot.audio.recognition.LoadGrammar("grammars/Repeat" + "PL.grxml");
+    
+    
+    // robot.log.Set("LEARNING: ASK WHAT KIND OF GAME",[]);
+		// robot.dialogue.Say(robot.dialogue.speech_sequences[500+4.random][robot.dialogue.language],false);
+		
+		Speak(question);
+		
+		ResetTimeout(-1);
+		robot.audio.recognition.ClearResult;
+		robot.audio.recognition.Unpause;
+    
+		var listen = Tag.new;
+		listen: at ((robot.audio.recognition.resultTag!="")
+		&&(robot.audio.recognition.resultTag!="REPEAT")){
+			ResetTimeout(-1);
+			robot.audio.recognition.Pause;
+			BeepSound();
+			listen.stop;
+			if(debug) PrintResult;
+			return robot.audio.recognition.resultTag;
+		};
+    
+		// REPEAT
+		if (enableRepeat) {
+			listen: at (robot.audio.recognition.resultTag=="REPEAT"){
+				ResetTimeout(-1);
+				robot.audio.recognition.Pause;
+				BeepSound();
+				// robot.dialogue.Say(robot.dialogue.speech_sequences[500+4.random][robot.dialogue.language],false);
+				Speak(question);
+        
+				robot.audio.recognition.ClearResult;
+				robot.audio.recognition.Unpause;
+			};
+      
+		};
+		
+    
+		robot.dialogue.WaitTimeout()|
+		listen.stop()|
+		robot.audio.recognition.pause = true|
+		BeepTimeout()|
+		if(debug) PrintResult|
+		return "TIMEOUT";
+	}|;
+  
+	function AskQuestionFill(question, answers, answerGrammar, enableRepeat) {
+		FillGrammar(answerGrammar,answers);
+		AskQuestion(question,"_tmp", enableRepeat);
+	}|;
+	
+  
+}|; // *********** END DIALOGUE ****************

@@ -1,0 +1,33 @@
+loadModule("USpeech_SAPI");
+var speech=USpeech.new();
+// speech.&visemeTrig.notifyChange( closure() {robot.setMouth(speech.visemeId,speech.visemeTime);});
+// or just
+// speech.&visemeTrig.notifyChange( closure() {echo("viseme no. "+speech.visemeId+" exec. time "+speech.visemeTime);});
+speech.&progress.notifyChange( closure() {echo("progress: " + speech.progress);});
+speech.AvailableVoices;
+
+speech.voiceNo=4|; // Krzynia
+speech.Speak("Pytanie XXII \\item=laugh");
+speech.Speak("Pytanie trzecie");
+
+
+// sleep(1s);
+// speech.Speak("Twoja stara !");
+// sleep(1s);
+// speech.Speak("Twoja stara ?");
+
+// speech.voiceNo=0|; // Kate
+// speech.Speak("Hello world! Suck my donkey balls. Moreover You can go fuck Yourself in the dick. You cunt."),
+
+// waituntil ( speech.progress > 0.5);
+// echo("Szatan!!!!");
+// waituntil ( speech.progress == 1);
+// echo("Szatany");
+
+
+
+speech.voiceNo=4|; // Krzynia
+// speech.voiceNo=7|; // Zosia
+speech.volume=100|;
+// speech.pitch=10|;
+// speech.Speak("Cześć! Nazywam się flasz.")|;

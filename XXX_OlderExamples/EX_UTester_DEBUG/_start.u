@@ -1,0 +1,10 @@
+
+// NOTE: use DEPENDENCY WALKER  to check if some debug libraries may be missing
+//       the best way to do it is to compare dependecies for release and debug DLLs.
+loadModule("UTester");
+
+
+var t1 = UTester.new;
+
+t1.listVar[0];
+t1.listVar[1];

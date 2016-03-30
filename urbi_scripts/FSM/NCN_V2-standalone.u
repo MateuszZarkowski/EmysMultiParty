@@ -1,0 +1,4531 @@
+/*
+ * NCN_V2: Main graph implementation.
+ *
+ * Load this file in your server to run the graph.
+ *
+ * Created: Wt 21. lip 21:44:19 2015
+ *      by: Gostai Studio 2.7
+ *
+ * WARNING! All changes made in this file will be lost!
+ */
+
+
+// Load urbiscript file.
+/*
+ * Copyright (C) 2009-2012, Gostai S.A.S.
+ *
+ * This software is provided "as is" without warranty of any kind,
+ * either expressed or implied, including but not limited to the
+ * implied warranties of fitness for a particular purpose.
+ *
+ * See the LICENSE file for more information.
+ */
+
+/**
+ * Finite State Machine urbiscript 2 implementation.
+ *
+ * The idea is to put as much stuff as possible into a generic urbiscript
+ * fsm engine, with a clean interaction and instantiation API.
+ *
+ *  TODO:
+ *    - Provide tags to freeze/stop a State and all its children.
+ *    - Communication API with urbi-live.
+ *
+ *
+ *
+ * INSTANTIATION quick-sheet for not-pro mode(one of the many possible ways):
+ * var someNode = fsm.State.create(nodeName,
+ *                                 parentNode,
+ *                                 workCode,
+ *                                 isStartNode);
+ * var someTrans = fsm.Transition.create(fsmRootNode, nodeSrc, nodeDst, cond);
+ *
+ * workCode can be a String that will be evaled, or Code or Executable.
+ *
+ */
+
+{
+  var currentFsmVersion = 1.4;
+  if (!(Global.hasLocalSlot("fsm")
+     && Global.fsm.hasLocalSlot("version")
+     && Global.fsm.version == currentFsmVersion))
+  {
+    if (Global.hasLocalSlot("fsm"))
+      if (Object.hasLocalSlot("removeLocalSlot"))
+        Global.removeLocalSlot("fsm")
+      else
+        Global.removeSlot("fsm");
+
+    class Global.fsm
+    {
+      var debug = false;
+      var version = currentFsmVersion;
+    };
+
+    /***************************
+    * FSM State and Transition *
+    ***************************/
+
+    /** Transition class.
+     *
+     *  Usage:
+     *     - implement setup(ownerstate, ev) so that it emits ev(this)
+     *       when the transition triggers.
+     *     - implement exit if you need. Default: "stop tag".
+     *
+     *  The correct code to setup 'setup' from an expression %s is:
+     *  var t = Transition.new();
+     *  t.setup = function(state, ev) { var tag = tag|
+     *       do (state) {tag: at(%s) emit ev(this)}}
+     */
+    class fsm.Transition
+    {
+      addProto(fsm);
+      // Callable, setup the transition so that it emits ev(this)
+      // when triggering.
+      function setup(state, ev) {};
+      // Exit the transition, unsetup it.
+      function exit() {tag.stop};
+      var tag = Tag.new;
+      // Source node
+      var '$id' = -1;
+      // We keep a string copy of functions, to be able to import them into
+      // Gostai Studio
+      var condStr = "";
+
+      function init()
+      {
+        tag = Tag.new;
+      };
+      // Create and connect a new transition, from node srcId to dstId on
+      // cond
+      function create_(root, srcId, dstId, cond, nameIn="")
+      {
+        var states = root.allStates_ |
+        var res = fsm.Transition.new |
+        var res.nSrc = root.toState_(srcId) |
+        var nDst = root.toState_(dstId) |
+        var res.'$id' = State.'$next_uid'.asString |
+        var res.name = nameIn|
+        var res.condStr = cond|
+        State.'$next_uid'++;
+        res.setup = eval
+          (
+            "function(state, ev)"
+            "{"
+            "  this.state = state |"
+            "  var tag = tag |"
+            "  var trans = this |"
+            "  do (state)"
+            "  { tag: at (%s\n) ev!(trans) }"
+            "};"
+            % [cond]
+          );
+        res.target = nDst |
+        res.nSrc.'$transitions' += [res] |
+        res
+      };
+      function asString()
+      {
+        "Transition: " + '$id'
+      };
+      function getParameter(paramName)
+      {
+        nSrc.getParameter(paramName)
+      };
+      // Target state
+      var target = nil;
+      // Source state I think
+      var state = nil;
+    };
+
+    /** State class.
+     */
+    class fsm.State
+    {
+      addProto(fsm);
+      // Uid of this state
+      var '$id' = "";
+      // Display name of this state
+      var name = "<unnamed>";
+      // Parent state or nil
+      var parent = nil;
+      // Root node of the graph
+      var rootNode = nil;
+      // Start node of our child fsm
+      var '$startChild' = nil;
+      // List of our direct child states
+      var '$children' = [];
+      // Dict of all child states,  by id maintained at the toplevel
+      var '$allStates_' = nil;
+      // Tag applied to user work code
+      var '$workTag' = Tag.new;
+      // Tag applied to transition code
+      var '$transitionTag' = Tag.new;
+      // Tag applied to the transition triggering function
+      var '$transitionTriggerTag' = Tag.new;
+      // Callable, user code to execute on entering the node before creating
+      // transitions.
+      var '$onEnterFunc' = function(){};
+      // Stop execution when entering the node
+      var breakpoint = false;
+      // Callable, user code to execute on leaving the node before following the
+      // transition.
+      var '$onLeaveFunc' = function(){};
+      // Callable, user code of the state
+      var '$work' = function(){};
+      // Emited when an outgoing transition triggers
+      var '$trigger' = Event.new;
+      // Transitions to activate when entering this state
+      // Do not change while the state is active.
+      var '$transitions' = [];
+      // DEPRECATED: kept only for backward compatibility
+      var workEnded = Event.new;
+      // Emited indefinitedly when '$work' ended.
+      var done = Event.new;
+      // Emited when the sub-graph in this node finished executing.
+      var subGraphDone = Event.new;
+      // True if the state is active
+      var active = false;
+      // Event, notify user that current node is entering.
+      var entering;
+      // Event, notify user that current node is entering.
+      var leaving;
+      // Root-node Event, notify user that arg1 node is entering.
+      var enteringNode;
+      // Root-node Event, notify user that arg1 node is leaving.
+      var leavingNode;
+      // Root-node Event, notify user that a transition from arg1 node to arg2
+      // node is occuring.
+      var transiting;
+      //Event that is called when freezing the graph through a breakpoint
+      var graphFrozen;
+      // True if an exit transition was already triggered.
+      var '$exiting' = false;
+      // Next free uid in graph
+      var '$next_uid' = 0;
+      // A dictionary of parameters that can be used by the node or its
+      // '$children'.
+      var '$params_dict' = [=>];
+      // A pair of values to place the state in a visual graph
+      var '$graphPosition' = [];
+      // We keep a string copy of functions, to be able to import them into
+      // Gostai Studio
+      var '$workStr' = "";
+      var '$onEnterStr' = "";
+      var '$onLeaveStr' = "";
+
+      // Accessor to allStates, stored at the toplevel State
+      function allStates_()
+      {
+        var boss = rootNode |
+        if (boss.'$allStates_'.isNil)
+          boss.'$allStates_' = Dictionary.new |
+        boss.'$allStates_'
+      };
+      allStates_->constant = true;
+
+      // Called to block all subnodes
+      function setExiting_(val = true)
+      {
+        '$exiting' = val|
+        '$workTag'.stop|
+        for| (var c: '$children')
+        {
+          c.setExiting_(val)|
+          if (val)
+          {
+            c.'$transitionTriggerTag'.stop|
+            c.'$transitionTag'.stop
+          }
+        }
+      };
+      setExiting_->constant = true;
+
+      // Initialize outgoing transitions
+      function setupTransitions_()
+      {
+        rootTransitionTag: '$transitionTag': at ('$trigger'?(var t))
+        {
+          '$transitionTriggerTag':
+          {
+            var callLeave;
+            {
+              nonInterruptible|
+              callLeave = false;
+              // Prevent multiple transition trigger at the same level.
+              if (!'$exiting')
+              {
+                setExiting_(true)|
+                callLeave = true
+              }
+            };
+            if (callLeave)
+            {
+              // Immediately leave from our '$children' to prevent a child
+              // transition from triggering.
+              if (fsm.debug)
+                echo("Trigger on " + name + " to activate " + t + "!, transmiting...") |
+              rootNode.transit_(this, t);
+
+              // Authorize new exit calls
+              setExiting_(false);
+            }
+          }
+        };
+        for| (var t: '$transitions')
+        {
+          if (fsm.debug)
+            echo("Setting up a transition...") |
+          rootTransitionTag: '$transitionTag': t.setup(this, '$trigger')
+        }
+      };
+      setupTransitions_->constant = true;
+
+      // look in the dictionary
+      function getParameter(paramName)
+      {
+        if (paramName in '$params_dict')
+          '$params_dict'[paramName]
+        else if (parent)
+          parent.getParameter(paramName)
+        else
+          0
+      };
+      getParameter->constant = true;
+
+      function emitDone_()
+      {
+        if ('$transitions'.empty && parent)
+          parent.subGraphDone! ~ inf,
+        done! ~ inf
+      };
+      emitDone_->constant = true;
+
+      // Called to enter in the state. Blocks
+      function enter_(startStartChild = true)
+      {
+        if (fsm.debug)
+          echo("entering %s(%s)" % [this.name, this.'$id']) |
+        entering.syncEmit |
+        rootNode.enteringNode.syncEmit(this) |
+        active = true |
+        if (breakpoint)
+        {
+          rootWorkTag.freeze|
+          rootNode.graphFrozen!
+        }|
+        rootWorkTag: '$workTag': '$onEnterFunc' |
+        setupTransitions_|
+        if ('$startChild' && startStartChild)
+          detach('$startChild'.enter_(true)) |
+        rootWorkTag: '$workTag': {
+          '$work' |
+          {
+            workEnded! ~ inf,
+            if ('$startChild' && startStartChild)
+            {
+              waituntil (subGraphDone?)|
+              emitDone_
+            }
+            else
+              emitDone_
+          }
+        }
+      };
+      enter_->constant = true;
+
+      // Called when leaving the state. Recurses to active '$children'.
+      function leave_()
+      {
+        for| (var c: '$children')
+          if (c.active)
+            c.leave_|
+        if (fsm.debug)
+          echo("leaving %s(%s)" % [this.name, this.'$id']) |
+        leaving! |
+        rootNode.leavingNode!(this) |
+        active = false |
+        rootWorkTag: '$workTag': '$onLeaveFunc' |
+        for| (var t: '$transitions')
+          t.exit |
+        '$transitionTag'.stop |
+        '$workTag'.stop
+      };
+      leave_->constant = true;
+
+      function asString()
+      {
+        "State: " + name
+      };
+      asString->constant = true;
+
+      function init(Pname, Pparent=nil, uid=nil)
+      {
+        '$id' = {if (uid) uid else (fsm.State.'$next_uid'++).asString}|
+        name = Pname|
+        parent = Pparent|
+        '$id'->constant = true|
+        name->constant = true|
+        parent->constant = true|
+
+        if (parent)
+        {
+          var this.rootWorkTag = parent.rootWorkTag |
+          var this.rootTransitionTag = parent.rootTransitionTag |
+          rootNode = parent.rootNode |
+          parent.'$children' += [this]
+        }
+        else
+        {
+          var this.rootWorkTag = Tag.new |
+          var this.rootTransitionTag = Tag.new |
+          rootNode = this |
+        }|
+        rootNode->constant = true|
+        allStates_['$id'.asString] = this |
+        '$workTag' = Tag.new |
+        '$transitionTag' = Tag.new|
+        '$transitionTriggerTag' = Tag.new|
+        '$trigger' = Event.new|
+        entering = Event.new |
+        leaving = Event.new |
+        if (!Pparent)
+        {
+          enteringNode = Event.new |
+          leavingNode = Event.new |
+          transiting = Event.new |
+          graphFrozen = Event.new
+        }|
+        '$transitions' = []|
+        '$children' = [] |
+        workEnded = Event.new|
+        done = Event.new|
+        subGraphDone = Event.new |
+        active = false|
+        '$exiting' = false
+      };
+      init->constant = true;
+
+      // Return the list of our ancestors.
+      function ancestors_()
+      {
+        var res = []|
+        var cur = parent |
+        while (cur)
+        {
+          res += [cur] |
+          cur = cur.parent
+        } |
+        res
+      };
+      ancestors_->constant = true;
+
+      function toState_(x)
+      {
+        if (x.isA(String))
+          allStates_[x]
+        else if (x.isA(fsm.State))
+          x
+        else
+          nil
+      };
+      toState_->constant = true;
+
+      function toFunction_(x)
+      {
+        if (x.isNil)
+          function() {}
+        else if (x.isA(String))
+          eval("function() {%s};" %  [x])
+        else
+          x
+      };
+      toFunction_->constant = true;
+
+      // create a State and plug it
+      function create_(name,
+                      parentID,
+                      workString = nil,
+                      startNode = false,
+                      uid = nil,
+                      onEnterFuncString = nil,
+                      onLeaveFuncString = nil,
+                      breakpoint = false,
+                      position = [0, 0])
+      {
+        var parent = toState_(parentID) |
+        var res = State.new(name, parent, uid) |
+        res.'$work' = toFunction_(workString) |
+        res.'$onEnterFunc' = toFunction_(onEnterFuncString) |
+        res.'$onLeaveFunc' = toFunction_(onLeaveFuncString) |
+        res.'$workStr' = workString|
+        res.'$onEnterStr' = onEnterFuncString|
+        res.'$onLeaveStr' = onLeaveFuncString|
+        res.breakpoint = breakpoint|
+        res.'$graphPosition' = position|
+        if (startNode && parent)
+          res.parent.'$startChild' = res |
+        res
+      };
+      create_->constant = true;
+
+      function transitionTo_(dst, cond, onTransition=nil)
+      {
+        rootNode.owner.addTransition(this, dst, cond, onTransition)
+      };
+      transitionTo_->constant = true;
+
+      // Transmission point, to get rid of previous tags when entering
+      // somewhere.
+      function transit_(state, trans)
+      {
+        transiting!(state, trans) |
+        if (debug)
+          echo("applyTransition from " + state.name + " to "
+               + trans.target.name +" rn=" + state.rootNode)|
+        // Tag with ancestor.'$workTag' so that applyTransition gets killed if
+        // parent exits.
+        var path = computePath(state, trans.target) |
+        // get common parent
+        var ancestor = path.down.back.parent|
+        { if (ancestor) ancestor.'$workTag' else Tag.new}:
+          applyTransition(state, trans.target, path)
+      };
+      transit_->constant = true;
+    };
+    /***********************
+    * Transition procedure *
+    ***********************/
+    do (fsm)
+    {
+      function pruneCommonBeginning(var l1, var l2)
+      {
+        while ((l1.head == l2.head) && !l1.empty && !l2.empty)
+        {
+          l1.removeFront |
+          l2.removeFront
+        }
+      };
+
+      function computePath(var src, var dst)
+      {
+        var l1 = ([src] + src.ancestors_).reverse |
+        var l2 = ([dst] + dst.ancestors_).reverse |
+        if (fsm.debug)
+          echo("path are %s" % [[l1, l2]]);
+        pruneCommonBeginning(l1, l2)|
+        if (fsm.debug)
+          echo("pruned path are %s" % [[l1, l2]]);
+        // Return it in the order we will crawl it.
+        class path {var down = l1.reverse; var up = l2}
+      };
+
+      function applyTransition(var src, var dst, var path=nil)
+      {
+        if (path.isNil)
+          path = computePath(src, dst) |
+        var last = path.up.removeBack  |
+        if (fsm.debug)
+          echo("transition sequence: %s" % [[path.down, path.up]])|
+        path.down.back.leave_ |
+        for| (var s: path.up)
+          detach(s.enter_(false)) |
+        detach(last.enter_(true))
+      }
+    }
+  }
+}|;
+
+
+//#line 16 "NCN_V2Gostai Studio 2.7"
+
+/*************************
+ * Create the root state *
+ *************************/
+
+//Clean previous code
+if (hasLocalSlot("_root_NCN_V2_1"))
+  if (Object.hasLocalSlot("removeLocalSlot"))
+    removeLocalSlot("_root_NCN_V2_1")
+  else
+    removeSlot("_root_NCN_V2_1");
+
+var _root_NCN_V2_1 = fsm.State.new("_root_NCN_V2_1");
+_root_NCN_V2_1.'$params_dict' = Dictionary.new();
+var _root_NCN_V2_1._nodes_ = Object.new;
+
+/**********************
+ * States declaration *
+ **********************/
+
+//NCN_DEMO state declaration
+var _root_NCN_V2_1._nodes_.NCN_DEMO = fsm.State.create_("_root_NCN_V2_1._nodes_.NCN_DEMO", _root_NCN_V2_1,
+function() {
+//#push 1 "NCN_DEMO"
+// 21.07.2015
+// ver 1.0.13
+//
+if (!hasSlot("_language_")) var Global._language_=0 else Global._language_=0;
+if (!hasSlot("_tran_")) var Global._tran_="" else Global._tran_="";
+if (!hasSlot("network_res")) var Global.network_res=0 else Global.network_res=0;
+if (!hasSlot("_calendar_counter")) var Global._calendar_counter=0 else Global._calendar_counter=0;
+if (!hasSlot("_news_counter")) 	var Global._news_counter=0 	else Global._news_counter=0;
+if (!hasSlot("_post_counter")) 	var Global._post_counter=0 else Global._post_counter=0;
+if (!hasSlot("_mail_counter")) 	var Global._mail_counter=0 else Global._mail_counter=0;
+if (!hasSlot("_music_type")) 		var Global._music_type="" else Global._music_type="";
+if (!hasSlot("_learn_counter")) var Global._learn_counter=0 else Global._learn_counter=0;
+if (!hasSlot("_last_color")) 		var Global._last_color="" else Global._last_color="";
+if (!hasSlot("_learn_counter")) var Global._learn_counter=0 else Global._learn_counter=0;
+if (!hasSlot("_asked_color")) 	var Global._asked_color=false else Global._asked_color=false;
+if (!hasSlot("_last_color")) 		var Global._last_color="" else Global._last_color="";
+
+if (!hasSlot("_alive_")) var Global._alive_=Tag.new() else { Global._alive_.unfreeze | Global._alive_.stop;};
+
+if (!hasSlot("_alarm")) {
+	var Global._alarm = Object.new();
+	var _alarm.enabled = false;
+	var _alarm.hour = 0;
+	var _alarm.minute = 0;
+} else {
+	_alarm.enabled = false;
+	_alarm.hour = 0;
+	_alarm.minute = 0;
+};
+
+if (!hasSlot("_message")) {
+	var Global._message = Object.new();
+	var _message.to = [];
+	var _message.toName = "";
+	var _message.from = "";
+	var _message.subject = "";
+	var _message.content = "";
+	var _message.photo = false;
+	var _message.voice = false;
+	//
+	var _message.askedPhoto = false;
+	var _message.askedVoice = false;
+	var _message.answer = false;
+} else {
+	_message.to = [];
+	_message.toName = "";
+	_message.from = "";
+	_message.subject = "";
+	_message.content = "";
+	_message.photo = false;
+	_message.voice = false;
+	//
+	_message.askedPhoto = false;
+	_message.askedVoice = false;
+	_message.answer = false;
+};
+
+if (!hasSlot("_event")) {
+	var Global._event = Object.new();
+	var _event.from = "";
+	var _event.to = "";
+	var _event.desc = "";
+	var _event.done = false;
+} else {
+	_event.from = "";
+	_event.to = "";
+	_event.desc = "";
+	_event.done = false;
+};
+
+robot.body.neck.head.Stop;
+robot.audio.player.Stop;
+robot.audio.musicPlayer.Stop;
+
+robot.video.Run,
+robot.audio.Run,
+
+//#pop
+}
+, true
+, 3
+, function() {
+//#push 1 "NCN_DEMO.enter"
+
+
+//#pop
+}
+, function() {
+//#push 1 "NCN_DEMO.leave"
+
+
+//#pop
+}, false, [-946.42, 159.258]);
+
+//Start state declaration
+var _root_NCN_V2_1._nodes_.Start = fsm.State.create_("_root_NCN_V2_1._nodes_.Start", _root_NCN_V2_1._nodes_.NCN_DEMO,
+function() {
+//#push 1 "Start"
+// Set language 0 - EN, 1- PL, 2 - PT
+robot.dialogue.language = 1;
+//
+robot.dialogue.speech_sequences[0][robot.dialogue.language] = "Jan K\xc4\x99dzierski";
+// 
+robot.audio.speech.rate = 0;
+robot.audio.speech.pitch = 0;
+robot.audio.speech.volume = _Speech_volume;
+//
+robot.audio.player.masterVolume = _PlayerNext_MasterVolume;
+robot.audio.player.volume = _PlayerNext_PlayerVolume;
+robot.audio.musicPlayer.volume = _PlayerNext_MusicPlayerVolume;
+//
+robot.emotion.Reset;
+robot.body.neck.head.BehaveNormal(1);
+//#pop
+}
+, true
+, 4
+, function() {
+//#push 1 "Start.enter"
+
+
+//#pop
+}
+, function() {
+//#push 1 "Start.leave"
+
+
+//#pop
+}, false, [-747.888, -1401.98]);
+
+//looking_for_person state declaration
+var _root_NCN_V2_1._nodes_.looking_for_person = fsm.State.create_("_root_NCN_V2_1._nodes_.looking_for_person", _root_NCN_V2_1._nodes_.NCN_DEMO,
+function() {
+//#push 1 "looking_for_person"
+_alive_:robot.competency.ActAlive(true),
+
+///////////
+//  ALARM
+var alarm_event = Event.new();
+if (Global._alarm.enabled) {
+	robot.competency.ActSetAlarm(Global._alarm.hour,Global._alarm.minute,alarm_event),
+	echo("==========================");
+	echo("|| Alarm set at " + Global._alarm.hour.asString+":" + Global._alarm.minute.asString);
+	echo("==========================");
+},
+at(alarm_event?) Global._tran_="alarm",
+
+//#pop
+}
+, false
+, 5
+, function() {
+//#push 1 "looking_for_person.enter"
+Global._tran_="";
+	
+//#pop
+}
+, function() {
+//#push 1 "looking_for_person.leave"
+Global._tran_="";
+//#pop
+}, false, [-6.27889, -1501.66]);
+
+//looking_for_person_2 state declaration
+var _root_NCN_V2_1._nodes_.looking_for_person_2 = fsm.State.create_("_root_NCN_V2_1._nodes_.looking_for_person_2", _root_NCN_V2_1._nodes_.looking_for_person,
+function() {
+//#push 1 "looking_for_person_2"
+robot.audio.recognition.pause = true;
+sleep(1);
+
+
+
+at(robot.video.humanDetector.visible~0.5) {
+	robot.emotion.ImpulseD(40,100);
+	Global._tran_="next";
+},
+
+
+at(robot.video.moveDetector.visible~1) {
+	robot.emotion.ImpulseD(10,-100);
+	Global._tran_="next";
+},
+
+robot.dialogue.SayBored(),
+
+//var _emo_tmp = ["",0];
+//every (1s) _emo_tmp = robot.emotion.Get(),
+waituntil(robot.emotion.GetBoredom==-100);
+
+Global._tran_="deactivate";
+return;
+
+//#pop
+}
+, true
+, 6
+, function() {
+//#push 1 "looking_for_person_2.enter"
+
+//#pop
+}
+, function() {
+//#push 1 "looking_for_person_2.leave"
+
+//#pop
+}, false, [1.9095, -198.251]);
+
+//found_someone state declaration
+var _root_NCN_V2_1._nodes_.found_someone = fsm.State.create_("_root_NCN_V2_1._nodes_.found_someone", _root_NCN_V2_1._nodes_.looking_for_person,
+function() {
+//#push 1 "found_someone"
+/////////////////
+// FOLLOW PERSON
+at ((!robot.video.humanDetector.visible)~10s) 
+{
+	robot.emotion.Impulse(-10);
+	Global._tran_="back";
+},
+
+at (robot.video.humanDetector.head.oriented~1) {
+	robot.emotion.Impulse(10);	
+	robot.emotion.ActivateHope();
+},
+
+
+{
+	sleep(3s);
+	robot.audio.recognition.pause = false;
+},
+
+//////////////////////
+//	WAIT FOR ACTION
+robot.dialogue.ListenBasic();
+
+Global._tran_ = "out";
+
+//#pop
+}
+, false
+, 7
+, function() {
+//#push 1 "found_someone.enter"
+Global._tran_="";
+//#pop
+}
+, function() {
+//#push 1 "found_someone.leave"
+
+//#pop
+}, false, [1.0535, -1.61192]);
+
+//back state declaration
+var _root_NCN_V2_1._nodes_.back = fsm.State.create_("_root_NCN_V2_1._nodes_.back", _root_NCN_V2_1._nodes_.looking_for_person,
+function() {
+//#push 1 "back"
+if(robot.video.humanDetector.visible) {
+	Global._tran_="next";
+} else {
+	Global._tran_="back";
+};
+
+//#pop
+}
+, false
+, 8
+, function() {
+//#push 1 "back.enter"
+Global._tran_="";
+//#pop
+}
+, function() {
+//#push 1 "back.leave"
+Global._tran_="";
+
+//#pop
+}, false, [167.341, -12.7737]);
+
+//say_hello state declaration
+var _root_NCN_V2_1._nodes_.say_hello = fsm.State.create_("_root_NCN_V2_1._nodes_.say_hello", _root_NCN_V2_1._nodes_.looking_for_person,
+function() {
+//#push 1 "say_hello"
+robot.emotion.ImpulseD(40,100);
+robot.dialogue.SayWelcome();
+robot.emotion.ActivateHope();
+//#pop
+}
+, false
+, 9
+, function() {
+//#push 1 "say_hello.enter"
+
+//#pop
+}
+, function() {
+//#push 1 "say_hello.leave"
+Global._tran_="";
+//#pop
+}, false, [-121.206, -142.805]);
+
+//say_time state declaration
+var _root_NCN_V2_1._nodes_.say_time = fsm.State.create_("_root_NCN_V2_1._nodes_.say_time", _root_NCN_V2_1._nodes_.looking_for_person,
+function() {
+//#push 1 "say_time"
+robot.emotion.ImpulseD(10,100);
+robot.dialogue.SayTime();
+//#pop
+}
+, false
+, 10
+, function() {
+//#push 1 "say_time.enter"
+
+
+//#pop
+}
+, function() {
+//#push 1 "say_time.leave"
+Global._tran_="";
+//#pop
+}, false, [-153.626, -29.4137]);
+
+//out_node_99 state declaration
+var _root_NCN_V2_1._nodes_.out_node_99 = fsm.State.create_("_root_NCN_V2_1._nodes_.out_node_99", _root_NCN_V2_1._nodes_.looking_for_person,
+function() {
+//#push 1 "out_node_99"
+var ret = robot.audio.recognition.resultTag;
+
+switch (ret){
+	case "HELLO": {
+		Global._tran_ = "hello";
+  };
+	case "TIME": {
+		Global._tran_ = "time";
+  };
+	case "DATE": {
+		Global._tran_ = "date";
+  };
+	case "DEACTIVATE": {
+		robot.dialogue.SayOK();
+		Global._tran_ = "deactivate";
+  };
+	case "ALARM": {
+		Global._tran_ = "set_alarm";
+  };
+	case "EMOTIONS": {
+		Global._tran_ = "demo";
+  };
+	case "INTRODUCE": {
+		Global._tran_ = "demo";
+  };
+	case "PLAY": {
+		Global._tran_ = "play";
+  };
+	case "RADIO": {
+		Global._tran_ = "activity";
+  };
+	case "WEATHER": {
+		robot.dialogue.SayOK();
+		Global._tran_ = "activity";
+  };
+	case "NEWS": {
+		Global._tran_ = "activity";
+  };
+	case "TV": {
+		robot.dialogue.SayOK();
+		Global._tran_ = "activity";
+  };
+	case "CALENDAR": {
+		robot.dialogue.SayOK();
+		Global._tran_ = "activity";
+  };
+	case "CHECK_MAIL": {
+		robot.dialogue.SayOK();
+		Global._tran_ = "activity";
+  };
+	case "SEND_MAIL": {
+		Global._tran_ = "activity";
+  };
+	case "PHOTO": {
+		Global._tran_ = "activity";
+  };
+	case "FACEBOOK": {
+		robot.dialogue.SayOK();
+		Global._tran_ = "activity";
+  };
+  default: Global._tran_ = "back";
+};
+
+//#pop
+}
+, false
+, 11
+, function() {
+//#push 1 "out_node_99.enter"
+Global._tran_ = "";
+//#pop
+}
+, function() {
+//#push 1 "out_node_99.leave"
+
+//#pop
+}, false, [-3.27845, 171.881]);
+
+//say_date state declaration
+var _root_NCN_V2_1._nodes_.say_date = fsm.State.create_("_root_NCN_V2_1._nodes_.say_date", _root_NCN_V2_1._nodes_.looking_for_person,
+function() {
+//#push 1 "say_date"
+robot.emotion.ImpulseD(10,100);
+robot.dialogue.SayDate();
+//#pop
+}
+, false
+, 12
+, function() {
+//#push 1 "say_date.enter"
+
+
+//#pop
+}
+, function() {
+//#push 1 "say_date.leave"
+Global._tran_="";
+//#pop
+}, false, [-107.865, 70.8636]);
+
+//activity state declaration
+var _root_NCN_V2_1._nodes_.activity = fsm.State.create_("_root_NCN_V2_1._nodes_.activity", _root_NCN_V2_1._nodes_.NCN_DEMO,
+function() {
+//#push 1 "activity"
+
+//#pop
+}
+, false
+, 25
+, function() {
+//#push 1 "activity.enter"
+Global.network_res=0;
+//#pop
+}
+, function() {
+//#push 1 "activity.leave"
+
+//#pop
+}, false, [-590.297, -153.798]);
+
+//main_in state declaration
+var _root_NCN_V2_1._nodes_.main_in = fsm.State.create_("_root_NCN_V2_1._nodes_.main_in", _root_NCN_V2_1._nodes_.activity,
+function() {
+//#push 1 "main_in"
+////////
+// EVENT
+_event.from = Date.now;
+_event.done = true;
+
+robot.emotion.ImpulseD(20,-100);
+
+if (robot.audio.recognition.resultTag=="NEWS") Global._tran_="news";
+if (robot.audio.recognition.resultTag=="WEATHER") Global._tran_="weather";
+if (robot.audio.recognition.resultTag=="CHECK_MAIL") Global._tran_="check_mail";
+if (robot.audio.recognition.resultTag=="SEND_MAIL") Global._tran_="send_mail";
+if (robot.audio.recognition.resultTag=="PHOTO") Global._tran_="photo";
+if (robot.audio.recognition.resultTag=="FACEBOOK") Global._tran_="facebook";
+if (robot.audio.recognition.resultTag=="CALENDAR") Global._tran_="calendar";
+if (robot.audio.recognition.resultTag=="RADIO") Global._tran_="radio";
+if (robot.audio.recognition.resultTag=="TV") Global._tran_="tv";
+
+//#pop
+}
+, true
+, 26
+, function() {
+//#push 1 "main_in.enter"
+
+//#pop
+}
+, function() {
+//#push 1 "main_in.leave"
+Global._tran_="";
+robot.audio.recognition.resultTag="";
+//#pop
+}, false, [133.078, 97.831]);
+
+//main_out state declaration
+var _root_NCN_V2_1._nodes_.main_out = fsm.State.create_("_root_NCN_V2_1._nodes_.main_out", _root_NCN_V2_1._nodes_.activity,
+function() {
+//#push 1 "main_out"
+_alive_:robot.competency.ActAlive(true),
+
+// EVENT
+if (_event.done) {
+	_event.done = false;
+	_event.to = Date.now;
+	robot.competency.SetEvent(_event);
+};
+
+robot.audio.musicPlayer.Stop;
+
+return;
+//#pop
+}
+, false
+, 27
+, function() {
+//#push 1 "main_out.enter"
+
+
+//#pop
+}
+, function() {
+//#push 1 "main_out.leave"
+Global._tran_="";
+//#pop
+}, false, [380.338, 215.398]);
+
+//news state declaration
+var _root_NCN_V2_1._nodes_.news = fsm.State.create_("_root_NCN_V2_1._nodes_.news", _root_NCN_V2_1._nodes_.activity,
+function() {
+//#push 1 "news"
+_event.desc = "News activity";
+_alive_:robot.competency.ActAlive(true),
+
+
+
+
+//#pop
+}
+, false
+, 28
+, function() {
+//#push 1 "news.enter"
+Global._news_counter=0;
+Global._tran_="";
+//#pop
+}
+, function() {
+//#push 1 "news.leave"
+
+//#pop
+}, false, [238.001, 648.097]);
+
+//Ask_kind_news state declaration
+var _root_NCN_V2_1._nodes_.Ask_kind_news = fsm.State.create_("_root_NCN_V2_1._nodes_.Ask_kind_news", _root_NCN_V2_1._nodes_.news,
+function() {
+//#push 1 "Ask_kind_news"
+// ASK WHAT KIND OF NEWS
+var ret = robot.dialogue.AskWhatKindOfNews();
+
+if (ret=="BACK")
+{
+  robot.dialogue.SayOK(); 
+	Global._tran_ = "out";
+}
+else if (ret=="TIMEOUT")
+{	
+	robot.emotion.attractor.DialogueTimeout();
+	Global._tran_ = "out";
+}
+else if (ret!="")
+{	
+	// GET DATA
+	Global.network_res = robot.competency.GetNewsByName(ret);
+	if (!network_res) {
+		robot.emotion.attractor.NetworkFailed();
+		robot.dialogue.SayNetworkError();
+		Global._tran_="out";
+	};
+	Global._tran_ = "read";
+};
+
+
+//#pop
+}
+, true
+, 29
+, function() {
+//#push 1 "Ask_kind_news.enter"
+Global._tran_="";
+//#pop
+}
+, function() {
+//#push 1 "Ask_kind_news.leave"
+
+
+
+//#pop
+}, false, [-75.5475, -84.8715]);
+
+//Ask_for_more_ state declaration
+var _root_NCN_V2_1._nodes_.Ask_for_more_ = fsm.State.create_("_root_NCN_V2_1._nodes_.Ask_for_more_", _root_NCN_V2_1._nodes_.news,
+function() {
+//#push 1 "Ask_for_more_"
+// IF NO MORE NEWS
+if (Global._news_counter >= robot.network.news.description.size) {
+	robot.dialogue.SayNoMoreText();
+	Global._tran_="out";
+};
+
+// ASK FOR MORE
+var ret = robot.dialogue.AskForNextPieceOfText();
+
+if (ret=="YES") 	
+{
+	Global._tran_ = "next";
+}
+else if (ret=="NO")
+{
+	robot.dialogue.SayOK();
+	Global._tran_ = "out";
+} 
+else // TIMEOUT	
+{
+	robot.emotion.attractor.DialogueTimeout();
+	Global._tran_ = "out";
+};
+
+
+//#pop
+}
+, false
+, 30
+, function() {
+//#push 1 "Ask_for_more_.enter"
+Global._tran_="";
+//#pop
+}
+, function() {
+//#push 1 "Ask_for_more_.leave"
+
+
+
+//#pop
+}, false, [56.4417, 53.7345]);
+
+//out_80 state declaration
+var _root_NCN_V2_1._nodes_.out_80 = fsm.State.create_("_root_NCN_V2_1._nodes_.out_80", _root_NCN_V2_1._nodes_.news,
+function() {
+//#push 1 "out_80"
+
+//#pop
+}
+, false
+, 31
+, function() {
+//#push 1 "out_80.enter"
+
+//#pop
+}
+, function() {
+//#push 1 "out_80.leave"
+
+
+//#pop
+}, false, [72.7854, -72.4976]);
+
+//Read_news state declaration
+var _root_NCN_V2_1._nodes_.Read_news = fsm.State.create_("_root_NCN_V2_1._nodes_.Read_news", _root_NCN_V2_1._nodes_.news,
+function() {
+//#push 1 "Read_news"
+// READ NEWS
+var ret = "";
+var _readTag_ = Tag.new();
+
+_readTag_: {
+	robot.dialogue.ReadNews(Global._news_counter);
+	ret="end";
+},
+
+ret = robot.competency.WaitForClickGesture(_alive_,_readTag_,true),
+
+////////////////////////////////
+// WAIT FOR READ END OR GESTURE
+waituntil ((ret=="done")||(ret=="end"))|
+_alive_.unfreeze;
+robot.competency.EndWaitForClickGesture();
+if (ret=="done") robot.emotion.attractor.ClickGesture();
+
+
+Global._news_counter++;
+
+/////////////////////////////
+Global._tran_="back";
+
+
+//#pop
+}
+, false
+, 32
+, function() {
+//#push 1 "Read_news.enter"
+Global._tran_="";
+//#pop
+}
+, function() {
+//#push 1 "Read_news.leave"
+
+
+//#pop
+}, false, [-71.5422, 53.7862]);
+
+//weather state declaration
+var _root_NCN_V2_1._nodes_.weather = fsm.State.create_("_root_NCN_V2_1._nodes_.weather", _root_NCN_V2_1._nodes_.activity,
+function() {
+//#push 1 "weather"
+_event.desc = "Weather activity";
+_alive_:robot.competency.ActAlive(true),
+//#pop
+}
+, false
+, 38
+, function() {
+//#push 1 "weather.enter"
+Global._tran_="";
+//#pop
+}
+, function() {
+//#push 1 "weather.leave"
+
+//#pop
+}, false, [-173.547, 633.578]);
+
+//Read_for_today_3 state declaration
+var _root_NCN_V2_1._nodes_.Read_for_today_3 = fsm.State.create_("_root_NCN_V2_1._nodes_.Read_for_today_3", _root_NCN_V2_1._nodes_.weather,
+function() {
+//#push 1 "Read_for_today_3"
+// GET DATA
+Global.network_res = robot.competency.GetWeather();
+if (!network_res) {
+	robot.emotion.attractor.NetworkFailed();
+	robot.dialogue.SayNetworkError();
+	Global._tran_ = "out";
+};
+
+robot.emotion.attractor.Weather();
+
+///////////////
+// SAY WEATHER
+var ret = "";
+var _readTag_ = Tag.new();
+
+_readTag_: {
+	robot.dialogue.SayWeather();
+	ret = "end";
+},
+
+ret = robot.competency.WaitForClickGesture(_alive_,_readTag_,true),
+
+////////////////////////////////
+// WAIT FOR READ END OR GESTURE
+waituntil ((ret=="done")||(ret=="end"))|
+_alive_.unfreeze;
+if (ret=="done") robot.emotion.attractor.ClickGesture();
+
+
+Global._tran_="next";
+//#pop
+}
+, true
+, 39
+, function() {
+//#push 1 "Read_for_today_3.enter"
+Global._tran_="";
+//#pop
+}
+, function() {
+//#push 1 "Read_for_today_3.leave"
+
+
+
+//#pop
+}, false, [-72.2096, -77.5019]);
+
+//Read_next_days state declaration
+var _root_NCN_V2_1._nodes_.Read_next_days = fsm.State.create_("_root_NCN_V2_1._nodes_.Read_next_days", _root_NCN_V2_1._nodes_.weather,
+function() {
+//#push 1 "Read_next_days"
+// SAY NEXT DAYS
+var ret = "";
+var _readTag_ = Tag.new();
+
+_readTag_: {
+	robot.dialogue.SayWeatherNextDay();
+	ret = "end";
+},
+
+ret = robot.competency.WaitForClickGesture(_alive_,_readTag_,true),
+
+////////////////////////////////
+// WAIT FOR READ END OR GESTURE
+waituntil ((ret=="done")||(ret=="end"))|
+_alive_.unfreeze;
+if (ret=="done") robot.emotion.attractor.ClickGesture();
+
+return;
+//#pop
+}
+, false
+, 40
+, function() {
+//#push 1 "Read_next_days.enter"
+Global._tran_="";
+//#pop
+}
+, function() {
+//#push 1 "Read_next_days.leave"
+
+//#pop
+}, false, [59.3271, 67.8086]);
+
+//out_7 state declaration
+var _root_NCN_V2_1._nodes_.out_7 = fsm.State.create_("_root_NCN_V2_1._nodes_.out_7", _root_NCN_V2_1._nodes_.weather,
+function() {
+//#push 1 "out_7"
+
+//#pop
+}
+, false
+, 41
+, function() {
+//#push 1 "out_7.enter"
+
+//#pop
+}
+, function() {
+//#push 1 "out_7.leave"
+
+//#pop
+}, false, [76.0312, -60.0943]);
+
+//Ask_for_more_2 state declaration
+var _root_NCN_V2_1._nodes_.Ask_for_more_2 = fsm.State.create_("_root_NCN_V2_1._nodes_.Ask_for_more_2", _root_NCN_V2_1._nodes_.weather,
+function() {
+//#push 1 "Ask_for_more_2"
+// ASK FOR NEXT DAYS
+var ret = robot.dialogue.AskWeatherNextDays();
+
+if (ret=="YES")
+{
+	Global._tran_ = "next";
+}
+else if (ret=="NO")
+{	
+  robot.dialogue.SayOK();
+	Global._tran_ = "out";
+}
+else // TIMEOUT
+{	
+	robot.emotion.attractor.DialogueTimeout();
+	Global._tran_ = "out";
+};
+//#pop
+}
+, false
+, 42
+, function() {
+//#push 1 "Ask_for_more_2.enter"
+Global._tran_="";
+//#pop
+}
+, function() {
+//#push 1 "Ask_for_more_2.leave"
+
+
+//#pop
+}, false, [-69.269, 64.3913]);
+
+//facebook state declaration
+var _root_NCN_V2_1._nodes_.facebook = fsm.State.create_("_root_NCN_V2_1._nodes_.facebook", _root_NCN_V2_1._nodes_.activity,
+function() {
+//#push 1 "facebook"
+_event.desc = "Facebook activity";
+_alive_:robot.competency.ActAlive(true),
+
+
+//#pop
+}
+, false
+, 48
+, function() {
+//#push 1 "facebook.enter"
+Global._post_counter=0;
+//#pop
+}
+, function() {
+//#push 1 "facebook.leave"
+
+
+//#pop
+}, false, [681.775, -23.7216]);
+
+//check_1 state declaration
+var _root_NCN_V2_1._nodes_.check_1 = fsm.State.create_("_root_NCN_V2_1._nodes_.check_1", _root_NCN_V2_1._nodes_.facebook,
+function() {
+//#push 1 "check_1"
+// GET DATA
+
+Global.network_res = robot.competency.CheckFacebook();
+if (!network_res) {
+		robot.emotion.ImpulseD(-100,100);
+	robot.dialogue.SayNetworkError();
+	Global._tran_="out";
+};
+
+
+if ((robot.network.facebook["user"].message.message.size>0)||
+(robot.network.facebook["user"].notification.title.size>0)) 
+{
+	robot.dialogue.ReadFacebookNotifications();
+} else {
+	robot.dialogue.SayNoFacebookNotifications();
+};
+
+return;
+//#pop
+}
+, true
+, 49
+, function() {
+//#push 1 "check_1.enter"
+
+//#pop
+}
+, function() {
+//#push 1 "check_1.leave"
+
+Global._tran_="";
+
+//#pop
+}, false, [-47.7894, -147.642]);
+
+//out_6 state declaration
+var _root_NCN_V2_1._nodes_.out_6 = fsm.State.create_("_root_NCN_V2_1._nodes_.out_6", _root_NCN_V2_1._nodes_.facebook,
+function() {
+//#push 1 "out_6"
+
+//#pop
+}
+, false
+, 50
+, function() {
+//#push 1 "out_6.enter"
+
+//#pop
+}
+, function() {
+//#push 1 "out_6.leave"
+Global._tran_="";
+
+//#pop
+}, false, [134.433, 90.3078]);
+
+//Ask_for_post state declaration
+var _root_NCN_V2_1._nodes_.Ask_for_post = fsm.State.create_("_root_NCN_V2_1._nodes_.Ask_for_post", _root_NCN_V2_1._nodes_.facebook,
+function() {
+//#push 1 "Ask_for_post"
+// ASK IF READ POSTS
+var ret = robot.dialogue.AskIfReadFacebookPosts();
+
+if (ret=="YES")
+{
+	////////////
+	// GET DATA
+	Global.network_res = robot.competency.GetFacebookPosts();
+	if (!network_res) {
+		robot.emotion.attractor.NetworkFailed();
+		robot.dialogue.SayNetworkError();
+		Global._tran_="out";
+	};
+	Global._tran_ = "next";
+}
+else if (ret=="NO")
+{ 
+	robot.dialogue.SayOK(); 
+	Global._tran_ = "out";
+}
+else // TIMEOUT	
+{
+	robot.emotion.attractor.DialogueTimeout();
+	Global._tran_ = "out";
+};
+
+//#pop
+}
+, false
+, 51
+, function() {
+//#push 1 "Ask_for_post.enter"
+
+//#pop
+}
+, function() {
+//#push 1 "Ask_for_post.leave"
+Global._tran_="";
+
+//#pop
+}, false, [-161.567, -32.241]);
+
+//post_photo state declaration
+var _root_NCN_V2_1._nodes_.post_photo = fsm.State.create_("_root_NCN_V2_1._nodes_.post_photo", _root_NCN_V2_1._nodes_.facebook,
+function() {
+//#push 1 "post_photo"
+// POST PHOTO
+
+Global.network_res = robot.competency.PostPhotoOnFacebook();
+if (!network_res) {
+		robot.emotion.attractor.NetworkFailed();
+		robot.dialogue.SayNetworkError()
+} else 
+	robot.dialogue.SayPostedPhotoOnFacebook();
+
+Global._tran_="out";
+//#pop
+}
+, false
+, 52
+, function() {
+//#push 1 "post_photo.enter"
+
+//#pop
+}
+, function() {
+//#push 1 "post_photo.leave"
+Global._tran_="";
+
+//#pop
+}, false, [169.427, -37.6952]);
+
+//photo_2 state declaration
+var _root_NCN_V2_1._nodes_.photo_2 = fsm.State.create_("_root_NCN_V2_1._nodes_.photo_2", _root_NCN_V2_1._nodes_.facebook,
+function() {
+//#push 1 "photo_2"
+
+//#pop
+}
+, false
+, 53
+, function() {
+//#push 1 "photo_2.enter"
+
+//#pop
+}
+, function() {
+//#push 1 "photo_2.leave"
+Global._tran_="";
+//#pop
+}, false, [89.6244, -142.424]);
+
+//Like_or_readNext state declaration
+var _root_NCN_V2_1._nodes_.Like_or_readNext = fsm.State.create_("_root_NCN_V2_1._nodes_.Like_or_readNext", _root_NCN_V2_1._nodes_.facebook,
+function() {
+//#push 1 "Like_or_readNext"
+// ASK FOR LIKE OR READ NEXT POST
+var ret = robot.dialogue.AskIfLikeOrNext();
+
+if (ret=="LIKE")
+{
+	Global._tran_ = "like_it";
+}
+else if (ret=="NEXT")
+{
+	Global._post_counter++;
+	Global._tran_ = "next";
+}
+else if (ret=="BACK")
+{
+	robot.dialogue.SayOK(); 
+	Global._tran_ = "out";
+}
+else // TIMEOUT	
+{
+	robot.emotion.attractor.DialogueTimeout();
+	Global._tran_ = "out";
+};
+	
+
+//#pop
+}
+, false
+, 54
+, function() {
+//#push 1 "Like_or_readNext.enter"
+
+//#pop
+}
+, function() {
+//#push 1 "Like_or_readNext.leave"
+Global._tran_="";
+
+//#pop
+}, false, [0.0163798, 139.283]);
+
+//like_it state declaration
+var _root_NCN_V2_1._nodes_.like_it = fsm.State.create_("_root_NCN_V2_1._nodes_.like_it", _root_NCN_V2_1._nodes_.facebook,
+function() {
+//#push 1 "like_it"
+// LIKE OBJECT (POST)
+Global.network_res = robot.competency.LikeFacebookObject(Global._post_counter);
+if (!network_res) {
+	robot.emotion.attractor.NetworkFailed();
+	robot.dialogue.SayNetworkError();
+};
+robot.dialogue.SayOK();
+Global._post_counter = _post_counter+1;
+Global._tran_="next";
+
+//#pop
+}
+, false
+, 55
+, function() {
+//#push 1 "like_it.enter"
+
+//#pop
+}
+, function() {
+//#push 1 "like_it.leave"
+Global._tran_="";
+
+//#pop
+}, false, [-144.556, 74.5296]);
+
+//Read_post state declaration
+var _root_NCN_V2_1._nodes_.Read_post = fsm.State.create_("_root_NCN_V2_1._nodes_.Read_post", _root_NCN_V2_1._nodes_.facebook,
+function() {
+//#push 1 "Read_post"
+// IF NO MORE POSTS
+//
+if (Global._post_counter >= robot.network.facebook["user"].post.ID.size){
+robot.dialogue.SayNoMoreText;
+Global._tran_="out";
+};
+
+// READ MESSAGE
+//
+var ret = "";
+var _readTag_ = Tag.new();
+
+_readTag_: {
+	robot.dialogue.ReadFacebookPost(Global._post_counter);
+	ret = "end";
+},
+
+ret = robot.competency.WaitForClickGesture(_alive_,_readTag_,true),
+
+////////////////////////////////
+// WAIT FOR READ END OR GESTURE
+waituntil ((ret=="done")||(ret=="end"))|
+_alive_.unfreeze;
+robot.competency.EndWaitForClickGesture();
+if (ret=="done") robot.emotion.attractor.ClickGesture();
+
+Global._tran_="back";
+//#pop
+}
+, false
+, 56
+, function() {
+//#push 1 "Read_post.enter"
+
+
+//#pop
+}
+, function() {
+//#push 1 "Read_post.leave"
+Global._tran_="";
+//#pop
+}, false, [-5.16973, -9.82104]);
+
+//radio state declaration
+var _root_NCN_V2_1._nodes_.radio = fsm.State.create_("_root_NCN_V2_1._nodes_.radio", _root_NCN_V2_1._nodes_.activity,
+function() {
+//#push 1 "radio"
+_event.desc = "Radio activity";
+//#pop
+}
+, false
+, 70
+, function() {
+//#push 1 "radio.enter"
+Global._tran_="";
+Global._music_type="";
+//#pop
+}
+, function() {
+//#push 1 "radio.leave"
+Global._tran_="";
+//#pop
+}, false, [573.118, 501.763]);
+
+//Ask_kind_music state declaration
+var _root_NCN_V2_1._nodes_.Ask_kind_music = fsm.State.create_("_root_NCN_V2_1._nodes_.Ask_kind_music", _root_NCN_V2_1._nodes_.radio,
+function() {
+//#push 1 "Ask_kind_music"
+
+robot.competency.ActAlive(true),
+
+///////////////////////////
+// AS WHAT KIND OF MUSIC
+var ret = robot.dialogue.AskWhatKindOfMusic();
+
+if (ret=="BACK")
+{
+  robot.dialogue.SayOK(); 
+	Global._tran_ = "out";
+}
+
+else if (ret=="TIMEOUT")
+{	
+	robot.emotion.attractor.DialogueTimeout();
+	Global._tran_ = "out";
+}
+
+else if (ret!="")
+{	
+  robot.dialogue.SayOK();
+	Global._music_type = ret;
+	Global._tran_ = "play";
+};
+//#pop
+}
+, true
+, 71
+, function() {
+//#push 1 "Ask_kind_music.enter"
+Global._tran_="";
+//#pop
+}
+, function() {
+//#push 1 "Ask_kind_music.leave"
+
+
+//#pop
+}, false, [-70.1163, -8.72685]);
+
+//out_4 state declaration
+var _root_NCN_V2_1._nodes_.out_4 = fsm.State.create_("_root_NCN_V2_1._nodes_.out_4", _root_NCN_V2_1._nodes_.radio,
+function() {
+//#push 1 "out_4"
+
+//#pop
+}
+, false
+, 72
+, function() {
+//#push 1 "out_4.enter"
+
+//#pop
+}
+, function() {
+//#push 1 "out_4.leave"
+
+
+//#pop
+}, false, [38.5387, -61.5504]);
+
+//Play_music state declaration
+var _root_NCN_V2_1._nodes_.Play_music = fsm.State.create_("_root_NCN_V2_1._nodes_.Play_music", _root_NCN_V2_1._nodes_.radio,
+function() {
+//#push 1 "Play_music"
+//////////
+// PLAY
+var _musicTag_ = Tag.new();
+_musicTag_:robot.competency.ActPlayRadioByName(Global._music_type,true),
+
+every(3s) robot.emotion.ImpulseD(2,100),
+
+robot.competency.WaitForClickGesture(_musicTag_,_musicTag_,false);
+
+return;
+
+//#pop
+}
+, false
+, 73
+, function() {
+//#push 1 "Play_music.enter"
+Global._tran_="";
+//#pop
+}
+, function() {
+//#push 1 "Play_music.leave"
+robot.audio.recognition.resultTag="";
+//#pop
+}, false, [23.711, 60.6407]);
+
+//tv state declaration
+var _root_NCN_V2_1._nodes_.tv = fsm.State.create_("_root_NCN_V2_1._nodes_.tv", _root_NCN_V2_1._nodes_.activity,
+function() {
+//#push 1 "tv"
+_event.desc = "TV activity";
+_alive_:robot.competency.ActAlive(true),
+//#pop
+}
+, false
+, 77
+, function() {
+//#push 1 "tv.enter"
+Global._news_counter=0;
+Global._tran_="";
+
+//#pop
+}
+, function() {
+//#push 1 "tv.leave"
+
+//#pop
+}, false, [-551.156, 457.394]);
+
+//Read_tv_2 state declaration
+var _root_NCN_V2_1._nodes_.Read_tv_2 = fsm.State.create_("_root_NCN_V2_1._nodes_.Read_tv_2", _root_NCN_V2_1._nodes_.tv,
+function() {
+//#push 1 "Read_tv_2"
+
+// READ TV
+var ret = "";
+var _readTag_ = Tag.new();
+
+_readTag_: {
+	robot.dialogue.ReadTV(Global._news_counter);
+	ret="end";
+},
+
+ret = robot.competency.WaitForClickGesture(_alive_,_readTag_,true),
+
+////////////////////////////////
+// WAIT FOR READ END OR GESTURE
+waituntil ((ret=="done")||(ret=="end"))|
+_alive_.unfreeze;
+robot.competency.EndWaitForClickGesture();
+if (ret=="done") robot.emotion.attractor.ClickGesture();
+
+
+Global._news_counter++;
+
+///////////////
+Global._tran_="back";
+
+//#pop
+}
+, false
+, 78
+, function() {
+//#push 1 "Read_tv_2.enter"
+Global._tran_="";
+//#pop
+}
+, function() {
+//#push 1 "Read_tv_2.leave"
+
+//#pop
+}, false, [-98.6624, 40.901]);
+
+//Ask_for_more state declaration
+var _root_NCN_V2_1._nodes_.Ask_for_more = fsm.State.create_("_root_NCN_V2_1._nodes_.Ask_for_more", _root_NCN_V2_1._nodes_.tv,
+function() {
+//#push 1 "Ask_for_more"
+// IF NO MORE 
+if (Global._news_counter >= robot.network.news.description.size) {
+	robot.dialogue.SayNoMoreText();
+	Global._tran_="out";
+};
+
+
+// ASK FOR MORE
+var ret = robot.dialogue.AskForNextPieceOfText();
+
+if (ret=="YES") 	
+{
+	Global._tran_ = "next";
+}
+else if (ret=="NO")
+{
+	robot.dialogue.SayOK();
+	Global._tran_ = "out";
+} 
+else // TIMEOUT	
+{
+	robot.emotion.attractor.DialogueTimeout();
+	Global._tran_ = "out";
+};
+
+//#pop
+}
+, false
+, 79
+, function() {
+//#push 1 "Ask_for_more.enter"
+Global._tran_="";
+//#pop
+}
+, function() {
+//#push 1 "Ask_for_more.leave"
+
+
+//#pop
+}, false, [48.3427, 74.4655]);
+
+//out_9 state declaration
+var _root_NCN_V2_1._nodes_.out_9 = fsm.State.create_("_root_NCN_V2_1._nodes_.out_9", _root_NCN_V2_1._nodes_.tv,
+function() {
+//#push 1 "out_9"
+
+//#pop
+}
+, false
+, 80
+, function() {
+//#push 1 "out_9.enter"
+
+//#pop
+}
+, function() {
+//#push 1 "out_9.leave"
+
+
+//#pop
+}, false, [63.2725, -66.4164]);
+
+//Get_TV state declaration
+var _root_NCN_V2_1._nodes_.Get_TV = fsm.State.create_("_root_NCN_V2_1._nodes_.Get_TV", _root_NCN_V2_1._nodes_.tv,
+function() {
+//#push 1 "Get_TV"
+// GET DATA
+Global.network_res = robot.competency.GetTV();
+if (!network_res) {
+	robot.emotion.attractor.NetworkFailed();
+	robot.dialogue.SayNetworkError();
+	Global._tran_ = "out";
+};
+Global._tran_="next";
+
+//#pop
+}
+, true
+, 262
+, function() {
+//#push 1 "Get_TV.enter"
+//Code executed before entering the node
+
+//#pop
+}
+, function() {
+//#push 1 "Get_TV.leave"
+//Code executed after leaving the node
+
+//#pop
+}, false, [-71.0635, -84.5741]);
+
+//calendar state declaration
+var _root_NCN_V2_1._nodes_.calendar = fsm.State.create_("_root_NCN_V2_1._nodes_.calendar", _root_NCN_V2_1._nodes_.activity,
+function() {
+//#push 1 "calendar"
+_event.desc = "Calendar activity";
+_alive_:robot.competency.ActAlive(true),
+//#pop
+}
+, false
+, 85
+, function() {
+//#push 1 "calendar.enter"
+Global._calendar_counter=0;
+Global._tran_="";
+//#pop
+}
+, function() {
+//#push 1 "calendar.leave"
+
+//#pop
+}, false, [-704.62, 60.089]);
+
+//Read_for_today state declaration
+var _root_NCN_V2_1._nodes_.Read_for_today = fsm.State.create_("_root_NCN_V2_1._nodes_.Read_for_today", _root_NCN_V2_1._nodes_.calendar,
+function() {
+//#push 1 "Read_for_today"
+// GET DATA FOR ONE TODAY
+Global.network_res = robot.competency.GetCalendarEventsForOneDay(Global._calendar_counter);
+if (!network_res) {
+	robot.emotion.attractor.NetworkFailed();
+	robot.dialogue.SayNetworkError();
+	Global._tran_ = "out";
+};
+
+///////////////////////////////////
+// SAY HOW MANY EVENTS OR NO EVENTS
+if (robot.network.gcalendar["user"].event.ID.size>0)	{
+	robot.dialogue.SayHowManyEventsForOneDay(); 
+	robot.dialogue.ReadCalendarEventsForOneDay();
+} else {
+	robot.dialogue.SayNoEventsForToday();
+};
+
+/////////////////////////
+// ASK FOR NEXT DAYS
+//
+var ret = robot.dialogue.AskCalendarEventsForNextDays();
+
+if (ret=="YES")
+{
+	Global._tran_ = "next";
+}
+else if (ret=="NO")
+{	
+  robot.dialogue.SayOK();
+	Global._tran_ = "out";
+}
+else // TIMEOUT
+{	
+	robot.emotion.attractor.DialogueTimeout();
+	Global._tran_ = "out";
+};
+//#pop
+}
+, true
+, 86
+, function() {
+//#push 1 "Read_for_today.enter"
+Global._tran_="";
+//#pop
+}
+, function() {
+//#push 1 "Read_for_today.leave"
+
+
+//#pop
+}, false, [-86.1624, -84.4738]);
+
+//Get_next_day state declaration
+var _root_NCN_V2_1._nodes_.Get_next_day = fsm.State.create_("_root_NCN_V2_1._nodes_.Get_next_day", _root_NCN_V2_1._nodes_.calendar,
+function() {
+//#push 1 "Get_next_day"
+
+Global._calendar_counter++;
+	
+//////////////////
+// NO MORE EVENTS
+
+if (Global._calendar_counter>=7) {
+	robot.dialogue.SayNoMoreEventsForThisWeek();
+	Global._tran_ = "out";
+} else {
+	//////////////////////////
+	// GET DATA FOR ONE TODAY
+	Global.network_res = robot.competency.GetCalendarEventsForOneDay(Global._calendar_counter);
+
+	if (!network_res) {
+		robot.emotion.attractor.NetworkFailed();
+		robot.dialogue.SayNetworkError();
+		Global._tran_="out";
+	};
+
+	Global._tran_="next";
+};
+//#pop
+}
+, false
+, 87
+, function() {
+//#push 1 "Get_next_day.enter"
+Global._tran_="";
+//#pop
+}
+, function() {
+//#push 1 "Get_next_day.leave"
+
+
+//#pop
+}, false, [-77.6329, 61.7107]);
+
+//Read_next_days_2 state declaration
+var _root_NCN_V2_1._nodes_.Read_next_days_2 = fsm.State.create_("_root_NCN_V2_1._nodes_.Read_next_days_2", _root_NCN_V2_1._nodes_.calendar,
+function() {
+//#push 1 "Read_next_days_2"
+// IF EMPTY DAY
+if (robot.network.gcalendar["user"].event.ID.size==0)	{
+	Global._tran_ = "back";
+} else {
+	////////////
+	// IF NOT, SAY
+	robot.dialogue.SayHowManyEventsForOneDay(); 
+	robot.dialogue.ReadCalendarEventsForOneDay();
+
+	//////////////////////
+	// ASK FOR MORE EVENTS
+	var ret = robot.dialogue.AskForNextPieceOfCalendarEvents();
+
+	if (ret=="YES")
+	{
+		Global._tran_ = "back";
+	}
+	else if (ret=="NO")
+	{	
+		robot.dialogue.SayOK(); 
+		Global._tran_ = "out";
+	}
+	else // TIMEOUT
+	{	
+		robot.emotion.attractor.DialogueTimeout();
+		Global._tran_ = "out";
+	};
+	
+};
+
+//#pop
+}
+, false
+, 88
+, function() {
+//#push 1 "Read_next_days_2.enter"
+Global._tran_="";
+//#pop
+}
+, function() {
+//#push 1 "Read_next_days_2.leave"
+
+
+//#pop
+}, false, [65.1046, 61.4004]);
+
+//out_10 state declaration
+var _root_NCN_V2_1._nodes_.out_10 = fsm.State.create_("_root_NCN_V2_1._nodes_.out_10", _root_NCN_V2_1._nodes_.calendar,
+function() {
+//#push 1 "out_10"
+
+//#pop
+}
+, false
+, 89
+, function() {
+//#push 1 "out_10.enter"
+
+//#pop
+}
+, function() {
+//#push 1 "out_10.leave"
+
+
+//#pop
+}, false, [64.5969, -70.4367]);
+
+//mail state declaration
+var _root_NCN_V2_1._nodes_.mail = fsm.State.create_("_root_NCN_V2_1._nodes_.mail", _root_NCN_V2_1._nodes_.activity,
+function() {
+//#push 1 "mail"
+_event.desc = "Email activity";
+_alive_:robot.competency.ActAlive(true),
+//#pop
+}
+, false
+, 96
+, function() {
+//#push 1 "mail.enter"
+Global._mail_counter=0;
+
+//#pop
+}
+, function() {
+//#push 1 "mail.leave"
+
+
+//#pop
+}, false, [-229.388, -408.682]);
+
+//from_send_message state declaration
+var _root_NCN_V2_1._nodes_.from_send_message = fsm.State.create_("_root_NCN_V2_1._nodes_.from_send_message", _root_NCN_V2_1._nodes_.mail,
+function() {
+//#push 1 "from_send_message"
+
+	_message.to = [];
+	_message.toName = "";
+	_message.from = "";
+	_message.subject = "";
+	_message.content = "";
+	_message.photo = false;
+	_message.voice = false;
+	//
+	_message.askedPhoto = false;
+	_message.askedVoice = false;
+	_message.answer = false;
+//#pop
+}
+, true
+, 97
+, function() {
+//#push 1 "from_send_message.enter"
+
+//#pop
+}
+, function() {
+//#push 1 "from_send_message.leave"
+Global._tran_="";
+//#pop
+}, false, [3.67576, -317.988]);
+
+//from_take_photo state declaration
+var _root_NCN_V2_1._nodes_.from_take_photo = fsm.State.create_("_root_NCN_V2_1._nodes_.from_take_photo", _root_NCN_V2_1._nodes_.mail,
+function() {
+//#push 1 "from_take_photo"
+
+	_message.to = [];
+	_message.toName = "";
+	_message.from = "";
+	_message.subject = "";
+	_message.content = "";
+	_message.photo = true;
+	_message.voice = false;
+	//
+	_message.askedPhoto = true;
+	_message.askedVoice = false;
+	_message.answer = false;
+//#pop
+}
+, false
+, 98
+, function() {
+//#push 1 "from_take_photo.enter"
+
+//#pop
+}
+, function() {
+//#push 1 "from_take_photo.leave"
+Global._tran_="";
+//#pop
+}, false, [-157.817, -314.758]);
+
+//Ask_for_photo state declaration
+var _root_NCN_V2_1._nodes_.Ask_for_photo = fsm.State.create_("_root_NCN_V2_1._nodes_.Ask_for_photo", _root_NCN_V2_1._nodes_.mail,
+function() {
+//#push 1 "Ask_for_photo"
+// ASK FOR PHOTO
+var ret = robot.dialogue.AskIfTakePhoto();
+_message.askedPhoto = true;
+
+if (ret=="YES")
+{
+	Global._tran_ = "take_photo";
+}
+else if (ret=="NO")
+{
+	if (!_message.askedVoice) 
+		Global._tran_ = "ask_for_voice"
+	else
+		Global._tran_ = "ask_to_who";
+}
+else // TIMEOUT	
+{
+	robot.emotion.attractor.DialogueTimeout();
+	Global._tran_ = "out";
+};
+
+
+
+//#pop
+}
+, false
+, 99
+, function() {
+//#push 1 "Ask_for_photo.enter"
+
+//#pop
+}
+, function() {
+//#push 1 "Ask_for_photo.leave"
+Global._tran_="";
+//#pop
+}, false, [-264.481, -147.157]);
+
+//Ask_for_voice state declaration
+var _root_NCN_V2_1._nodes_.Ask_for_voice = fsm.State.create_("_root_NCN_V2_1._nodes_.Ask_for_voice", _root_NCN_V2_1._nodes_.mail,
+function() {
+//#push 1 "Ask_for_voice"
+
+// ASK FOR VOICE
+var ret = robot.dialogue.AskIfRecordVoice();
+_message.askedVoice = true;
+
+if (ret=="YES")
+{
+	Global._tran_ = "record_voice";
+}
+else if (ret=="NO")
+{
+	if (!_message.askedPhoto) 
+		Global._tran_ = "ask_for_photo"
+	else
+		Global._tran_ = "ask_to_who";
+}
+else // TIMEOUT	
+{
+	robot.emotion.attractor.DialogueTimeout();
+	Global._tran_ = "out";
+};
+
+//#pop
+}
+, false
+, 100
+, function() {
+//#push 1 "Ask_for_voice.enter"
+
+//#pop
+}
+, function() {
+//#push 1 "Ask_for_voice.leave"
+Global._tran_="";
+//#pop
+}, false, [-28.8153, -128.251]);
+
+//Take_photo state declaration
+var _root_NCN_V2_1._nodes_.Take_photo = fsm.State.create_("_root_NCN_V2_1._nodes_.Take_photo", _root_NCN_V2_1._nodes_.mail,
+function() {
+//#push 1 "Take_photo"
+
+robot.dialogue.SayReadyForPhoto();
+robot.competency.TakePhoto("saved/photo.jpg");
+robot.dialogue.SayOK(); 
+
+_message.photo = true;
+
+if (!_message.askedVoice) 
+	Global._tran_ = "ask_for_voice"
+else
+	Global._tran_ = "ask_to_who";
+//#pop
+}
+, false
+, 101
+, function() {
+//#push 1 "Take_photo.enter"
+
+//#pop
+}
+, function() {
+//#push 1 "Take_photo.leave"
+Global._tran_="";
+//#pop
+}, false, [-269.967, 85.2211]);
+
+//Record_voice state declaration
+var _root_NCN_V2_1._nodes_.Record_voice = fsm.State.create_("_root_NCN_V2_1._nodes_.Record_voice", _root_NCN_V2_1._nodes_.mail,
+function() {
+//#push 1 "Record_voice"
+robot.dialogue.SayRecordStart();
+robot.competency.RecordStart("saved/voice_message");
+
+var ret = "";
+var _silentTag_ = Tag.new();
+
+_silentTag_: ret = robot.competency.WaitForSilent(),
+_gestureTag_: ret = robot.competency.WaitForClickGesture(_alive_,_silentTag_,true),
+
+waituntil ((ret=="done")||(ret=="silent"))|
+_alive_.unfreeze;
+_gestureTag_.stop;
+robot.competency.EndWaitForClickGesture();
+
+robot.competency.RecordStop("saved/voice_message");
+robot.dialogue.SayOK();
+
+
+_message.voice = true;
+
+if (!_message.askedPhoto) 
+	Global._tran_ = "ask_for_photo"
+else
+	Global._tran_ = "ask_to_who";
+//#pop
+}
+, false
+, 102
+, function() {
+//#push 1 "Record_voice.enter"
+
+//#pop
+}
+, function() {
+//#push 1 "Record_voice.leave"
+Global._tran_="";
+//#pop
+}, false, [-35.4902, 82.6588]);
+
+//To_who_send_message state declaration
+var _root_NCN_V2_1._nodes_.To_who_send_message = fsm.State.create_("_root_NCN_V2_1._nodes_.To_who_send_message", _root_NCN_V2_1._nodes_.mail,
+function() {
+//#push 1 "To_who_send_message"
+
+if ((!_message.photo)&&(!_message.voice))
+{ 
+	robot.dialogue.SayVoiceOrPhotoMustHave();
+	_message.askedVoice = false;
+	_message.askedPhoto = false;
+	Global._tran_ = "ask_again";
+}
+else if (_message.answer)
+{ 
+	Global._tran_ = "send";
+} else {
+
+	network_res = robot.competency.GetUserContacts();
+	if (!network_res) {
+		robot.emotion.attractor.NetworkFailed();
+		robot.dialogue.SayNetworkError();
+		Global._tran_="out";
+	};
+
+	///////////////////////
+	// ASK FOR VOICE
+	var ret = robot.dialogue.AskToWhoSendMessage();
+	if (ret=="TIMEOUT")
+	{	
+		robot.emotion.attractor.DialogueTimeout();
+		Global._tran_ = "out";
+	}
+	else if (ret!="")
+	{	
+		_message.to = [robot.network.gcontact["user"].contact.email[ret.asFloat]];
+		_message.toName = robot.network.gcontact["user"].contact.title[ret.asFloat];
+		Global._tran_ = "send";
+
+	};
+};
+
+
+//#pop
+}
+, false
+, 103
+, function() {
+//#push 1 "To_who_send_message.enter"
+
+//#pop
+}
+, function() {
+//#push 1 "To_who_send_message.leave"
+Global._tran_="";
+//#pop
+}, false, [-140.089, 205.097]);
+
+//Send_message state declaration
+var _root_NCN_V2_1._nodes_.Send_message = fsm.State.create_("_root_NCN_V2_1._nodes_.Send_message", _root_NCN_V2_1._nodes_.mail,
+function() {
+//#push 1 "Send_message"
+
+if (_message.toName.size==0) {
+
+	robot.dialogue.SayNetworkError();
+	Global._tran_ = "out";
+	
+} else {
+		// ASK FOR VOICE
+	var ret = robot.dialogue.AskIfSureSendMessage(_message.toName);
+	
+	if (ret=="YES")
+	{
+		robot.dialogue.SayOK();
+		network_res = robot.competency.SendMessage(_message);
+		if (!network_res) {
+			robot.emotion.attractor.NetworkFailed();
+			robot.dialogue.SayMessageSendError();
+			Global._tran_="out";
+		};
+
+		robot.dialogue.SayMessageSend();
+		
+		if (_message.answer) {
+			Global._tran_="read_next";
+		} else
+			Global._tran_="out";
+	}
+	else if (ret=="NO")
+	{
+		Global._tran_ = "again";
+	}
+	else // TIMEOUT	
+	{
+		robot.emotion.attractor.DialogueTimeout();
+		Global._tran_ = "out";
+	};
+};
+
+//#pop
+}
+, false
+, 104
+, function() {
+//#push 1 "Send_message.enter"
+
+//#pop
+}
+, function() {
+//#push 1 "Send_message.leave"
+Global._tran_="";
+//#pop
+}, false, [54.1288, 226.461]);
+
+//Check_email state declaration
+var _root_NCN_V2_1._nodes_.Check_email = fsm.State.create_("_root_NCN_V2_1._nodes_.Check_email", _root_NCN_V2_1._nodes_.mail,
+function() {
+//#push 1 "Check_email"
+
+
+//////////////
+// GET DATA
+if (Global._mail_counter==0) {
+	Global.network_res = robot.competency.CheckMailBox();
+	if (!network_res) {
+		robot.emotion.attractor.NetworkFailed();
+		robot.dialogue.SayNetworkError();
+		Global._tran_="out";
+	};
+};
+
+///////////////////////////////////////////
+// SAY HOW MANY UNREAD EMAILS OR NO EMAILS
+
+if (robot.network.mail["user"].receive.ID.size>0)	{
+	robot.dialogue.SayHowManyEmails(); 
+	
+	/////////////////////////
+	// ASK IF DOWNLOAD
+	
+	var ret = robot.dialogue.AskIfReadMessage();
+
+	if (ret=="YES")
+	{
+		robot.dialogue.SayOK();
+		Global._tran_ = "next";
+	}
+	else if (ret=="NO")
+	{
+		robot.dialogue.SayOK();
+		Global._tran_ = "out";
+	}
+	else //if (ret=="TIMEOUT")
+	{
+		robot.emotion.attractor.DialogueTimeout();
+		Global._tran_ = "out";
+	};
+	
+} else {
+	robot.dialogue.SayNoEmails();
+	Global._tran_="out";
+};
+
+
+
+
+
+//#pop
+}
+, false
+, 105
+, function() {
+//#push 1 "Check_email.enter"
+
+//#pop
+}
+, function() {
+//#push 1 "Check_email.leave"
+Global._tran_="";
+//#pop
+}, false, [151.972, -311.371]);
+
+//Ask_if_read_NextMessage state declaration
+var _root_NCN_V2_1._nodes_.Ask_if_read_NextMessage = fsm.State.create_("_root_NCN_V2_1._nodes_.Ask_if_read_NextMessage", _root_NCN_V2_1._nodes_.mail,
+function() {
+//#push 1 "Ask_if_read_NextMessage"
+
+Global._mail_counter++;
+
+// NO MORE EMAILS
+if (Global._mail_counter >= robot.network.mail["user"].receive.ID.size) {
+	robot.dialogue.SayNoMoreText();
+	Global._tran_ = "out";
+} else {
+
+	// ASK FOR MORE
+	
+	var ret = robot.dialogue.AskIfReadNextMessage();
+
+	if (ret=="YES")
+	{
+		Global._tran_ = "next";
+	}
+	else if (ret=="NO")
+	{
+		robot.dialogue.SayOK(); 
+		Global._tran_ = "out";
+	}
+	else // TIMEOUT	
+	{
+		robot.emotion.attractor.DialogueTimeout();
+		Global._tran_ = "out";
+	};
+
+};
+
+//#pop
+}
+, false
+, 106
+, function() {
+//#push 1 "Ask_if_read_NextMessage.enter"
+
+//#pop
+}
+, function() {
+//#push 1 "Ask_if_read_NextMessage.leave"
+Global._tran_="";
+//#pop
+}, false, [294.733, 42.6763]);
+
+//Set_answear state declaration
+var _root_NCN_V2_1._nodes_.Set_answear = fsm.State.create_("_root_NCN_V2_1._nodes_.Set_answear", _root_NCN_V2_1._nodes_.mail,
+function() {
+//#push 1 "Set_answear"
+
+		_message.from = "";
+	_message.to = [robot.network.mail["user"].receive.From.split("<")[1].split(">")[0]];
+	_message.toName = robot.network.mail["user"].receive.From.split("<")[0];
+	_message.subject = robot.network.mail["user"].receive.Subject;
+	//if (robot.network.mail["user"].receive.ContentHTML!="")
+	//	_message.content = robot.network.mail["user"].receive.ContentHTML
+	//	else
+	_message.content = robot.network.mail["user"].receive.Content;
+	_message.photo = false;
+	_message.voice = false;
+	//
+	_message.askedPhoto = false;
+	_message.askedVoice = false;
+	_message.answer = true;
+	
+	return;
+//#pop
+}
+, false
+, 107
+, function() {
+//#push 1 "Set_answear.enter"
+
+//#pop
+}
+, function() {
+//#push 1 "Set_answear.leave"
+Global._tran_="";
+//#pop
+}, false, [127.796, -194.104]);
+
+//out_11 state declaration
+var _root_NCN_V2_1._nodes_.out_11 = fsm.State.create_("_root_NCN_V2_1._nodes_.out_11", _root_NCN_V2_1._nodes_.mail,
+function() {
+//#push 1 "out_11"
+
+//#pop
+}
+, false
+, 108
+, function() {
+//#push 1 "out_11.enter"
+
+//#pop
+}
+, function() {
+//#push 1 "out_11.leave"
+
+//#pop
+}, false, [215.545, 173.607]);
+
+//Read_message state declaration
+var _root_NCN_V2_1._nodes_.Read_message = fsm.State.create_("_root_NCN_V2_1._nodes_.Read_message", _root_NCN_V2_1._nodes_.mail,
+function() {
+//#push 1 "Read_message"
+////////////////
+// READ MESSAGE
+
+
+robot.dialogue.SayDownloadingEmails(),
+
+Global.network_res = robot.competency.ReceiveMailBox(Global._mail_counter);
+if (!network_res) {
+	robot.emotion.attractor.NetworkFailed();
+	Global._tran_="next";
+};
+
+var ret = "";
+var _readTag_ = Tag.new();
+
+_readTag_: {
+	robot.dialogue.ReadMessage();
+	ret="end";
+},
+
+ret = robot.competency.WaitForClickGesture(_alive_,_readTag_,true),
+
+////////////////////////////////
+// WAIT FOR READ END OR GESTURE
+waituntil ((ret=="done")||(ret=="end"))|
+_alive_.unfreeze;
+robot.competency.EndWaitForClickGesture();
+if (ret=="done") robot.emotion.attractor.ClickGesture();
+
+Global._tran_="next";
+
+
+//#pop
+}
+, false
+, 109
+, function() {
+//#push 1 "Read_message.enter"
+
+//#pop
+}
+, function() {
+//#push 1 "Read_message.leave"
+Global._tran_="";
+//#pop
+}, false, [266.077, -112.613]);
+
+//Ask_if_answear state declaration
+var _root_NCN_V2_1._nodes_.Ask_if_answear = fsm.State.create_("_root_NCN_V2_1._nodes_.Ask_if_answear", _root_NCN_V2_1._nodes_.mail,
+function() {
+//#push 1 "Ask_if_answear"
+// ASK IF ANSWEAR
+var ret = robot.dialogue.AskIfAnswearMessage();
+
+if (ret=="YES")
+{
+	robot.dialogue.SayOK();
+	Global._tran_ = "answear";
+}
+else if (ret=="NO")
+{
+	robot.dialogue.SayOK();
+	Global._tran_ = "back";
+}
+else // TIMEOUT	
+{
+	robot.emotion.attractor.DialogueTimeout();
+	Global._tran_ = "out";
+};
+
+//#pop
+}
+, false
+, 110
+, function() {
+//#push 1 "Ask_if_answear.enter"
+
+//#pop
+}
+, function() {
+//#push 1 "Ask_if_answear.leave"
+Global._tran_="";
+//#pop
+}, false, [156.969, -8.51521]);
+
+//photo state declaration
+var _root_NCN_V2_1._nodes_.photo = fsm.State.create_("_root_NCN_V2_1._nodes_.photo", _root_NCN_V2_1._nodes_.activity,
+function() {
+//#push 1 "photo"
+_event.desc = "Photo activity";
+_alive_:robot.competency.ActAlive(true),
+//#pop
+}
+, false
+, 140
+, function() {
+//#push 1 "photo.enter"
+
+//#pop
+}
+, function() {
+//#push 1 "photo.leave"
+
+
+//#pop
+}, false, [449.547, -443.656]);
+
+//take_photo_2 state declaration
+var _root_NCN_V2_1._nodes_.take_photo_2 = fsm.State.create_("_root_NCN_V2_1._nodes_.take_photo_2", _root_NCN_V2_1._nodes_.photo,
+function() {
+//#push 1 "take_photo_2"
+
+robot.dialogue.SayReadyForPhoto();
+robot.competency.TakePhoto("saved/photo.jpg");
+robot.dialogue.SayOK(); 
+
+return;
+//#pop
+}
+, true
+, 141
+, function() {
+//#push 1 "take_photo_2.enter"
+Global._tran_="";
+//#pop
+}
+, function() {
+//#push 1 "take_photo_2.leave"
+
+//#pop
+}, false, [-68.0586, 19.1768]);
+
+//ask_for_what state declaration
+var _root_NCN_V2_1._nodes_.ask_for_what = fsm.State.create_("_root_NCN_V2_1._nodes_.ask_for_what", _root_NCN_V2_1._nodes_.photo,
+function() {
+//#push 1 "ask_for_what"
+// ASK FOR PHOTO
+var ret = robot.dialogue.AskWhatForPhoto();
+
+if (ret=="MAIL")
+{
+	Global._tran_ = "mail";
+}
+
+else if (ret=="FB")
+{
+	//Global._tran_ = "facebook";
+	robot.dialogue.SayOK;
+	Global._tran_ = "out";
+}
+else if (ret=="BACK")
+{
+	robot.dialogue.SayOK;
+	Global._tran_ = "out";
+}
+else // TIMEOUT	
+{
+	robot.emotion.attractor.DialogueTimeout();
+	Global._tran_ = "out";
+};
+
+
+//#pop
+}
+, false
+, 142
+, function() {
+//#push 1 "ask_for_what.enter"
+
+//#pop
+}
+, function() {
+//#push 1 "ask_for_what.leave"
+
+
+//#pop
+}, false, [4.49272, -78.1029]);
+
+//out_12 state declaration
+var _root_NCN_V2_1._nodes_.out_12 = fsm.State.create_("_root_NCN_V2_1._nodes_.out_12", _root_NCN_V2_1._nodes_.photo,
+function() {
+//#push 1 "out_12"
+
+//#pop
+}
+, false
+, 143
+, function() {
+//#push 1 "out_12.enter"
+
+//#pop
+}
+, function() {
+//#push 1 "out_12.leave"
+
+
+//#pop
+}, false, [63.249, 26.2982]);
+
+//alarm state declaration
+var _root_NCN_V2_1._nodes_.alarm = fsm.State.create_("_root_NCN_V2_1._nodes_.alarm", _root_NCN_V2_1._nodes_.NCN_DEMO,
+function() {
+//#push 1 "alarm"
+_alive_:robot.competency.ActAlive(true),
+
+//#pop
+}
+, false
+, 165
+, function() {
+//#push 1 "alarm.enter"
+
+//#pop
+}
+, function() {
+//#push 1 "alarm.leave"
+
+
+//#pop
+}, false, [791.803, -726.262]);
+
+//makeAlarm state declaration
+var _root_NCN_V2_1._nodes_.makeAlarm = fsm.State.create_("_root_NCN_V2_1._nodes_.makeAlarm", _root_NCN_V2_1._nodes_.alarm,
+function() {
+//#push 1 "makeAlarm"
+// SAY HELLO
+var tmp=Tag.new();
+tmp:at(robot.video.humanDetector.visible~0.5) {
+	robot.dialogue.SayWelcome();
+	tmp.stop;
+},
+
+// MAKE ALARM
+_alive_.freeze;
+var _tag_alarm_ = Tag.new(); 
+var _tag_alarm_tmp_ = Tag.new(); // not used
+_tag_alarm_: robot.competency.MakeAlarm(),
+
+{	
+	robot.competency.WaitForClickGesture(_tag_alarm_tmp_ , _tag_alarm_, true)|
+	_alive_.unfreeze|
+	robot.competency.EndWaitForClickGesture()|
+	robot.emotion.ImpulseD(10,100)|
+	Global._tran_="snooze";
+},
+
+// STOP OR SNOOZE
+sleep(60s);
+_tag_alarm_.stop|
+_alive_.unfreeze|
+_alarm.enabled=false|
+robot.emotion.ImpulseD(-40,-100)|
+robot.emotion.ImpulseD(-100,-100)|
+Global._tran_="auto_stop";
+
+
+
+
+//#pop
+}
+, true
+, 166
+, function() {
+//#push 1 "makeAlarm.enter"
+Global._tran_="";
+
+//#pop
+}
+, function() {
+//#push 1 "makeAlarm.leave"
+
+//#pop
+}, false, [-7.37527, -140.825]);
+
+//snooze state declaration
+var _root_NCN_V2_1._nodes_.snooze = fsm.State.create_("_root_NCN_V2_1._nodes_.snooze", _root_NCN_V2_1._nodes_.alarm,
+function() {
+//#push 1 "snooze"
+//////////////////
+// ASK IF SNOOZE
+var ret = robot.dialogue.AskSnoozeAlarm();
+
+// YES
+if (ret=="YES")
+{
+  robot.dialogue.SayOK(); 
+	Global._alarm.true = true;
+	Global._alarm.hour = (Date.new("2000-01-01 "+_alarm.hour.asString+":"+_alarm.minute.asString)+6*60s).hour;
+	Global._alarm.minute = (Date.new("2000-01-01 "+_alarm.hour.asString+":"+_alarm.minute.asString)+6*60s).minute;
+	return;
+}
+else if (ret=="NO")
+{	
+  robot.dialogue.SayOK(); 
+	Global._alarm.enabled=false;
+	return;
+}
+else //if (ret=="TIMEOUT")
+{	
+	robot.emotion.ImpulseD(-100,-100);
+	Global._alarm.enabled=false;
+	return;
+};
+
+
+//#pop
+}
+, false
+, 167
+, function() {
+//#push 1 "snooze.enter"
+Global._tran_="";
+//#pop
+}
+, function() {
+//#push 1 "snooze.leave"
+
+//#pop
+}, false, [-118.441, -52.6621]);
+
+//out_8 state declaration
+var _root_NCN_V2_1._nodes_.out_8 = fsm.State.create_("_root_NCN_V2_1._nodes_.out_8", _root_NCN_V2_1._nodes_.alarm,
+function() {
+//#push 1 "out_8"
+
+//#pop
+}
+, false
+, 168
+, function() {
+//#push 1 "out_8.enter"
+
+//#pop
+}
+, function() {
+//#push 1 "out_8.leave"
+
+
+//#pop
+}, false, [116.54, -54.896]);
+
+//setAlarm state declaration
+var _root_NCN_V2_1._nodes_.setAlarm = fsm.State.create_("_root_NCN_V2_1._nodes_.setAlarm", _root_NCN_V2_1._nodes_.alarm,
+function() {
+//#push 1 "setAlarm"
+
+_alarm.enabled=false;
+
+// ASK WHAT TIME
+var ret = robot.dialogue.AskWhatTimeAlarm();
+
+if (ret=="TIMEOUT") { 
+	Global._tran_ = "out";
+} else	if (ret=="BACK") {
+	robot.dialogue.SayOK(); 
+	Global._tran_ = "out";
+} else {
+	var t_time = ret.split(":");
+	if (t_time.size==2)
+		Global._alarm.enabled = false;
+		Global._alarm.hour = t_time[0].replace(" ","").asFloat;
+		Global._alarm.minute = t_time[1].replace(" ","").asFloat;
+		Global._tran_ = "check";
+}; 
+
+//#pop
+}
+, false
+, 169
+, function() {
+//#push 1 "setAlarm.enter"
+Global._tran_="";		
+//#pop
+}
+, function() {
+//#push 1 "setAlarm.leave"
+
+//#pop
+}, false, [-100.918, 82.374]);
+
+//askIfCorrect state declaration
+var _root_NCN_V2_1._nodes_.askIfCorrect = fsm.State.create_("_root_NCN_V2_1._nodes_.askIfCorrect", _root_NCN_V2_1._nodes_.alarm,
+function() {
+//#push 1 "askIfCorrect"
+// ASK IF CORRECT
+var ret = robot.dialogue.AskIfTimeIsCorrect(robot.audio.recognition.resultTag);
+
+if (ret=="YES")
+{
+	robot.dialogue.SayOK(); 
+	Global._alarm.enabled = true;
+	Global._tran_ = "out";
+}
+
+else if (ret=="NO")
+{
+	Global._alarm.enabled = false;
+	Global._tran_ = "back";
+}
+else //if (ret=="TIMEOUT")
+{
+	robot.emotion.attractor.DialogueTimeout();
+	Global._alarm.enabled = false;
+	Global._tran_ = "out";
+},
+
+//#pop
+}
+, false
+, 170
+, function() {
+//#push 1 "askIfCorrect.enter"
+Global._tran_="";
+//#pop
+}
+, function() {
+//#push 1 "askIfCorrect.leave"
+
+//#pop
+}, false, [103.891, 88.734]);
+
+//deactivate state declaration
+var _root_NCN_V2_1._nodes_.deactivate = fsm.State.create_("_root_NCN_V2_1._nodes_.deactivate", _root_NCN_V2_1._nodes_.NCN_DEMO,
+function() {
+//#push 1 "deactivate"
+///////////
+//  ALARM
+//
+var alarm_event = Event.new();
+if (Global._alarm.enabled) {
+	robot.competency.ActSetAlarm(Global._alarm.hour,Global._alarm.minute,alarm_event),
+	echo("==========================");
+	echo("|| Alarm set at " + Global._alarm.hour.asString+":" + Global._alarm.minute.asString);
+	echo("==========================");
+},
+at(alarm_event?) Global._tran_="alarm",
+
+//#pop
+}
+, false
+, 178
+, function() {
+//#push 1 "deactivate.enter"
+
+//#pop
+}
+, function() {
+//#push 1 "deactivate.leave"
+
+//#pop
+}, false, [557.568, -1139.06]);
+
+//sleep state declaration
+var _root_NCN_V2_1._nodes_.sleep = fsm.State.create_("_root_NCN_V2_1._nodes_.sleep", _root_NCN_V2_1._nodes_.deactivate,
+function() {
+//#push 1 "sleep"
+
+robot.competency.ActGoSleep(),
+
+var rand_time = 15 + 15.random;
+sleep(rand_time);
+
+at(robot.video.humanDetector.visible~0.5) {
+	robot.emotion.ImpulseD(-40,100);
+	Global._tran_="wake_up";
+},
+
+//#pop
+}
+, false
+, 179
+, function() {
+//#push 1 "sleep.enter"
+Global._tran_="";
+//#pop
+}
+, function() {
+//#push 1 "sleep.leave"
+
+//#pop
+}, false, [-72.8121, 58.4863]);
+
+//out_15 state declaration
+var _root_NCN_V2_1._nodes_.out_15 = fsm.State.create_("_root_NCN_V2_1._nodes_.out_15", _root_NCN_V2_1._nodes_.deactivate,
+function() {
+//#push 1 "out_15"
+_alive_:robot.competency.ActAlive(true),
+
+// EVENT
+if (_event.done) {
+	_event.done = false;
+	_event.to = Date.now;
+	robot.competency.SetEvent(_event);
+};
+
+return;
+//#pop
+}
+, false
+, 180
+, function() {
+//#push 1 "out_15.enter"
+
+//#pop
+}
+, function() {
+//#push 1 "out_15.leave"
+
+
+//#pop
+}, false, [58.0791, -70.9312]);
+
+//seen_someone state declaration
+var _root_NCN_V2_1._nodes_.seen_someone = fsm.State.create_("_root_NCN_V2_1._nodes_.seen_someone", _root_NCN_V2_1._nodes_.deactivate,
+function() {
+//#push 1 "seen_someone"
+
+robot.competency.ActWakeUp(),
+	
+//////////////////
+// WAIT FOR HELLO
+loop {
+	var ret = robot.dialogue.ListenBasic();
+	if (ret == "HELLO") 	{
+		robot.emotion.ImpulseD(100,-100);
+		Global._tran_ = "out";
+	};
+},
+
+var rand_time = 7 + 7.random;
+sleep(rand_time);
+Global._tran_ = "back";
+//#pop
+}
+, false
+, 181
+, function() {
+//#push 1 "seen_someone.enter"
+Global._tran_="";
+//#pop
+}
+, function() {
+//#push 1 "seen_someone.leave"
+
+//#pop
+}, false, [65.7362, 61.246]);
+
+//confirm state declaration
+var _root_NCN_V2_1._nodes_.confirm = fsm.State.create_("_root_NCN_V2_1._nodes_.confirm", _root_NCN_V2_1._nodes_.deactivate,
+function() {
+//#push 1 "confirm"
+////////
+// EVENT
+_event.from = Date.now;
+_event.done = true;
+_event.desc = "Sleep";
+
+_alive_:robot.competency.ActAlive(true),
+return;
+//#pop
+}
+, true
+, 182
+, function() {
+//#push 1 "confirm.enter"
+Global._tran_="";
+//#pop
+}
+, function() {
+//#push 1 "confirm.leave"
+
+
+//#pop
+}, false, [-67.0719, -69.2595]);
+
+//demo state declaration
+var _root_NCN_V2_1._nodes_.demo = fsm.State.create_("_root_NCN_V2_1._nodes_.demo", _root_NCN_V2_1._nodes_.NCN_DEMO,
+function() {
+//#push 1 "demo"
+_alive_:robot.competency.ActAlive(true),
+//#pop
+}
+, false
+, 187
+, function() {
+//#push 1 "demo.enter"
+
+
+//#pop
+}
+, function() {
+//#push 1 "demo.leave"
+
+
+//#pop
+}, false, [901.824, -150.949]);
+
+//Introduce state declaration
+var _root_NCN_V2_1._nodes_.Introduce = fsm.State.create_("_root_NCN_V2_1._nodes_.Introduce", _root_NCN_V2_1._nodes_.demo,
+function() {
+//#push 1 "Introduce"
+
+//#pop
+}
+, false
+, 188
+, function() {
+//#push 1 "Introduce.enter"
+
+
+//#pop
+}
+, function() {
+//#push 1 "Introduce.leave"
+
+
+//#pop
+}, false, [-7.24988, -146.561]);
+
+//intro state declaration
+var _root_NCN_V2_1._nodes_.intro = fsm.State.create_("_root_NCN_V2_1._nodes_.intro", _root_NCN_V2_1._nodes_.Introduce,
+function() {
+//#push 1 "intro"
+
+var ret1 = "";
+var _introTag_ = Tag.new();
+
+// INTRODUCE
+_introTag_: {
+	robot.competency.Introduce();
+	ret1 = "end";
+},
+
+ret1 = robot.competency.WaitForClickGesture(_alive_, _introTag_, true),
+ 
+////////////////////////////////
+// WAIT FOR READ END OR GESTURE
+waituntil ((ret1=="done")||(ret1=="end"))|
+_alive_.unfreeze;
+robot.competency.EndWaitForClickGesture();
+if (ret1=="done") robot.emotion.attractor.ClickGesture();
+
+////////////////////
+// ASK IF SAY MORE
+var ret2 = robot.dialogue.AskIfSayMoreAbout();
+
+if (ret2=="YES")
+{
+	Global._tran_ = "next";
+}
+else if (ret2=="NO")
+{
+	robot.dialogue.SayOK;
+	Global._tran_ = "out";
+}
+else //if (ret2=="TIMEOUT")
+{
+	robot.emotion.attractor.DialogueTimeout();
+	Global._tran_ = "out";
+};
+
+//#pop
+}
+, true
+, 189
+, function() {
+//#push 1 "intro.enter"
+
+//#pop
+}
+, function() {
+//#push 1 "intro.leave"
+
+//#pop
+}, false, [-79.3213, -36.263]);
+
+//out_13 state declaration
+var _root_NCN_V2_1._nodes_.out_13 = fsm.State.create_("_root_NCN_V2_1._nodes_.out_13", _root_NCN_V2_1._nodes_.Introduce,
+function() {
+//#push 1 "out_13"
+
+//#pop
+}
+, false
+, 190
+, function() {
+//#push 1 "out_13.enter"
+
+//#pop
+}
+, function() {
+//#push 1 "out_13.leave"
+
+//#pop
+}, false, [9.66238, 69.4805]);
+
+//say_about state declaration
+var _root_NCN_V2_1._nodes_.say_about = fsm.State.create_("_root_NCN_V2_1._nodes_.say_about", _root_NCN_V2_1._nodes_.Introduce,
+function() {
+//#push 1 "say_about"
+var ret = "";
+var _introTag_ = Tag.new();
+
+/////////////////////
+// INTRODUCE MORE
+_introTag_: {
+	// INTRODUCE
+	robot.competency.IntroduceMore();
+	ret = "end";
+},
+
+ret = robot.competency.WaitForClickGesture(_alive_, _introTag_, true),
+
+////////////////////////////////
+// WAIT FOR READ END OR GESTURE
+waituntil ((ret=="done")||(ret=="end"))|
+_alive_.unfreeze;
+if (ret=="end") robot.emotion.attractor.ClickGesture();
+
+return;
+//#pop
+}
+, false
+, 191
+, function() {
+//#push 1 "say_about.enter"
+
+//#pop
+}
+, function() {
+//#push 1 "say_about.leave"
+
+
+//#pop
+}, false, [68.8962, -40.7523]);
+
+//Emotions state declaration
+var _root_NCN_V2_1._nodes_.Emotions = fsm.State.create_("_root_NCN_V2_1._nodes_.Emotions", _root_NCN_V2_1._nodes_.demo,
+function() {
+//#push 1 "Emotions"
+
+//#pop
+}
+, false
+, 195
+, function() {
+//#push 1 "Emotions.enter"
+
+
+//#pop
+}
+, function() {
+//#push 1 "Emotions.leave"
+
+
+//#pop
+}, false, [9.28668, 145.37]);
+
+//show state declaration
+var _root_NCN_V2_1._nodes_.show = fsm.State.create_("_root_NCN_V2_1._nodes_.show", _root_NCN_V2_1._nodes_.Emotions,
+function() {
+//#push 1 "show"
+
+var ret = "";
+var _emotTag_ = Tag.new();
+
+_alive_.freeze;
+
+_emotTag_: {
+	robot.competency.ShowEmotions();
+	ret = "end";
+},
+
+ret = robot.competency.WaitForClickGesture(_emotTag_,_emotTag_,true),
+
+////////////////////////////////
+// WAIT FOR READ END OR GESTURE
+waituntil ((ret=="done")||(ret=="end"))|
+_alive_.unfreeze;
+if (ret=="done") robot.emotion.attractor.ClickGesture();
+
+return;
+//#pop
+}
+, true
+, 196
+, function() {
+//#push 1 "show.enter"
+
+//#pop
+}
+, function() {
+//#push 1 "show.leave"
+robot.dialogue.SetEmotion("neutral",0);
+
+//#pop
+}, false, [-40.737, -32.5484]);
+
+//out_5 state declaration
+var _root_NCN_V2_1._nodes_.out_5 = fsm.State.create_("_root_NCN_V2_1._nodes_.out_5", _root_NCN_V2_1._nodes_.Emotions,
+function() {
+//#push 1 "out_5"
+
+//#pop
+}
+, false
+, 197
+, function() {
+//#push 1 "out_5.enter"
+
+
+//#pop
+}
+, function() {
+//#push 1 "out_5.leave"
+
+
+//#pop
+}, false, [20.9356, 28.1312]);
+
+//in_9 state declaration
+var _root_NCN_V2_1._nodes_.in_9 = fsm.State.create_("_root_NCN_V2_1._nodes_.in_9", _root_NCN_V2_1._nodes_.demo,
+function() {
+//#push 1 "in_9"
+
+if (robot.audio.recognition.resultTag=="INTRODUCE") Global._tran_="introduce";
+if (robot.audio.recognition.resultTag=="EMOTIONS") Global._tran_="emotions";
+//#pop
+}
+, true
+, 199
+, function() {
+//#push 1 "in_9.enter"
+
+
+//#pop
+}
+, function() {
+//#push 1 "in_9.leave"
+Global._tran_="";
+robot.audio.recognition.resultTag="";
+//#pop
+}, false, [-211.101, 20.0488]);
+
+//out_14 state declaration
+var _root_NCN_V2_1._nodes_.out_14 = fsm.State.create_("_root_NCN_V2_1._nodes_.out_14", _root_NCN_V2_1._nodes_.demo,
+function() {
+//#push 1 "out_14"
+
+//#pop
+}
+, false
+, 200
+, function() {
+//#push 1 "out_14.enter"
+
+
+//#pop
+}
+, function() {
+//#push 1 "out_14.leave"
+
+
+//#pop
+}, false, [182.182, 21.6289]);
+
+//play_game state declaration
+var _root_NCN_V2_1._nodes_.play_game = fsm.State.create_("_root_NCN_V2_1._nodes_.play_game", _root_NCN_V2_1._nodes_.NCN_DEMO,
+function() {
+//#push 1 "play_game"
+_alive_:robot.competency.ActAlive(true),
+//#pop
+}
+, false
+, 205
+, function() {
+//#push 1 "play_game.enter"
+
+
+//#pop
+}
+, function() {
+//#push 1 "play_game.leave"
+
+
+//#pop
+}, false, [715.36, 817.684]);
+
+//learning state declaration
+var _root_NCN_V2_1._nodes_.learning = fsm.State.create_("_root_NCN_V2_1._nodes_.learning", _root_NCN_V2_1._nodes_.play_game,
+function() {
+//#push 1 "learning"
+
+//#pop
+}
+, false
+, 206
+, function() {
+//#push 1 "learning.enter"
+Global._learn_counter=0;
+Global._last_color="";
+//#pop
+}
+, function() {
+//#push 1 "learning.leave"
+
+
+//#pop
+}, false, [-269.184, 64.6037]);
+
+//start_1 state declaration
+var _root_NCN_V2_1._nodes_.start_1 = fsm.State.create_("_root_NCN_V2_1._nodes_.start_1", _root_NCN_V2_1._nodes_.learning,
+function() {
+//#push 1 "start_1"
+robot.dialogue.SayAboutLearningGame();
+
+//#pop
+}
+, true
+, 207
+, function() {
+//#push 1 "start_1.enter"
+
+//#pop
+}
+, function() {
+//#push 1 "start_1.leave"
+Global._tran_="";
+robot.audio.recognition.resultTag="";
+//#pop
+}, false, [-102.541, -138.408]);
+
+//out_17 state declaration
+var _root_NCN_V2_1._nodes_.out_17 = fsm.State.create_("_root_NCN_V2_1._nodes_.out_17", _root_NCN_V2_1._nodes_.learning,
+function() {
+//#push 1 "out_17"
+
+//#pop
+}
+, false
+, 208
+, function() {
+//#push 1 "out_17.enter"
+
+//#pop
+}
+, function() {
+//#push 1 "out_17.leave"
+Global._tran_="";
+//#pop
+}, false, [85.9679, -129.851]);
+
+//check_waitit_for_color_1 state declaration
+var _root_NCN_V2_1._nodes_.check_waitit_for_color_1 = fsm.State.create_("_root_NCN_V2_1._nodes_.check_waitit_for_color_1", _root_NCN_V2_1._nodes_.learning,
+function() {
+//#push 1 "check_waitit_for_color_1"
+/////////////////////////
+// OUT IF LOST USER
+var _userTag = Tag.new();
+_userTag: at (!robot.video.humanDetector.visible~2s) 
+{
+	robot.audio.recognition.pause = true;
+	robot.dialogue.SayCantSeeSilhouette();
+	robot.audio.recognition.pause = false;
+},
+
+////////////////////////
+// SAY SHOW NEXT OBJECT
+if (Global._learn_counter>0) robot.dialogue.SayShowNextObject();
+
+/////////////////////////
+// WAIT FOR OBJECT
+var ret = robot.dialogue.WaitForObjectToLearn()|
+_userTag.stop;
+
+if (ret=="HAND")
+{
+	Global._last_color = "";
+	Global._tran_ = "lookAtHand";
+}
+else if (ret=="TORSO")
+{
+	Global._last_color = "";
+	Global._tran_ = "lookAtTorso";
+}
+else if ((ret.split(" ")[0])=="COLOR")
+{
+	Global._last_color = (ret.split(" ")[1]);
+	Global._tran_ = "lookAtHand";
+}
+else if (ret=="STOP")
+{
+	robot.dialogue.SayOK();
+	Global._tran_ = "out";
+}
+else if (ret=="NEXT")
+{
+	robot.dialogue.SayOK();
+	Global._tran_ = "check";
+}
+else // TIMEOUT	
+{
+	robot.emotion.attractor.DialogueTimeout();
+	Global._tran_ = "out";
+};
+
+
+
+//#pop
+}
+, false
+, 209
+, function() {
+//#push 1 "check_waitit_for_color_1.enter"
+
+//#pop
+}
+, function() {
+//#push 1 "check_waitit_for_color_1.leave"
+Global._tran_="";
+//#pop
+}, false, [-25.5144, -15.4338]);
+
+//follow_torso_3 state declaration
+var _root_NCN_V2_1._nodes_.follow_torso_3 = fsm.State.create_("_root_NCN_V2_1._nodes_.follow_torso_3", _root_NCN_V2_1._nodes_.learning,
+function() {
+//#push 1 "follow_torso_3"
+
+/////////////////////////
+// OUT IF LOST TORSO
+var _userTag = Tag.new();
+_userTag: at (!robot.video.humanDetector.torso.visible~1s) 
+{
+	robot.dialogue.SayCantSeeSilhouette();
+	robot.emotion.ImpulseD(-100,100);
+	robot.competency.Emotion(0.5);	
+	Global._tran_="back";
+},
+
+//////////////////////////////////////
+//FREEZE FOLLOW PERSON AND FOLLOW HAND
+_alive_.freeze;
+robot.competency.ActFollowTorso(false),
+robot.body.neck.head.ExpAngry(5,0.5),
+
+//////////////////////////////////////
+// WAIT FOR COLOR
+var ret = robot.dialogue.WaitForColor()|
+_userTag.stop;
+	
+if (ret=="TIMEOUT")
+{
+	robot.emotion.attractor.DialogueTimeout();
+	Global._tran_ = "back";
+} 	 
+else 
+{
+	if (ret.split(" ").size>1) {
+		Global._last_color = ret.split(" ")[1];
+		if (!robot.competency.LearnColorFromTorso(Global._last_color))
+		{
+			robot.dialogue.SayCantGetColor();
+			Global._tran_ = "back";
+		};
+	};
+};
+
+Global._tran_ = "next";
+
+
+
+//#pop
+}
+, false
+, 210
+, function() {
+//#push 1 "follow_torso_3.enter"
+
+//#pop
+}
+, function() {
+//#push 1 "follow_torso_3.leave"
+
+Global._tran_="";
+_alive_.unfreeze;
+//#pop
+}, false, [126.032, 50.3572]);
+
+//say_got_it state declaration
+var _root_NCN_V2_1._nodes_.say_got_it = fsm.State.create_("_root_NCN_V2_1._nodes_.say_got_it", _root_NCN_V2_1._nodes_.learning,
+function() {
+//#push 1 "say_got_it"
+robot.competency.Emotion(0.5);
+Global._learn_counter++;
+
+////////////////
+// SAY GOT IT
+robot.dialogue.SayGotColor(Global._last_color);
+Global._tran_ = "next";
+//#pop
+}
+, false
+, 211
+, function() {
+//#push 1 "say_got_it.enter"
+
+//#pop
+}
+, function() {
+//#push 1 "say_got_it.leave"
+Global._tran_="";
+//#pop
+}, false, [-13.8248, 153.717]);
+
+//follow_hand_3 state declaration
+var _root_NCN_V2_1._nodes_.follow_hand_3 = fsm.State.create_("_root_NCN_V2_1._nodes_.follow_hand_3", _root_NCN_V2_1._nodes_.learning,
+function() {
+//#push 1 "follow_hand_3"
+
+//////////////////////////////////////
+//FREEZE FOLLOW PERSON AND START FOLLOW HAND
+_alive_.freeze;
+robot.competency.ActFollowRightHand(false),
+robot.body.neck.head.ExpAngry(5,0.5),
+
+
+if (Global._last_color == ""){
+
+	/////////////////////////
+	// OUT IF LOST HAND
+	var _userTag = Tag.new();
+	_userTag: at (!robot.video.humanDetector.hand[right].visible~1s) 
+	{
+		robot.dialogue.SayCantSeeSilhouette();
+		robot.emotion.ImpulseD(-100,100);
+		robot.competency.Emotion(0.5);	
+		Global._tran_="back";
+	},
+ 
+	//////////////////////////////////////
+	// WAIT FOR COLOR
+	var ret = robot.dialogue.WaitForColor()|
+	_userTag.stop;
+	
+	if (ret=="TIMEOUT")
+	{
+	robot.emotion.attractor.DialogueTimeout();
+		Global._tran_ = "back";
+	} 
+	else if ((ret.split(" ").size()) > 1) 
+	{
+		Global._last_color = ret.split(" ")[1];
+		if (!robot.competency.LearnColorFromRightHand(Global._last_color))
+		{
+			robot.dialogue.SayCantGetColor();
+			Global._tran_ = "back";
+		};
+	};
+} else {	
+		if (!robot.video.humanDetector.hand[right].visible) 
+		{
+			robot.dialogue.SayCantSeeSilhouette();
+			Global._tran_="back";
+		} else {
+			sleep(1.1 + (10.random)/10);
+			if (!robot.competency.LearnColorFromRightHand(Global._last_color))
+			{
+				robot.dialogue.SayCantGetColor();
+				Global._tran_ = "back";
+			};
+		};
+};
+Global._tran_ = "next";
+//#pop
+}
+, false
+, 212
+, function() {
+//#push 1 "follow_hand_3.enter"
+
+//#pop
+}
+, function() {
+//#push 1 "follow_hand_3.leave"
+Global._tran_="";
+_alive_.unfreeze;
+//#pop
+}, false, [-166.037, 50.7084]);
+
+//checking state declaration
+var _root_NCN_V2_1._nodes_.checking = fsm.State.create_("_root_NCN_V2_1._nodes_.checking", _root_NCN_V2_1._nodes_.play_game,
+function() {
+//#push 1 "checking"
+
+//#pop
+}
+, false
+, 222
+, function() {
+//#push 1 "checking.enter"
+
+Global._learn_counter=0;
+Global._asked_color=false;
+Global._last_color="";
+
+//#pop
+}
+, function() {
+//#push 1 "checking.leave"
+
+
+//#pop
+}, false, [263.043, 46.2747]);
+
+//start_2 state declaration
+var _root_NCN_V2_1._nodes_.start_2 = fsm.State.create_("_root_NCN_V2_1._nodes_.start_2", _root_NCN_V2_1._nodes_.checking,
+function() {
+//#push 1 "start_2"
+
+var _level = robot.ml.colorLearning.ChcekLevel();
+
+robot.dialogue.SayAboutKnowledgeLevel(_level);
+if (_level<=3) Global._tran_="learn";
+
+robot.dialogue.SayAboutCheckingGame();
+Global._tran_="next";
+//#pop
+}
+, true
+, 223
+, function() {
+//#push 1 "start_2.enter"
+
+//#pop
+}
+, function() {
+//#push 1 "start_2.leave"
+Global._tran_="";
+//#pop
+}, false, [-94.2752, -129.888]);
+
+//out_18 state declaration
+var _root_NCN_V2_1._nodes_.out_18 = fsm.State.create_("_root_NCN_V2_1._nodes_.out_18", _root_NCN_V2_1._nodes_.checking,
+function() {
+//#push 1 "out_18"
+
+//#pop
+}
+, false
+, 224
+, function() {
+//#push 1 "out_18.enter"
+
+//#pop
+}
+, function() {
+//#push 1 "out_18.leave"
+Global._tran_="";
+//#pop
+}, false, [91.8407, -122.215]);
+
+//check_waitit_for_color_2 state declaration
+var _root_NCN_V2_1._nodes_.check_waitit_for_color_2 = fsm.State.create_("_root_NCN_V2_1._nodes_.check_waitit_for_color_2", _root_NCN_V2_1._nodes_.checking,
+function() {
+//#push 1 "check_waitit_for_color_2"
+robot.competency.Emotion(0.5);
+
+/////////////////////////
+// OUT IF LOST USER
+var _userTag = Tag.new();
+_userTag: at (!robot.video.humanDetector.visible~2s) 
+{
+	robot.audio.recognition.pause = true;
+	robot.dialogue.SayCantSeeSilhouette();
+	robot.audio.recognition.pause = false;
+},
+
+////////////////////////
+// SAY SHOW NEXT OBJECT
+if (Global._learn_counter>0) robot.dialogue.SayShowNextObject();
+
+/////////////////////////
+// WAIT FOR OBJECT
+var ret = robot.dialogue.WaitForObjectToCheck()|
+_userTag.stop;
+
+if (ret=="HAND")
+{
+	Global._asked_color=false;
+	Global._tran_ = "lookAtHand";
+}
+else if (ret=="TORSO")
+{
+	Global._asked_color=false;
+	Global._tran_ = "lookAtTorso";
+}
+else if (ret=="COLOR")
+{
+	Global._asked_color=true;
+	Global._tran_ = "lookAtHand";
+}
+else if (ret=="STOP")
+{
+	robot.dialogue.SayOK();
+	Global._tran_ = "out";
+}
+else if (ret=="NEXT")
+{
+	robot.dialogue.SayOK();
+	Global._tran_ = "learn";
+}
+else // TIMEOUT	
+{
+	robot.emotion.ImpulseD(-100,100);
+	Global._tran_ = "out";
+};
+
+//#pop
+}
+, false
+, 225
+, function() {
+//#push 1 "check_waitit_for_color_2.enter"
+
+//#pop
+}
+, function() {
+//#push 1 "check_waitit_for_color_2.leave"
+Global._tran_="";
+//#pop
+}, false, [-3.53364, -7.66732]);
+
+//follow_torso_4 state declaration
+var _root_NCN_V2_1._nodes_.follow_torso_4 = fsm.State.create_("_root_NCN_V2_1._nodes_.follow_torso_4", _root_NCN_V2_1._nodes_.checking,
+function() {
+//#push 1 "follow_torso_4"
+
+/////////////////////////
+// OUT IF LOST TORSO
+var _userTag = Tag.new();
+_userTag: at (!robot.video.humanDetector.torso.visible~1s) 
+{
+	robot.dialogue.SayCantSeeSilhouette();
+	robot.emotion.ImpulseD(-100,100);	
+	robot.competency.Emotion(0.5);
+	Global._tran_="back";
+},
+
+//////////////////////////////////////
+//FREEZE FOLLOW PERSON AND FOLLOW HAND
+_alive_.freeze;
+robot.competency.ActFollowTorso(false),
+robot.body.neck.head.ExpAngry(5,0.5),
+
+//////////////////
+// WAIT FOR COLOR
+var ret = robot.dialogue.WaitForColorQuestion()|
+_userTag.stop;
+	
+if (ret=="TIMEOUT")
+{
+	robot.emotion.attractor.DialogueTimeout();
+	Global._tran_ = "back";
+}  
+else 
+{
+		Global._last_color = robot.competency.CheckColorFromTorso();
+		if (Global._last_color == "failed")
+		{
+			robot.dialogue.SayCantGetColor();
+			Global._tran_ = "back";
+		};
+};
+
+Global._tran_ = "next";
+
+//#pop
+}
+, false
+, 226
+, function() {
+//#push 1 "follow_torso_4.enter"
+
+//#pop
+}
+, function() {
+//#push 1 "follow_torso_4.leave"
+Global._tran_="";
+_alive_.unfreeze;
+//#pop
+}, false, [134.833, 59.8779]);
+
+//confirm_color state declaration
+var _root_NCN_V2_1._nodes_.confirm_color = fsm.State.create_("_root_NCN_V2_1._nodes_.confirm_color", _root_NCN_V2_1._nodes_.checking,
+function() {
+//#push 1 "confirm_color"
+robot.competency.Emotion(0.5);	
+Global._learn_counter++;
+
+/////////////////////////
+// SAY WHAT COLOR IT IS
+
+robot.dialogue.SayColor(Global._last_color);
+
+///////////////////
+// ASK IF CORRECT
+var ret = robot.dialogue.AskIfColorIsCorrect();
+	
+if (ret=="YES")
+{
+	robot.emotion.ImpulseD(50,100);
+	robot.dialogue.SaySatisfied();
+}
+else if (ret=="NO")
+{	
+	robot.emotion.ImpulseD(-50,100);
+	robot.dialogue.SayDissatisfied();
+}
+else // TIMEOUT	
+{	
+	robot.emotion.attractor.DialogueTimeout();
+};
+
+Global._tran_ = "next";
+//#pop
+}
+, false
+, 227
+, function() {
+//#push 1 "confirm_color.enter"
+
+//#pop
+}
+, function() {
+//#push 1 "confirm_color.leave"
+Global._tran_="";
+//#pop
+}, false, [-8.81522, 149.973]);
+
+//follow_hand_2 state declaration
+var _root_NCN_V2_1._nodes_.follow_hand_2 = fsm.State.create_("_root_NCN_V2_1._nodes_.follow_hand_2", _root_NCN_V2_1._nodes_.checking,
+function() {
+//#push 1 "follow_hand_2"
+
+//////////////////////////////////////
+//FREEZE FOLLOW PERSON AND START FOLLOW HAND
+_alive_.freeze;
+robot.competency.ActFollowRightHand(false),
+robot.body.neck.head.ExpAngry(5,0.5),
+
+
+if (Global._asked_color == false){
+	/////////////////////////
+	// OUT IF LOST HAND
+	var _userTag = Tag.new();
+	_userTag: at (!robot.video.humanDetector.hand[right].visible~1s) 
+	{
+		robot.dialogue.SayCantSeeSilhouette();
+		robot.emotion.ImpulseD(-100,100);
+		robot.competency.Emotion(0.5);	
+		Global._tran_="back";
+	},
+
+	//////////////////
+	// WAIT FOR COLOR
+	var ret = robot.dialogue.WaitForColorQuestion()|
+	_userTag.stop;
+	
+	if (ret=="TIMEOUT")
+	{
+	robot.emotion.attractor.DialogueTimeout();
+		Global._tran_ = "back";
+	} 
+	else 
+	{
+		Global._last_color = robot.competency.CheckColorFromRightHand();
+		if (Global._last_color == "failed")
+		{
+			robot.dialogue.SayCantGetColor();
+			Global._tran_ = "back";
+		} else {
+			robot.dialogue.SayColor(Global._last_color);
+		};
+	};
+} else { 
+		if (!robot.video.humanDetector.hand[right].visible) 
+		{
+			robot.dialogue.SayCantSeeSilhouette();
+			Global._tran_="back";
+		} else {
+			sleep(1.1 + (10.random)/10);
+			Global._last_color = robot.competency.CheckColorFromRightHand();
+			if (Global._last_color == "failed")
+			{
+				robot.dialogue.SayCantGetColor();
+				Global._tran_ = "back";
+			};
+		};
+};
+
+Global._tran_ = "next";
+
+
+
+//#pop
+}
+, false
+, 228
+, function() {
+//#push 1 "follow_hand_2.enter"
+
+//#pop
+}
+, function() {
+//#push 1 "follow_hand_2.leave"
+Global._tran_="";
+_alive_.unfreeze;
+//#pop
+}, false, [-149.892, 58.0507]);
+
+//in_4 state declaration
+var _root_NCN_V2_1._nodes_.in_4 = fsm.State.create_("_root_NCN_V2_1._nodes_.in_4", _root_NCN_V2_1._nodes_.play_game,
+function() {
+//#push 1 "in_4"
+////////////////////////////////
+// LOAD KNOWLEDGE ABOUT COLORS
+robot.competency.LoadLearningKnowledge(),
+
+////////
+// EVENT
+_event.from = Date.now;
+_event.done = false;
+
+/////////////////////////
+// OUT IF LOST USER
+var _userTag = Tag.new();
+_userTag: at (!robot.video.humanDetector.visible~10s) 
+{
+	robot.dialogue.SayCantSeeAnybody();
+	Global._tran_="out";
+},
+
+//////////////////
+// ASK IF CORRECT
+var ret = robot.dialogue.AskWhatKindOfGame()|
+_userTag.stop;
+
+if (ret=="LEARN")
+{
+	_event.desc = "Teaching colors";
+	_event.done = true;
+	Global._tran_="learn";
+}
+else if (ret=="CHECK")
+{	
+	_event.desc = "Checking colors";
+	_event.done = true;
+	Global._tran_="check";
+}
+else if (ret=="BACK")
+{	
+	robot.dialogue.SayOK(); 
+	Global._tran_="out";
+}
+else // TIMEOUT	
+{	
+	robot.emotion.attractor.DialogueTimeout();
+	Global._tran_ = "out";
+};
+
+//#pop
+}
+, true
+, 238
+, function() {
+//#push 1 "in_4.enter"
+
+//#pop
+}
+, function() {
+//#push 1 "in_4.leave"
+Global._tran_="";
+//#pop
+}, false, [-101.248, -383.757]);
+
+//out_16 state declaration
+var _root_NCN_V2_1._nodes_.out_16 = fsm.State.create_("_root_NCN_V2_1._nodes_.out_16", _root_NCN_V2_1._nodes_.play_game,
+function() {
+//#push 1 "out_16"
+////////////////////////////////
+// SAVE KNOWLEDGE ABOUT COLORS
+robot.competency.SaveLearningKnowledge(),
+
+////////
+// EVENT
+if (_event.done) {
+	_event.done = false;
+	_event.to = Date.now;
+	robot.competency.SetEvent(_event);
+};
+//#pop
+}
+, false
+, 239
+, function() {
+//#push 1 "out_16.enter"
+
+//#pop
+}
+, function() {
+//#push 1 "out_16.leave"
+
+
+//#pop
+}, false, [146.051, -391.84]);
+
+/***************************
+ * Transitions declaration *
+ ***************************/
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.looking_for_person, _root_NCN_V2_1._nodes_.back, _root_NCN_V2_1._nodes_.found_someone, "(Global._tran_==\"next\")", "_root_NCN_V2_1._nodes_.Transition_2");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.looking_for_person, _root_NCN_V2_1._nodes_.out_node_99, _root_NCN_V2_1._nodes_.say_hello, "(Global._tran_==\"hello\")", "_root_NCN_V2_1._nodes_.Transition_118");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.looking_for_person, _root_NCN_V2_1._nodes_.say_hello, _root_NCN_V2_1._nodes_.found_someone, "done?", "_root_NCN_V2_1._nodes_.Transition_125");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.looking_for_person, _root_NCN_V2_1._nodes_.found_someone, _root_NCN_V2_1._nodes_.looking_for_person_2, "(Global._tran_==\"back\")", "_root_NCN_V2_1._nodes_.Transition_3");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.looking_for_person, _root_NCN_V2_1._nodes_.looking_for_person_2, _root_NCN_V2_1._nodes_.found_someone, "(Global._tran_==\"next\")", "_root_NCN_V2_1._nodes_.Transition_23");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.looking_for_person, _root_NCN_V2_1._nodes_.back, _root_NCN_V2_1._nodes_.looking_for_person_2, "(Global._tran_==\"back\")", "_root_NCN_V2_1._nodes_.Transition_25");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.looking_for_person, _root_NCN_V2_1._nodes_.out_node_99, _root_NCN_V2_1._nodes_.say_time, "(Global._tran_==\"time\")", "_root_NCN_V2_1._nodes_.Transition_21");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.looking_for_person, _root_NCN_V2_1._nodes_.say_time, _root_NCN_V2_1._nodes_.found_someone, "done?", "_root_NCN_V2_1._nodes_.Transition_22");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.looking_for_person, _root_NCN_V2_1._nodes_.found_someone, _root_NCN_V2_1._nodes_.out_node_99, "(Global._tran_==\"out\")", "_root_NCN_V2_1._nodes_.Transition_24");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.looking_for_person, _root_NCN_V2_1._nodes_.out_node_99, _root_NCN_V2_1._nodes_.say_date, "(Global._tran_==\"date\")", "_root_NCN_V2_1._nodes_.Transition_26");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.looking_for_person, _root_NCN_V2_1._nodes_.say_date, _root_NCN_V2_1._nodes_.found_someone, "done?", "_root_NCN_V2_1._nodes_.Transition_27");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.looking_for_person, _root_NCN_V2_1._nodes_.out_node_99, _root_NCN_V2_1._nodes_.found_someone, "(Global._tran_==\"back\")", "_root_NCN_V2_1._nodes_.Transition_83");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.news, _root_NCN_V2_1._nodes_.Read_news, _root_NCN_V2_1._nodes_.Ask_for_more_, "(Global._tran_==\"back\")", "_root_NCN_V2_1._nodes_.Transition_49");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.news, _root_NCN_V2_1._nodes_.Ask_for_more_, _root_NCN_V2_1._nodes_.Read_news, "(Global._tran_==\"next\")", "_root_NCN_V2_1._nodes_.Transition_51");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.news, _root_NCN_V2_1._nodes_.Ask_for_more_, _root_NCN_V2_1._nodes_.out_80, "(Global._tran_==\"out\")", "_root_NCN_V2_1._nodes_.Transition_82");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.news, _root_NCN_V2_1._nodes_.Ask_kind_news, _root_NCN_V2_1._nodes_.out_80, "(Global._tran_==\"out\")", "_root_NCN_V2_1._nodes_.Transition_46");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.news, _root_NCN_V2_1._nodes_.Ask_kind_news, _root_NCN_V2_1._nodes_.Read_news, "(Global._tran_ == \"read\")", "_root_NCN_V2_1._nodes_.Transition_47");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.weather, _root_NCN_V2_1._nodes_.Read_next_days, _root_NCN_V2_1._nodes_.out_7, "done?", "_root_NCN_V2_1._nodes_.Transition_70");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.weather, _root_NCN_V2_1._nodes_.Read_for_today_3, _root_NCN_V2_1._nodes_.Ask_for_more_2, "(Global._tran_==\"next\")", "_root_NCN_V2_1._nodes_.Transition_69");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.weather, _root_NCN_V2_1._nodes_.Ask_for_more_2, _root_NCN_V2_1._nodes_.Read_next_days, "(Global._tran_==\"next\")", "_root_NCN_V2_1._nodes_.Transition_11");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.weather, _root_NCN_V2_1._nodes_.Ask_for_more_2, _root_NCN_V2_1._nodes_.out_7, "(Global._tran_==\"out\")", "_root_NCN_V2_1._nodes_.Transition_14");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.weather, _root_NCN_V2_1._nodes_.Read_for_today_3, _root_NCN_V2_1._nodes_.out_7, "(Global._tran_==\"out\")", "_root_NCN_V2_1._nodes_.Transition_15");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.facebook, _root_NCN_V2_1._nodes_.like_it, _root_NCN_V2_1._nodes_.Read_post, "(Global._tran_==\"next\")", "_root_NCN_V2_1._nodes_.Transition_67");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.facebook, _root_NCN_V2_1._nodes_.Like_or_readNext, _root_NCN_V2_1._nodes_.like_it, "(Global._tran_==\"like_it\")", "_root_NCN_V2_1._nodes_.Transition_66");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.facebook, _root_NCN_V2_1._nodes_.Like_or_readNext, _root_NCN_V2_1._nodes_.Read_post, "(Global._tran_==\"next\")", "_root_NCN_V2_1._nodes_.Transition_68");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.facebook, _root_NCN_V2_1._nodes_.Read_post, _root_NCN_V2_1._nodes_.Like_or_readNext, "(Global._tran_==\"back\")", "_root_NCN_V2_1._nodes_.Transition_132");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.facebook, _root_NCN_V2_1._nodes_.photo_2, _root_NCN_V2_1._nodes_.post_photo, "done?", "_root_NCN_V2_1._nodes_.Transition_45");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.facebook, _root_NCN_V2_1._nodes_.Ask_for_post, _root_NCN_V2_1._nodes_.Read_post, "(Global._tran_==\"next\")", "_root_NCN_V2_1._nodes_.Transition_64");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.facebook, _root_NCN_V2_1._nodes_.post_photo, _root_NCN_V2_1._nodes_.out_6, "(Global._tran_==\"out\")", "_root_NCN_V2_1._nodes_.Transition_52");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.facebook, _root_NCN_V2_1._nodes_.Like_or_readNext, _root_NCN_V2_1._nodes_.out_6, "(Global._tran_==\"out\")", "_root_NCN_V2_1._nodes_.Transition_133");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.facebook, _root_NCN_V2_1._nodes_.Ask_for_post, _root_NCN_V2_1._nodes_.out_6, "(Global._tran_==\"out\")", "_root_NCN_V2_1._nodes_.Transition_134");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.facebook, _root_NCN_V2_1._nodes_.like_it, _root_NCN_V2_1._nodes_.out_6, "(Global._tran_==\"out\")", "_root_NCN_V2_1._nodes_.Transition_53");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.facebook, _root_NCN_V2_1._nodes_.Read_post, _root_NCN_V2_1._nodes_.out_6, "(Global._tran_==\"out\")", "_root_NCN_V2_1._nodes_.Transition_44");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.facebook, _root_NCN_V2_1._nodes_.check_1, _root_NCN_V2_1._nodes_.Ask_for_post, "done?", "_root_NCN_V2_1._nodes_.Transition_63");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.facebook, _root_NCN_V2_1._nodes_.check_1, _root_NCN_V2_1._nodes_.out_6, "(Global._tran_==\"out\")", "_root_NCN_V2_1._nodes_.Transition_138");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.radio, _root_NCN_V2_1._nodes_.Play_music, _root_NCN_V2_1._nodes_.out_4, "done?", "_root_NCN_V2_1._nodes_.Transition_61");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.radio, _root_NCN_V2_1._nodes_.Ask_kind_music, _root_NCN_V2_1._nodes_.Play_music, "(Global._tran_==\"play\")", "_root_NCN_V2_1._nodes_.Transition_60");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.radio, _root_NCN_V2_1._nodes_.Ask_kind_music, _root_NCN_V2_1._nodes_.out_4, "(Global._tran_==\"out\")", "_root_NCN_V2_1._nodes_.Transition_62");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.tv, _root_NCN_V2_1._nodes_.Ask_for_more, _root_NCN_V2_1._nodes_.out_9, "(Global._tran_==\"out\")", "_root_NCN_V2_1._nodes_.Transition_88");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.tv, _root_NCN_V2_1._nodes_.Get_TV, _root_NCN_V2_1._nodes_.out_9, "(Global._tran_==\"out\")", "_root_NCN_V2_1._nodes_.Transition_86");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.tv, _root_NCN_V2_1._nodes_.Read_tv_2, _root_NCN_V2_1._nodes_.Ask_for_more, "(Global._tran_==\"back\")", "_root_NCN_V2_1._nodes_.Transition_13");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.tv, _root_NCN_V2_1._nodes_.Ask_for_more, _root_NCN_V2_1._nodes_.Read_tv_2, "(Global._tran_==\"next\")", "_root_NCN_V2_1._nodes_.Transition_16");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.tv, _root_NCN_V2_1._nodes_.Get_TV, _root_NCN_V2_1._nodes_.Read_tv_2, "(Global._tran_==\"next\")", "_root_NCN_V2_1._nodes_.Transition_54");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.calendar, _root_NCN_V2_1._nodes_.Read_next_days_2, _root_NCN_V2_1._nodes_.out_10, "(Global._tran_==\"out\")", "_root_NCN_V2_1._nodes_.Transition_94");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.calendar, _root_NCN_V2_1._nodes_.Get_next_day, _root_NCN_V2_1._nodes_.out_10, "(Global._tran_==\"out\")", "_root_NCN_V2_1._nodes_.Transition_91");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.calendar, _root_NCN_V2_1._nodes_.Get_next_day, _root_NCN_V2_1._nodes_.Read_next_days_2, "(Global._tran_==\"next\")", "_root_NCN_V2_1._nodes_.Transition_93");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.calendar, _root_NCN_V2_1._nodes_.Read_next_days_2, _root_NCN_V2_1._nodes_.Get_next_day, "(Global._tran_==\"back\")", "_root_NCN_V2_1._nodes_.Transition_95");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.calendar, _root_NCN_V2_1._nodes_.Read_for_today, _root_NCN_V2_1._nodes_.Get_next_day, "(Global._tran_==\"next\")", "_root_NCN_V2_1._nodes_.Transition_90");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.calendar, _root_NCN_V2_1._nodes_.Read_for_today, _root_NCN_V2_1._nodes_.out_10, "(Global._tran_==\"out\")", "_root_NCN_V2_1._nodes_.Transition_92");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.mail, _root_NCN_V2_1._nodes_.Ask_if_answear, _root_NCN_V2_1._nodes_.Set_answear, "(Global._tran_==\"answear\")", "_root_NCN_V2_1._nodes_.Transition_109");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.mail, _root_NCN_V2_1._nodes_.Ask_if_read_NextMessage, _root_NCN_V2_1._nodes_.out_11, "(Global._tran_==\"out\")", "_root_NCN_V2_1._nodes_.Transition_113");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.mail, _root_NCN_V2_1._nodes_.Ask_if_read_NextMessage, _root_NCN_V2_1._nodes_.Read_message, "(Global._tran_==\"next\")", "_root_NCN_V2_1._nodes_.Transition_121");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.mail, _root_NCN_V2_1._nodes_.Check_email, _root_NCN_V2_1._nodes_.Read_message, "(Global._tran_==\"next\")", "_root_NCN_V2_1._nodes_.Transition_108");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.mail, _root_NCN_V2_1._nodes_.Check_email, _root_NCN_V2_1._nodes_.out_11, "(Global._tran_==\"out\")", "_root_NCN_V2_1._nodes_.Transition_122");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.mail, _root_NCN_V2_1._nodes_.Send_message, _root_NCN_V2_1._nodes_.out_11, "(Global._tran_==\"out\")", "_root_NCN_V2_1._nodes_.Transition_114");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.mail, _root_NCN_V2_1._nodes_.Send_message, _root_NCN_V2_1._nodes_.Ask_if_read_NextMessage, "(Global._tran_==\"read_next\")", "_root_NCN_V2_1._nodes_.Transition_110");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.mail, _root_NCN_V2_1._nodes_.To_who_send_message, _root_NCN_V2_1._nodes_.Send_message, "(Global._tran_==\"send\")", "_root_NCN_V2_1._nodes_.Transition_107");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.mail, _root_NCN_V2_1._nodes_.To_who_send_message, _root_NCN_V2_1._nodes_.out_11, "(Global._tran_==\"out\")", "_root_NCN_V2_1._nodes_.Transition_116");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.mail, _root_NCN_V2_1._nodes_.Send_message, _root_NCN_V2_1._nodes_.To_who_send_message, "(Global._tran_==\"again\")", "_root_NCN_V2_1._nodes_.Transition_137");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.mail, _root_NCN_V2_1._nodes_.Record_voice, _root_NCN_V2_1._nodes_.To_who_send_message, "(Global._tran_ == \"ask_to_who\")", "_root_NCN_V2_1._nodes_.Transition_105");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.mail, _root_NCN_V2_1._nodes_.Take_photo, _root_NCN_V2_1._nodes_.To_who_send_message, "(Global._tran_ == \"ask_to_who\")", "_root_NCN_V2_1._nodes_.Transition_106");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.mail, _root_NCN_V2_1._nodes_.Ask_for_voice, _root_NCN_V2_1._nodes_.Record_voice, "(Global._tran_==\"record_voice\")", "_root_NCN_V2_1._nodes_.Transition_101");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.mail, _root_NCN_V2_1._nodes_.Take_photo, _root_NCN_V2_1._nodes_.Ask_for_voice, "(Global._tran_ == \"ask_for_voice\")", "_root_NCN_V2_1._nodes_.Transition_104");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.mail, _root_NCN_V2_1._nodes_.Set_answear, _root_NCN_V2_1._nodes_.Ask_for_voice, "done?", "_root_NCN_V2_1._nodes_.Transition_112");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.mail, _root_NCN_V2_1._nodes_.Ask_for_voice, _root_NCN_V2_1._nodes_.out_11, "(Global._tran_==\"out\")", "_root_NCN_V2_1._nodes_.Transition_117");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.mail, _root_NCN_V2_1._nodes_.Ask_for_voice, _root_NCN_V2_1._nodes_.To_who_send_message, "(Global._tran_ == \"ask_to_who\")", "_root_NCN_V2_1._nodes_.Transition_120");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.mail, _root_NCN_V2_1._nodes_.To_who_send_message, _root_NCN_V2_1._nodes_.Ask_for_voice, "(Global._tran_==\"ask_again\")", "_root_NCN_V2_1._nodes_.Transition_42");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.mail, _root_NCN_V2_1._nodes_.Ask_for_photo, _root_NCN_V2_1._nodes_.Ask_for_voice, "(Global._tran_ == \"ask_for_voice\")", "_root_NCN_V2_1._nodes_.Transition_99");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.mail, _root_NCN_V2_1._nodes_.Ask_for_voice, _root_NCN_V2_1._nodes_.Ask_for_photo, "(Global._tran_ == \"ask_for_photo\")", "_root_NCN_V2_1._nodes_.Transition_100");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.mail, _root_NCN_V2_1._nodes_.Record_voice, _root_NCN_V2_1._nodes_.Ask_for_photo, "(Global._tran_ == \"ask_for_photo\")", "_root_NCN_V2_1._nodes_.Transition_102");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.mail, _root_NCN_V2_1._nodes_.Ask_for_photo, _root_NCN_V2_1._nodes_.Take_photo, "(Global._tran_==\"take_photo\")", "_root_NCN_V2_1._nodes_.Transition_103");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.mail, _root_NCN_V2_1._nodes_.Ask_for_photo, _root_NCN_V2_1._nodes_.out_11, "(Global._tran_==\"out\")", "_root_NCN_V2_1._nodes_.Transition_115");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.mail, _root_NCN_V2_1._nodes_.Ask_for_photo, _root_NCN_V2_1._nodes_.To_who_send_message, "(Global._tran_ == \"ask_to_who\")", "_root_NCN_V2_1._nodes_.Transition_119");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.mail, _root_NCN_V2_1._nodes_.from_take_photo, _root_NCN_V2_1._nodes_.Ask_for_voice, "done?", "_root_NCN_V2_1._nodes_.Transition_97");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.mail, _root_NCN_V2_1._nodes_.from_send_message, _root_NCN_V2_1._nodes_.Ask_for_voice, "done?", "_root_NCN_V2_1._nodes_.Transition_98");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.mail, _root_NCN_V2_1._nodes_.Read_message, _root_NCN_V2_1._nodes_.Ask_if_answear, "(Global._tran_==\"next\")", "_root_NCN_V2_1._nodes_.Transition_17");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.mail, _root_NCN_V2_1._nodes_.Ask_if_answear, _root_NCN_V2_1._nodes_.out_11, "(Global._tran_==\"out\")", "_root_NCN_V2_1._nodes_.Transition_18");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.mail, _root_NCN_V2_1._nodes_.Ask_if_answear, _root_NCN_V2_1._nodes_.Ask_if_read_NextMessage, "(Global._tran_==\"back\")", "_root_NCN_V2_1._nodes_.Transition_19");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.photo, _root_NCN_V2_1._nodes_.ask_for_what, _root_NCN_V2_1._nodes_.out_12, "(Global._tran_==\"out\")", "_root_NCN_V2_1._nodes_.Transition_129");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.photo, _root_NCN_V2_1._nodes_.take_photo_2, _root_NCN_V2_1._nodes_.ask_for_what, "done?", "_root_NCN_V2_1._nodes_.Transition_127");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.activity, _root_NCN_V2_1._nodes_.ask_for_what, _root_NCN_V2_1._nodes_.from_take_photo, "((Global._tran_==\"mail\"))", "_root_NCN_V2_1._nodes_.Transition_131");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.activity, _root_NCN_V2_1._nodes_.ask_for_what, _root_NCN_V2_1._nodes_.photo_2, "((Global._tran_==\"facebook\"))", "_root_NCN_V2_1._nodes_.Transition_43");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.activity, _root_NCN_V2_1._nodes_.out_7, _root_NCN_V2_1._nodes_.main_out, "done?", "_root_NCN_V2_1._nodes_.Transition_40");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.activity, _root_NCN_V2_1._nodes_.out_80, _root_NCN_V2_1._nodes_.main_out, "done?", "_root_NCN_V2_1._nodes_.Transition_48");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.activity, _root_NCN_V2_1._nodes_.out_4, _root_NCN_V2_1._nodes_.main_out, "done?", "_root_NCN_V2_1._nodes_.Transition_59");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.activity, _root_NCN_V2_1._nodes_.out_6, _root_NCN_V2_1._nodes_.main_out, "done?", "_root_NCN_V2_1._nodes_.Transition_65");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.activity, _root_NCN_V2_1._nodes_.out_10, _root_NCN_V2_1._nodes_.main_out, "done?", "_root_NCN_V2_1._nodes_.Transition_56");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.activity, _root_NCN_V2_1._nodes_.out_11, _root_NCN_V2_1._nodes_.main_out, "done?", "_root_NCN_V2_1._nodes_.Transition_126");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.activity, _root_NCN_V2_1._nodes_.out_12, _root_NCN_V2_1._nodes_.main_out, "done?", "_root_NCN_V2_1._nodes_.Transition_130");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.activity, _root_NCN_V2_1._nodes_.main_in, _root_NCN_V2_1._nodes_.news, "((Global._tran_==\"news\"))", "_root_NCN_V2_1._nodes_.Transition_37");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.activity, _root_NCN_V2_1._nodes_.main_in, _root_NCN_V2_1._nodes_.weather, "((Global._tran_==\"weather\"))", "_root_NCN_V2_1._nodes_.Transition_39");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.activity, _root_NCN_V2_1._nodes_.main_in, _root_NCN_V2_1._nodes_.calendar, "((Global._tran_==\"calendar\"))", "_root_NCN_V2_1._nodes_.Transition_55");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.activity, _root_NCN_V2_1._nodes_.main_in, _root_NCN_V2_1._nodes_.facebook, "((Global._tran_==\"facebook\"))", "_root_NCN_V2_1._nodes_.Transition_57");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.activity, _root_NCN_V2_1._nodes_.main_in, _root_NCN_V2_1._nodes_.radio, "((Global._tran_==\"radio\"))", "_root_NCN_V2_1._nodes_.Transition_38");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.activity, _root_NCN_V2_1._nodes_.main_in, _root_NCN_V2_1._nodes_.Check_email, "((Global._tran_==\"check_mail\"))", "_root_NCN_V2_1._nodes_.Transition_41");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.activity, _root_NCN_V2_1._nodes_.main_in, _root_NCN_V2_1._nodes_.from_send_message, "((Global._tran_==\"send_mail\"))", "_root_NCN_V2_1._nodes_.Transition_111");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.activity, _root_NCN_V2_1._nodes_.main_in, _root_NCN_V2_1._nodes_.photo, "((Global._tran_==\"photo\"))", "_root_NCN_V2_1._nodes_.Transition_128");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.activity, _root_NCN_V2_1._nodes_.out_9, _root_NCN_V2_1._nodes_.main_out, "done?", "_root_NCN_V2_1._nodes_.Transition_85");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.activity, _root_NCN_V2_1._nodes_.main_in, _root_NCN_V2_1._nodes_.tv, "((Global._tran_==\"tv\"))", "_root_NCN_V2_1._nodes_.Transition_84");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.alarm, _root_NCN_V2_1._nodes_.setAlarm, _root_NCN_V2_1._nodes_.askIfCorrect, "(Global._tran_==\"check\")", "_root_NCN_V2_1._nodes_.Transition_76");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.alarm, _root_NCN_V2_1._nodes_.askIfCorrect, _root_NCN_V2_1._nodes_.setAlarm, "(Global._tran_==\"back\")", "_root_NCN_V2_1._nodes_.Transition_79");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.alarm, _root_NCN_V2_1._nodes_.askIfCorrect, _root_NCN_V2_1._nodes_.out_8, "(Global._tran_==\"out\")", "_root_NCN_V2_1._nodes_.Transition_78");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.alarm, _root_NCN_V2_1._nodes_.setAlarm, _root_NCN_V2_1._nodes_.out_8, "(Global._tran_==\"out\")", "_root_NCN_V2_1._nodes_.Transition_80");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.alarm, _root_NCN_V2_1._nodes_.snooze, _root_NCN_V2_1._nodes_.out_8, "done?", "_root_NCN_V2_1._nodes_.Transition_74");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.alarm, _root_NCN_V2_1._nodes_.makeAlarm, _root_NCN_V2_1._nodes_.snooze, "(Global._tran_==\"snooze\")", "_root_NCN_V2_1._nodes_.Transition_73");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.alarm, _root_NCN_V2_1._nodes_.makeAlarm, _root_NCN_V2_1._nodes_.out_8, "(Global._tran_==\"auto_stop\")", "_root_NCN_V2_1._nodes_.Transition_75");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.deactivate, _root_NCN_V2_1._nodes_.sleep, _root_NCN_V2_1._nodes_.seen_someone, "(Global._tran_==\"wake_up\")", "_root_NCN_V2_1._nodes_.Transition_28");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.deactivate, _root_NCN_V2_1._nodes_.seen_someone, _root_NCN_V2_1._nodes_.out_15, "(Global._tran_==\"out\")", "_root_NCN_V2_1._nodes_.Transition_33");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.deactivate, _root_NCN_V2_1._nodes_.seen_someone, _root_NCN_V2_1._nodes_.sleep, "(Global._tran_==\"back\")", "_root_NCN_V2_1._nodes_.Transition_34");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.deactivate, _root_NCN_V2_1._nodes_.confirm, _root_NCN_V2_1._nodes_.sleep, "done?", "_root_NCN_V2_1._nodes_.Transition_58");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.Introduce, _root_NCN_V2_1._nodes_.intro, _root_NCN_V2_1._nodes_.say_about, "(Global._tran_==\"next\")", "_root_NCN_V2_1._nodes_.Transition_141");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.Introduce, _root_NCN_V2_1._nodes_.intro, _root_NCN_V2_1._nodes_.out_13, "(Global._tran_==\"out\")", "_root_NCN_V2_1._nodes_.Transition_5");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.Introduce, _root_NCN_V2_1._nodes_.say_about, _root_NCN_V2_1._nodes_.out_13, "done?", "_root_NCN_V2_1._nodes_.Transition_6");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.Emotions, _root_NCN_V2_1._nodes_.show, _root_NCN_V2_1._nodes_.out_5, "done?", "_root_NCN_V2_1._nodes_.Transition_140");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.demo, _root_NCN_V2_1._nodes_.out_5, _root_NCN_V2_1._nodes_.out_14, "done?", "_root_NCN_V2_1._nodes_.Transition_136");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.demo, _root_NCN_V2_1._nodes_.in_9, _root_NCN_V2_1._nodes_.Emotions, "(Global._tran_==\"emotions\")", "_root_NCN_V2_1._nodes_.Transition_31");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.demo, _root_NCN_V2_1._nodes_.out_13, _root_NCN_V2_1._nodes_.out_14, "done?", "_root_NCN_V2_1._nodes_.Transition_35");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.demo, _root_NCN_V2_1._nodes_.in_9, _root_NCN_V2_1._nodes_.Introduce, "(Global._tran_==\"introduce\")", "_root_NCN_V2_1._nodes_.Transition_32");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.learning, _root_NCN_V2_1._nodes_.follow_torso_3, _root_NCN_V2_1._nodes_.say_got_it, "(Global._tran_==\"next\")", "_root_NCN_V2_1._nodes_.Transition_148");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.learning, _root_NCN_V2_1._nodes_.check_waitit_for_color_1, _root_NCN_V2_1._nodes_.follow_torso_3, "(Global._tran_==\"lookAtTorso\")", "_root_NCN_V2_1._nodes_.Transition_145");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.learning, _root_NCN_V2_1._nodes_.say_got_it, _root_NCN_V2_1._nodes_.check_waitit_for_color_1, "(Global._tran_==\"next\")", "_root_NCN_V2_1._nodes_.Transition_147");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.learning, _root_NCN_V2_1._nodes_.follow_torso_3, _root_NCN_V2_1._nodes_.check_waitit_for_color_1, "(Global._tran_==\"back\")", "_root_NCN_V2_1._nodes_.Transition_151");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.learning, _root_NCN_V2_1._nodes_.check_waitit_for_color_1, _root_NCN_V2_1._nodes_.out_17, "(Global._tran_==\"out\")", "_root_NCN_V2_1._nodes_.Transition_146");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.learning, _root_NCN_V2_1._nodes_.start_1, _root_NCN_V2_1._nodes_.check_waitit_for_color_1, "done?", "_root_NCN_V2_1._nodes_.Transition_143");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.learning, _root_NCN_V2_1._nodes_.follow_hand_3, _root_NCN_V2_1._nodes_.check_waitit_for_color_1, "(Global._tran_==\"back\")", "_root_NCN_V2_1._nodes_.Transition_150");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.learning, _root_NCN_V2_1._nodes_.check_waitit_for_color_1, _root_NCN_V2_1._nodes_.follow_hand_3, "(Global._tran_==\"lookAtHand\")", "_root_NCN_V2_1._nodes_.Transition_144");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.learning, _root_NCN_V2_1._nodes_.follow_hand_3, _root_NCN_V2_1._nodes_.say_got_it, "(Global._tran_==\"next\")", "_root_NCN_V2_1._nodes_.Transition_149");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.checking, _root_NCN_V2_1._nodes_.follow_hand_2, _root_NCN_V2_1._nodes_.confirm_color, "(Global._tran_==\"next\")", "_root_NCN_V2_1._nodes_.Transition_160");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.checking, _root_NCN_V2_1._nodes_.follow_torso_4, _root_NCN_V2_1._nodes_.confirm_color, "(Global._tran_==\"next\")", "_root_NCN_V2_1._nodes_.Transition_161");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.checking, _root_NCN_V2_1._nodes_.confirm_color, _root_NCN_V2_1._nodes_.check_waitit_for_color_2, "(Global._tran_==\"next\")", "_root_NCN_V2_1._nodes_.Transition_156");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.checking, _root_NCN_V2_1._nodes_.check_waitit_for_color_2, _root_NCN_V2_1._nodes_.follow_hand_2, "(Global._tran_==\"lookAtHand\")", "_root_NCN_V2_1._nodes_.Transition_158");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.checking, _root_NCN_V2_1._nodes_.check_waitit_for_color_2, _root_NCN_V2_1._nodes_.follow_torso_4, "(Global._tran_==\"lookAtTorso\")", "_root_NCN_V2_1._nodes_.Transition_159");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.checking, _root_NCN_V2_1._nodes_.follow_hand_2, _root_NCN_V2_1._nodes_.check_waitit_for_color_2, "(Global._tran_==\"back\")", "_root_NCN_V2_1._nodes_.Transition_9");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.checking, _root_NCN_V2_1._nodes_.follow_torso_4, _root_NCN_V2_1._nodes_.check_waitit_for_color_2, "(Global._tran_==\"back\")", "_root_NCN_V2_1._nodes_.Transition_10");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.checking, _root_NCN_V2_1._nodes_.check_waitit_for_color_2, _root_NCN_V2_1._nodes_.out_18, "(Global._tran_==\"out\")", "_root_NCN_V2_1._nodes_.Transition_164");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.checking, _root_NCN_V2_1._nodes_.start_2, _root_NCN_V2_1._nodes_.check_waitit_for_color_2, "(Global._tran_==\"next\")", "_root_NCN_V2_1._nodes_.Transition_157");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.play_game, _root_NCN_V2_1._nodes_.in_4, _root_NCN_V2_1._nodes_.out_16, "(Global._tran_==\"out\")", "_root_NCN_V2_1._nodes_.Transition_12");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.play_game, _root_NCN_V2_1._nodes_.out_18, _root_NCN_V2_1._nodes_.out_16, "done?", "_root_NCN_V2_1._nodes_.Transition_168");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.play_game, _root_NCN_V2_1._nodes_.in_4, _root_NCN_V2_1._nodes_.checking, "(Global._tran_==\"check\")", "_root_NCN_V2_1._nodes_.Transition_167");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.play_game, _root_NCN_V2_1._nodes_.check_waitit_for_color_1, _root_NCN_V2_1._nodes_.checking, "(Global._tran_==\"check\")", "_root_NCN_V2_1._nodes_.Transition_169");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.play_game, _root_NCN_V2_1._nodes_.out_17, _root_NCN_V2_1._nodes_.out_16, "done?", "_root_NCN_V2_1._nodes_.Transition_155");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.play_game, _root_NCN_V2_1._nodes_.in_4, _root_NCN_V2_1._nodes_.learning, "(Global._tran_==\"learn\")", "_root_NCN_V2_1._nodes_.Transition_154");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.play_game, _root_NCN_V2_1._nodes_.check_waitit_for_color_2, _root_NCN_V2_1._nodes_.learning, "(Global._tran_==\"learn\")", "_root_NCN_V2_1._nodes_.Transition_7");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.play_game, _root_NCN_V2_1._nodes_.start_2, _root_NCN_V2_1._nodes_.learning, "(Global._tran_==\"learn\")", "_root_NCN_V2_1._nodes_.Transition_8");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.NCN_DEMO, _root_NCN_V2_1._nodes_.Start, _root_NCN_V2_1._nodes_.looking_for_person, "done?", "_root_NCN_V2_1._nodes_.Transition");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.NCN_DEMO, _root_NCN_V2_1._nodes_.out_15, _root_NCN_V2_1._nodes_.back, "done?", "_root_NCN_V2_1._nodes_.Transition_81");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.NCN_DEMO, _root_NCN_V2_1._nodes_.out_node_99, _root_NCN_V2_1._nodes_.deactivate, "(Global._tran_==\"deactivate\")", "_root_NCN_V2_1._nodes_.Transition_50");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.NCN_DEMO, _root_NCN_V2_1._nodes_.out_node_99, _root_NCN_V2_1._nodes_.setAlarm, "(Global._tran_==\"set_alarm\")", "_root_NCN_V2_1._nodes_.Transition_77");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.NCN_DEMO, _root_NCN_V2_1._nodes_.out_8, _root_NCN_V2_1._nodes_.back, "done?", "_root_NCN_V2_1._nodes_.Transition_72");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.NCN_DEMO, _root_NCN_V2_1._nodes_.looking_for_person, _root_NCN_V2_1._nodes_.alarm, "(Global._tran_==\"alarm\")", "_root_NCN_V2_1._nodes_.Transition_71");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.NCN_DEMO, _root_NCN_V2_1._nodes_.deactivate, _root_NCN_V2_1._nodes_.alarm, "(Global._tran_==\"alarm\")", "_root_NCN_V2_1._nodes_.Transition_96");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.NCN_DEMO, _root_NCN_V2_1._nodes_.main_out, _root_NCN_V2_1._nodes_.back, "done?", "_root_NCN_V2_1._nodes_.Transition_36");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.NCN_DEMO, _root_NCN_V2_1._nodes_.out_node_99, _root_NCN_V2_1._nodes_.activity, "(Global._tran_==\"activity\")", "_root_NCN_V2_1._nodes_.Transition_30");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.NCN_DEMO, _root_NCN_V2_1._nodes_.out_14, _root_NCN_V2_1._nodes_.back, "done?", "_root_NCN_V2_1._nodes_.Transition_139");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.NCN_DEMO, _root_NCN_V2_1._nodes_.out_node_99, _root_NCN_V2_1._nodes_.in_9, "(Global._tran_==\"demo\")", "_root_NCN_V2_1._nodes_.Transition_29");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.NCN_DEMO, _root_NCN_V2_1._nodes_.out_16, _root_NCN_V2_1._nodes_.back, "done?", "_root_NCN_V2_1._nodes_.Transition_4");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.NCN_DEMO, _root_NCN_V2_1._nodes_.out_node_99, _root_NCN_V2_1._nodes_.play_game, "(Global._tran_==\"play\")", "_root_NCN_V2_1._nodes_.Transition_163");
+fsm.Transition.create_(_root_NCN_V2_1._nodes_.NCN_DEMO, _root_NCN_V2_1._nodes_.looking_for_person_2, _root_NCN_V2_1._nodes_.deactivate, "(Global._tran_==\"deactivate\")", "_root_NCN_V2_1._nodes_.Transition_20");
+
+
+var _root_NCN_V2_1.enterChan = Channel.new("enteringNode");
+var _root_NCN_V2_1.enterChan.lobby = getSlot("lobby");
+at(_root_NCN_V2_1.enteringNode?(var id)) _root_NCN_V2_1.enterChan << ["_root_NCN_V2_1", id.name];
+var _root_NCN_V2_1.leaveChan = Channel.new("leavingNode");
+var _root_NCN_V2_1.leaveChan.lobby = getSlot("lobby");
+at(_root_NCN_V2_1.leavingNode?(var id)) _root_NCN_V2_1.leaveChan << ["_root_NCN_V2_1", id.name];
+var _root_NCN_V2_1.transitingChan = Channel.new("transiting");
+var _root_NCN_V2_1.transitingChan.lobby = getSlot("lobby");
+at(_root_NCN_V2_1.transiting?(var node, var trans)) _root_NCN_V2_1.transitingChan << ["_root_NCN_V2_1", trans.name];
+var _root_NCN_V2_1.freezeChan = Channel.new("frozen");
+var _root_NCN_V2_1.freezeChan.lobby = getSlot("lobby");
+at(_root_NCN_V2_1.graphFrozen?()) _root_NCN_V2_1.freezeChan << "_root_NCN_V2_1";
+// Start code.
+detach(_root_NCN_V2_1.enter_());
+
+// End of graph implementation `_root_NCN_V2_1'.
+

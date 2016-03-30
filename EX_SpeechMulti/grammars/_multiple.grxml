@@ -1,0 +1,43 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<grammar
+  xml:lang="en-US"
+  root="root"
+  tag-format="properties-ms/1.0"
+  version="1.0" xmlns="http://www.w3.org/2001/06/grammar" xmlns:sapi="http://schemas.microsoft.com/Speech/2002/06/SRGSExtensions">
+  <rule
+    id="Lookup"
+    scope="private">
+    <one-of>
+      <item>
+        <one-of>
+          <item>Technical Support</item>
+          <item>Support</item>
+          <item>Help</item>
+        </one-of>
+        <tag>"Technical Support"</tag>
+      </item>
+      <item>
+        <one-of>
+          <item>Accounting</item>
+          <item>Bookkeeping</item>
+          <item>Bean Counters</item>
+        </one-of>
+        <tag>"Accounting"</tag>
+      </item>
+      <item>
+        <one-of>
+          <item>Sales</item>
+          <item>Sales and Marketing</item>
+          <item>Marketing</item>
+        </one-of>
+        <tag>"Sales"</tag>
+      </item>
+    </one-of>
+  </rule>
+  <rule
+    id="root"
+    scope="private">
+    <ruleref
+      uri="#Lookup" />
+  </rule>
+</grammar>

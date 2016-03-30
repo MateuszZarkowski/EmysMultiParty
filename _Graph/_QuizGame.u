@@ -1,0 +1,279 @@
+/*
+ * _QuizGame: Main graph implementation.
+ *
+ * Load this file in your server to run the graph.
+ *
+ * Created: N 6. mar 22:11:36 2016
+ *      by: Gostai Studio 2.7
+ *
+ * WARNING! All changes made in this file will be lost!
+ */
+
+
+// Load urbiscript file.
+load("urbi/fsm.u");
+
+//#line 16 "_QuizGameGostai Studio 2.7"
+
+/*************************
+ * Create the root state *
+ *************************/
+
+//Clean previous code
+if (hasLocalSlot("_root__QuizGame_1"))
+  if (Object.hasLocalSlot("removeLocalSlot"))
+    removeLocalSlot("_root__QuizGame_1")
+  else
+    removeSlot("_root__QuizGame_1");
+
+var _root__QuizGame_1 = fsm.State.new("_root__QuizGame_1");
+_root__QuizGame_1.'$params_dict' = Dictionary.new();
+var _root__QuizGame_1._nodes_ = Object.new;
+
+/**********************
+ * States declaration *
+ **********************/
+
+//audio_quiz state declaration
+var _root__QuizGame_1._nodes_.audio_quiz = fsm.State.create_("_root__QuizGame_1._nodes_.audio_quiz", _root__QuizGame_1,
+function() {
+//#push 1 "audio_quiz"
+//Audio Quiz
+
+
+
+echo("LOADED");
+if (!hasSlot("_tran_")) var Global._tran_="" else Global._tran_="";
+if (!robot.hasSlot("dialogue")) var robot.dialogue = DialogueManager.new else robot.dialogue = DialogueManager.new;
+Recog.debug = true;
+
+robot.audio.Run,
+sleep(4s);
+//robot.audio.recognition.pause = true;
+
+
+//#pop
+}
+, true
+, 3
+, function() {
+//#push 1 "audio_quiz.enter"
+//Code executed before entering the node
+
+//#pop
+}
+, function() {
+//#push 1 "audio_quiz.leave"
+//Code executed after leaving the node
+
+//#pop
+}, false, [-171.628, 424.01]);
+
+//start state declaration
+var _root__QuizGame_1._nodes_.start = fsm.State.create_("_root__QuizGame_1._nodes_.start", _root__QuizGame_1._nodes_.audio_quiz,
+function() {
+//#push 1 "start"
+echo("START!");
+
+robot.dialogue.Speak("Czesc! Jestem EMYS.");
+
+//#pop
+}
+, true
+, 4
+, function() {
+//#push 1 "start.enter"
+//Code executed before entering the node
+
+//#pop
+}
+, function() {
+//#push 1 "start.leave"
+//Code executed after leaving the node
+
+//#pop
+}, false, [-619.469, -192.365]);
+
+//want_to_play state declaration
+var _root__QuizGame_1._nodes_.want_to_play = fsm.State.create_("_root__QuizGame_1._nodes_.want_to_play", _root__QuizGame_1._nodes_.audio_quiz,
+function() {
+//#push 1 "want_to_play"
+var result = "";
+while( result == "" || result == "TIMEOUT")
+	result = robot.dialogue.AskQuestion("Czy chcesz zagrac w gre?","YesNo",true);
+
+
+if (result == "YES" ) robot.dialogue.Speak("OK!");
+Global._tran_ = result;
+//#pop
+}
+, false
+, 5
+, function() {
+//#push 1 "want_to_play.enter"
+//Code executed before entering the node
+
+//#pop
+}
+, function() {
+//#push 1 "want_to_play.leave"
+//Code executed after leaving the node
+
+//#pop
+}, false, [-450.168, -489.412]);
+
+//shame state declaration
+var _root__QuizGame_1._nodes_.shame = fsm.State.create_("_root__QuizGame_1._nodes_.shame", _root__QuizGame_1._nodes_.audio_quiz,
+function() {
+//#push 1 "shame"
+robot.dialogue.Speak("Szkoooooda.");
+sleep(6s);
+//#pop
+}
+, false
+, 6
+, function() {
+//#push 1 "shame.enter"
+//Code executed before entering the node
+
+//#pop
+}
+, function() {
+//#push 1 "shame.leave"
+//Code executed after leaving the node
+
+//#pop
+}, false, [-169.616, -586.26]);
+
+//game state declaration
+var _root__QuizGame_1._nodes_.game = fsm.State.create_("_root__QuizGame_1._nodes_.game", _root__QuizGame_1._nodes_.audio_quiz,
+function() {
+//#push 1 "game"
+if(!hasSlot("quizGame")) var this.quizGame = "" else this.quizGame = "";
+if(!hasSlot("questionCount")) var this.questionCount = 10 else this.questionCount = 10;
+//#pop
+}
+, false
+, 7
+, function() {
+//#push 1 "game.enter"
+//Code executed before entering the node
+//#pop
+}
+, function() {
+//#push 1 "game.leave"
+//Code executed after leaving the node
+
+//#pop
+}, false, [-193.192, -197.225]);
+
+//prep state declaration
+var _root__QuizGame_1._nodes_.prep = fsm.State.create_("_root__QuizGame_1._nodes_.prep", _root__QuizGame_1._nodes_.game,
+function() {
+//#push 1 "prep"
+var result = "";
+while( result == "" || result == "TIMEOUT")
+	result = robot.dialogue.AskQuestion("Ile zadac pytan?","Number20",true);
+
+
+robot.dialogue.Speak(result + " pytan!");
+parent.questionCount = result.asFloat;
+
+parent.quizGame = QuizGame.new("Quiz_4ans_100_PL.txt", 1 )|;
+
+
+
+robot.dialogue.Speak("Zaczynamy!");
+
+//#pop
+}
+, true
+, 8
+, function() {
+//#push 1 "prep.enter"
+//Code executed before entering the node
+//#pop
+}
+, function() {
+//#push 1 "prep.leave"
+//Code executed after leaving the node
+
+//#pop
+}, false, [-126.467, -78.5156]);
+
+//ask_question state declaration
+var _root__QuizGame_1._nodes_.ask_question = fsm.State.create_("_root__QuizGame_1._nodes_.ask_question", _root__QuizGame_1._nodes_.game,
+function() {
+//#push 1 "ask_question"
+	
+	for(parent.questionCount){
+	var q1 = parent.quizGame.GetQuizQuestion|;
+		var ans = q1.GetMixedAnswers|;
+		
+			var mergeQuestion = q1.question + "\n" +
+			" A. " + ans[0] + "\n" +
+			" Be. " + ans[1] + "\n" +
+			" C. " + ans[2] + "\n" +
+			" D. " + ans[3] |;
+			
+			robot.dialogue.AskQuestionFill(mergeQuestion,ans,"ToFill_QuizGameAnswers", true);			
+			
+		if( parent.quizGame.PostAnswer(robot.audio.recognition.semantics["Answer"].asFloat) ){
+			robot.dialogue.Speak("Dobrze!");
+		} else {
+			robot.dialogue.Speak("Niestety nie! Poprawna odpowiedz to {0}." ^ [q1.answers[0]]);
+		};
+		
+		robot.dialogue.Speak("Nastpne pytanie.");
+		parent.quizGame.NextQuestion;
+	};
+	
+	robot.dialogue.Speak("Koniec!");
+	
+	robot.dialogue.Speak("Zdobyles {0} punktow na {1} mozliwych." ^ parent.quizGame.scores[0] );
+	
+
+//#pop
+}
+, false
+, 13
+, function() {
+//#push 1 "ask_question.enter"
+//Code executed before entering the node
+
+//#pop
+}
+, function() {
+//#push 1 "ask_question.leave"
+//Code executed after leaving the node
+
+//#pop
+}, false, [4.28145, -111.619]);
+
+/***************************
+ * Transitions declaration *
+ ***************************/
+fsm.Transition.create_(_root__QuizGame_1._nodes_.game, _root__QuizGame_1._nodes_.prep, _root__QuizGame_1._nodes_.ask_question, "done?", "_root__QuizGame_1._nodes_.Transition_5");
+fsm.Transition.create_(_root__QuizGame_1._nodes_.audio_quiz, _root__QuizGame_1._nodes_.want_to_play, _root__QuizGame_1._nodes_.shame, "(Global._tran_==\"NO\")", "_root__QuizGame_1._nodes_.Transition_2");
+fsm.Transition.create_(_root__QuizGame_1._nodes_.audio_quiz, _root__QuizGame_1._nodes_.shame, _root__QuizGame_1._nodes_.want_to_play, "done?", "_root__QuizGame_1._nodes_.Transition_4");
+fsm.Transition.create_(_root__QuizGame_1._nodes_.audio_quiz, _root__QuizGame_1._nodes_.want_to_play, _root__QuizGame_1._nodes_.game, "(Global._tran_==\"YES\")", "_root__QuizGame_1._nodes_.Transition_3");
+fsm.Transition.create_(_root__QuizGame_1._nodes_.audio_quiz, _root__QuizGame_1._nodes_.start, _root__QuizGame_1._nodes_.prep, "done?", "_root__QuizGame_1._nodes_.Transition_6");
+fsm.Transition.create_(_root__QuizGame_1._nodes_.audio_quiz, _root__QuizGame_1._nodes_.ask_question, _root__QuizGame_1._nodes_.want_to_play, "done?", "_root__QuizGame_1._nodes_.Transition");
+
+
+var _root__QuizGame_1.enterChan = Channel.new("enteringNode");
+var _root__QuizGame_1.enterChan.lobby = getSlot("lobby");
+at(_root__QuizGame_1.enteringNode?(var id)) _root__QuizGame_1.enterChan << ["_root__QuizGame_1", id.name];
+var _root__QuizGame_1.leaveChan = Channel.new("leavingNode");
+var _root__QuizGame_1.leaveChan.lobby = getSlot("lobby");
+at(_root__QuizGame_1.leavingNode?(var id)) _root__QuizGame_1.leaveChan << ["_root__QuizGame_1", id.name];
+var _root__QuizGame_1.transitingChan = Channel.new("transiting");
+var _root__QuizGame_1.transitingChan.lobby = getSlot("lobby");
+at(_root__QuizGame_1.transiting?(var node, var trans)) _root__QuizGame_1.transitingChan << ["_root__QuizGame_1", trans.name];
+var _root__QuizGame_1.freezeChan = Channel.new("frozen");
+var _root__QuizGame_1.freezeChan.lobby = getSlot("lobby");
+at(_root__QuizGame_1.graphFrozen?()) _root__QuizGame_1.freezeChan << "_root__QuizGame_1";
+// Start code.
+detach(_root__QuizGame_1.enter_());
+
+// End of graph implementation `_root__QuizGame_1'.

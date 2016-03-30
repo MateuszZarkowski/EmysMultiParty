@@ -1,0 +1,247 @@
+
+
+load("DialogueManagerClass.u")|;
+load("QuizGameTriviaClass.u")|;
+load("SpeechDB.u")|;
+
+// ********* Follow Kinect Head
+// loop {
+// if (robot.video.humanDetector[0].head.visible){
+// [var yaw, var pitch] =  robot.video.humanDetector[0].head.orientation|
+// robot.body.neck.head.MoveAtSpeed(yaw, pitch, 40),
+// },
+// sleep(100ms);
+// },
+
+
+var res;
+
+function LiftEyebrows(time = 1s){
+  robot.body.neck.head.disc[up].Move(-10, 100ms)|
+  sleep(time)|
+  robot.body.neck.head.disc[up].Move(0, 100ms);
+}|;
+
+
+robot.dialogue = DialogueManager.new;
+robot.dialogue.debug = true;
+
+// var quiz = QuizGame.new("Quiz_4ans_100_PL.txt",1)|;
+var quiz = QuizGame.new("../quizes/Quiz_4ans_64000_PL.txt",1)|;
+// var quiz = QuizGame.new("../quizes/QuizTrivia_set2_PL.txt",1)|;
+
+
+
+
+//START INACTIVE
+robot.body.neck.head.eye[left ].lid.Move(50, 200ms)&
+robot.body.neck.head.eye[right].lid.Move(50, 200ms)&
+robot.body.neck.head.MoveAt(0,-35, 1s);
+
+robot.dialogue.makeStupid = false;
+
+//WAKEUP
+res = robot.dialogue.CalibrateOnQuestion("", "WakeUp");
+while (!(res && res["Tag"] == "WAKEUP")){
+  res = robot.dialogue.CalibrateOnQuestion("", "WakeUp");
+};
+
+robot.body.neck.head.SayYawn();
+
+
+//set makeStupid here
+// robot.dialogue.makeStupid = true;
+// robot.video.humanDetector.chooserMode = 6|; // on stupid track most active
+
+
+
+if(!robot.dialogue.makeStupid) robot.dialogue.trackFloorTag.unfreeze
+else robot.dialogue.trackOneTag.unfreeze;
+
+
+//INTRODUCTION
+// robot.dialogue.Speak(SpeechDB.Get("QUIZ_INTRODUCTION"));
+robot.dialogue.Speak("HEJ.");
+robot.dialogue.WaitForSilence;
+
+// LETS START
+//TODO: missing grammar no error?
+res = robot.dialogue.AskQuestion(SpeechDB.Get("SAY_START_WHEN_YOU_ARE_READY"), "LetsStart", [0,1],["Type" => "instant"]);
+while (!(res && res["Tag"] == "START")){
+  res = robot.dialogue.AskQuestion(SpeechDB.Get("SAY_START_WHEN_YOU_ARE_READY"), "LetsStart", [0,1],["Type" => "instant"]);
+};
+
+
+var slowSpeed =-5|;
+// 15 questions please be vary of set size
+for(12){
+	var q1 = quiz.GetQuizQuestion|;
+	var ans = q1.GetMixedAnswers(3)|;
+  var mergeAnswers = "A.. %s\n ..B.. %s\n ..C.. %s" % ans;
+  // var mergeAnswers = "A.. %s\n ..B.. %s\n ..C.. %s\n ..D.. %s" % ans;
+	var questionNum = quiz.scores[0][1]+1;
+  robot.dialogue.Speak(SpeechDB.Get("QUESTION_NUMBER_"
+  , [questionNum, SpeechDB.Get("ORDINAL_F_"+questionNum)]));
+  
+  var doWhile = true;
+  while(doWhile || res["Tag"] == "REPEAT"){
+    doWhile = false;
+    //Question
+    robot.dialogue.Speak(q1.question.replace("?",""), slowSpeed)|
+    LiftEyebrows(500ms);
+    
+    //Answers
+    robot.dialogue.Speak(mergeAnswers, slowSpeed);
+    LiftEyebrows(1s),
+    
+    
+    //ANSWER Confirmation v2
+    // res = robot.dialogue.AskQuestionFill("",ans,"ToFill_QuizGameAnswers3", [0,1]);
+    // echo("***************" + res);
+    // if(res && res["Tag"]=="ANSWER" ){
+    // var answer = res["Answer"].asFloat;
+    
+    // var tmp;
+    // tmp = robot.dialogue.AskQuestion(
+    // SpeechDB.Get("DO_YOU_WANT_TO_CHOSE_LETTER_ANSWER_"
+    // ,[["A","B","C","D"][answer], ans[answer]]) ,"YesNo",[0,1]);
+    
+    // echo("***************" + tmp);
+    
+    
+    // if(tmp["Tag"]=="REPEAT" || tmp["Tag"]=="NO"){
+    // robot.dialogue.Speak(SpeechDB.Get("THEN_I_WILL_REPEAT"));
+    // res["Tag"]="REPEAT";
+    // };
+    // };  
+    
+    //ANSWER Confirmation v1
+    var tmp;
+    doWhile =true;
+    
+    while(doWhile || tmp && tmp["Tag"]=="NO"){
+      doWhile = false;
+      
+      res = robot.dialogue.AskQuestionFill("",ans,"ToFill_QuizGameAnswers3", [0,1], ["Type" => q1.id]);
+      
+      tmp = nil;
+      if (!(res["Tag"] in ["ANSWER", "REPEAT"])) res["Tag"]="REPEAT";
+      
+      if(res && res["Tag"]=="ANSWER" ){
+        var answer = res["Answer"].asFloat;
+        
+        tmp = robot.dialogue.AskQuestion(
+        SpeechDB.Get("DO_YOU_WANT_TO_CHOSE_LETTER_ANSWER_"
+        ,[["A","B","C","D"][answer], ans[answer]]) ,"YesNo",[0,1],["Type" => "instant"]);
+        
+        if(tmp["Tag"]=="NO") robot.dialogue.Speak(SpeechDB.Get("WHAT_IS_THE_ANSWER_THEN"));
+        if(tmp["Tag"]=="REPEAT") res["Tag"]="REPEAT";
+      };
+    };
+    
+    //TODO: Add verification on low confidence
+    // OR verification always!
+    // if(res && res["Tag"]=="ANSWER" && res["AnswerType"]=="Letter" 
+    // && res["Confidence"].asFloat < 0.5){
+    // verify
+    // }
+  };
+  
+  var answer = res["Answer"].asFloat;
+  if( quiz.PostAnswer(answer) ){
+    robot.body.neck.head.ExpSmile(8,100ms);
+    robot.dialogue.Speak(SpeechDB.Get("CORRECT_ANSWER"));
+    robot.dialogue.WaitForSilence;
+    
+    robot.body.neck.head.ExpSmile(2,100ms);
+    robot.dialogue.Speak(SpeechDB.Get("YOU_NOW_HAVE_X_POINTS_", [quiz.scores[0][0]] ));
+    
+  } else {
+    robot.body.neck.head.ExpSad(10,100ms);
+    robot.dialogue.Speak(SpeechDB.Get("WRONG_ANSWER"));
+    robot.dialogue.WaitForSilence;
+    
+    robot.body.neck.head.ExpSad(2,100ms);
+    var correct = q1.GetCorrectAnswer;
+    robot.dialogue.Speak(SpeechDB.Get("CORRECT_ANSWER_IS_LETTER_ANSWER_"
+    ,[["A","B","C","D"][correct[0]], correct[1]]));
+    
+  };
+  robot.dialogue.WaitForSilence;
+  
+  //Say Trivia fact
+  // should it always be said?
+  if (q1.hasSlot("trivia") && q1.trivia){
+    robot.body.neck.head.ExpSmile(4,100ms);
+    robot.dialogue.Speak(SpeechDB.Get("DID_YOU_KNOW_TRIVIA_",[q1.trivia]), slowSpeed);
+    robot.dialogue.WaitForSilence;
+  };
+  
+  robot.body.neck.head.ExpNormal(100ms);
+  
+  quiz.NextQuestion;
+};
+
+
+robot.dialogue.Speak(SpeechDB.Get("QUIZ_ALL_QUESTIONS_ASKED"));
+robot.dialogue.WaitForSilence;
+
+robot.dialogue.Speak(SpeechDB.Get("YOUR_SCORE_IS_X_OUT_OF_Y_", quiz.scores[0]));
+robot.dialogue.WaitForSilence;
+
+
+
+switch( quiz.scores[0][0]/quiz.scores[0][1] ){
+  case var x if x == 1:
+  robot.dialogue.Speak(SpeechDB.Get("QUIZ_SCORE_OPINION_PERFECT"));
+  case var x if x > 0.8:
+  robot.dialogue.Speak(SpeechDB.Get("QUIZ_SCORE_OPINION_VERYGOOD"));
+  case var x if x > 0.6:
+  robot.dialogue.Speak(SpeechDB.Get("QUIZ_SCORE_OPINION_GOOD"));
+  case var x if x > 0.4:
+  robot.dialogue.Speak(SpeechDB.Get("QUIZ_SCORE_OPINION_MEDIOCRE"));
+  case var x if x > 0.2:
+  robot.dialogue.Speak(SpeechDB.Get("QUIZ_SCORE_OPINION_POOR"));
+  default:
+  robot.dialogue.Speak(SpeechDB.Get("QUIZ_SCORE_OPINION_BAD"));
+};
+robot.dialogue.WaitForSilence(2s);
+
+
+robot.dialogue.Speak(SpeechDB.Get("QUIZ_THIS_IS_IT"));
+robot.dialogue.WaitForSilence(200ms);
+
+
+
+res = robot.dialogue.AskQuestion(SpeechDB.Get("HAVE_YOU_ENJOYED_IT"),"HaveYouEnjoyedIt", [0,1],["Type" => "instant"]);
+while (!(res && res["Tag"])){
+  res = robot.dialogue.AskQuestion(SpeechDB.Get("HAVE_YOU_ENJOYED_IT"),"HaveYouEnjoyedIt", [0,1],["Type" => "instant"]);
+};
+
+//REACT
+if ( res["Tag"]=="NO"){
+  robot.body.neck.head.ExpSad(10,100ms);
+  robot.dialogue.Speak(SpeechDB.Get("SORRY_I_GAVE_MY_BEST"));
+} else {
+  robot.body.neck.head.ExpSmile(9,100ms);
+  robot.dialogue.Speak(SpeechDB.Get("I_TOO_HAD_A_GOOD_TIME"));
+};
+robot.dialogue.WaitForSilence;
+
+//GOODBYE!
+robot.body.neck.head.ExpNormal(100ms);
+robot.dialogue.Speak(SpeechDB.Get("GOOD_NIGHT_AND_GOOD_LUCK"));
+sleep(1s);
+if(!robot.dialogue.makeStupid) robot.dialogue.trackFloorTag.freeze
+else robot.dialogue.trackOneTag.freeze;
+sleep(500ms);
+
+robot.body.neck.head.eye[left ].lid.Move(50, 200ms)&
+robot.body.neck.head.eye[right].lid.Move(50, 200ms);
+sleep(1);
+robot.body.neck.head.MoveAt(0,-26, 1s);
+
+LogFile.WriteFile("~features.txt", robot.dialogue.logData);
+quit;
+
+

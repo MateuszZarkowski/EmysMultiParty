@@ -1,0 +1,118 @@
+
+//EX1
+loadModule("UKinect");
+var Global.Kinect= UKinect.new();
+// UKinect.Open(kinect_number, color, depth, skeleton, face, interaction, audio, speech)
+Kinect.Open(0,  //kinect_number
+	true, //color
+	true, //depth
+	true, //skeleton
+	true, //face
+	true, //interaction
+	true, //audio
+	true);//speech
+Kinect.depthNearMode=1;
+Kinect.skeletonChooserMode=3;
+Kinect.speechLoadGrammar("speech.grxml");
+
+// t: every(20ms) 	Kinect.PollAudio(false), // - do NOT wait for new data
+t: loop	Kinect.PollAudio(true), // - do NOT wait for new data
+// t: every(20ms) 	Kinect.PollVideo(false), // - do NOT wait for new data
+t: loop	Kinect.PollVideo(true), // - wait for new data
+
+every(500ms) 	echo(Kinect.speechResult),
+
+
+
+//EX2
+loadModule("UKinect");
+var Global.Kinect= UKinect.new();
+Kinect.Open(0,true,true,true,false,true,false,false);
+Kinect.depthNearMode=1;
+Kinect.skeletonChooserMode=3;
+Kinect.speechAddPhrase("","my name is John");
+Kinect.speechAddPhrase("","please start game");
+Kinect.speechAddPhrase("","yes");
+Kinect.speechAddPhrase("","no");
+Kinect.speechAddPhrase("","stop game");
+Kinect.speechAddPhrase("","one");
+Kinect.speechAddPhrase("","two");
+Kinect.speechAddPhrase("","three");
+t: loop {
+	Kinect.PollData(true);
+},
+
+
+//EX3
+g:  robot.body.neck.head.ActAlive(6,3,10,3,10,1),
+t:{
+  var pos;
+  loop {if (Kinect.faceIsTracking) pos = Kinect.facePosition;},
+  at (Kinect.speechResultTag=="LOOK"){
+    echo(Kinect.speechResultTag);
+    Kinect.speechResultTag="";
+      echo(pos[3]);
+      g.freeze;
+      robot.body.neck.head.MoveAt(-pos[4],pos[3],1); 
+      sleep(2);
+      g.unfreeze;
+  }
+},
+
+//EX4
+g:  robot.body.neck.head.ActAlive(6,3,10,3,10,1),
+t:{
+
+  at (Kinect.speechResultTag=="LOOK"){
+    Kinect.speechResultTag="";
+    g.freeze;
+    if (Kinect.faceIsTracking) {
+      var pos = Kinect.facePosition;
+      robot.body.neck.head.MoveAt(-pos[4],pos[3],1); 
+    };
+  },
+  
+  at (Kinect.speechResultTag=="FOLLOW"){
+    Kinect.speechResultTag="";
+    loop {
+      if (Kinect.faceIsTracking) {
+	var pos = Kinect.facePosition;
+	var au = Kinect.faceAU;
+	robot.body.neck.head.MoveAt(-pos[4],pos[3],1)&
+	{a_DiscUp.stop| a_DiscUp:     robot.body.neck.head.disc[up].val = (DiscUp + au[5]*100) smooth:1,}&
+	{a_DiscDown.stop| a_DiscDown: robot.body.neck.head.disc[down].val = (DiscDown - au[1]*50) smooth:1,}&
+	{a_EyeRightBrow.stop| a_EyeRightBrow: robot.body.neck.head.eye[right].brow = (EyeRightBrow - au[4]*160) smooth:1,}&
+	{a_EyeLeftBrow.stop|  a_EyeLeftBrow:  robot.body.neck.head.eye[left].brow = (EyeLeftBrow + au[4]*160) smooth:1,};
+      };
+    },
+  },
+},
+
+//EX5
+g:  robot.body.neck.head.ActAlive(6,3,10,3,10,2),
+t:{
+  at (Kinect.audioSourceConfidence>0.2){
+    Kinect.speechResultTag="";
+      g.freeze;
+      robot.body.neck.head.MoveAt(Kinect.audioSourceAngle,0,0.5); 
+      sleep(0.3);
+      g.unfreeze;
+  }
+},
+
+
+//EX6
+g:  robot.body.neck.head.ActAlive(6,3,10,3,10,2),
+t:{
+  loop {
+    if((Kinect.interRightInteractive)){
+      while (Kinect.interRightEvent==1)
+      {
+	g.freeze;
+	robot.body.neck.head.MoveAt(Kinect.interRightX*20-20,-Kinect.interRightY*10+5,0.3); 
+
+      };
+      g.unfreeze;
+    };
+  },
+},

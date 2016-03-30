@@ -1,0 +1,147 @@
+#D_EASY_Q_0000
+Patronem kierowców jest:
+święty Krzysztof
+święty Antoni
+święty Jerzy
+święty Walenty
+Święty Krzysztof jest także patronem żeglarzy i podróżników.
+#D_EASY_Q_0001
+Bryndza to ser robiony przede wszystkim z mleka:
+owczego
+krowiego
+koziego
+sojowego
+Bryndzę wytwarza się od maja do września.
+#D_EASY_Q_0002
+Sądownie ogłoszona upadłość to:
+bankructwo
+fuzja
+kapitalizacja
+cesja
+Bankructwo może ogłosić również osoba fizyczna.
+#D_EASY_Q_0003
+Cechą charakterystyczną mitologicznego olbrzyma zwanego Cyklopem było:
+jedno oko 
+jedno ucho
+jeden palec
+jedna noga
+Cyklop Polifem został oślepiony przez Odyseusza.
+#D_EASY_Q_0004
+Jakiego koloru koło znajduje się na fladze Japonii?
+czerwonego 
+białego
+czarnego 
+zielonego
+Flaga Japonii symbolizuje wschodzące słońce.
+#D_MEDIUM_Q_0000
+Słynna z produkcji win Burgundia należy do:
+Francji
+Włoch
+Niemiec
+Austrii
+Burgundowie, od których nazwę wziął ten region, byli jednym z germańskich plemion.
+#D_MEDIUM_Q_0001
+Jaki wynalazek przyniósł Alfredowi Noblowi majątek?
+dynamit
+plastik
+nitrogliceryna
+proch
+Dynamit składa się z nitrogliceryny i ziemii okrzemkowej.
+#D_MEDIUM_Q_0002
+Jak brzmiało prawdziwe nazwisko Witkacego?
+Witkiewicz 
+Witkowski
+Witczyński
+Witecki
+Witkacy popełnił samobójstwo po wkroczeniu do Polski wojsk radzieckich.
+#D_MEDIUM_Q_0003
+Jaki jest najwyższy stopień w marynarce wojennej?
+admirał 
+komandor
+kapitan
+generał
+Słowo admirał wywodzi się z języka arabskiego.
+#D_MEDIUM_Q_0004
+Najgłębsze jezioro w Polsce to:
+Hańcza
+Drawsko
+Wielki Staw
+Wigry
+Jezioro Hańcza ma ponad sto metrów głębokości.
+#D_HARD_Q_0000
+Teneryfa to największa wyspa archipelagu:
+Wysp Kanaryjskich
+Azorów
+Bermudów
+Falklandów
+Wyspy Kanaryjskie należą w całości do Hiszpanii.
+#D_HARD_Q_0001
+Ile ramion ma menora?
+siedem 
+pięć
+trzy
+dziewięć
+Menora to ozdobny świecznik używany przez Żydów.
+#D_HARD_Q_0002
+Jak miał na imię smok z komiksu Kajko i Kokosz?
+Miluś 
+Tuptuś
+Kokosz
+Hegemon
+Miluś został znaleziony przez Kajka na brzegiem wody jako duże jajko.
+#D_HARD_Q_0003
+Jaki znak w muzyce obniża dźwięk o pół tonu?
+bemol 
+krzyżyk
+klucz
+kasownik
+Bemol i podwójny bemol unieważniane są przez kasownik.
+#D_HARD_Q_0004
+Mieszko I pokonał margrabiego Hodona pod:
+Cedynią
+Gnieznem
+Niemczą
+Głogowem
+Cedynia jest najdalej na zachód położonym miastem Polski.
+#d_hard
+Długa zwykle metalowa laska zakończona u góry spiralą stanowiąca oznakę władzy biskupów to
+pastorał
+metalura
+mitra
+alba
+
+#d_easy
+Rodzinna wyspa Boba Marleya to
+Jamajka
+Kajmany
+Dominikana
+Barbados
+
+#d_medium
+Które ciało stałe ma najmniejszą gęstość
+drewno
+metal
+aluminium
+kryształ
+
+#d_easy
+Kto wygrał w karty tak zwanego patyka ten jest bogatszy o
+tysiąc złotych
+milion
+sto
+dziesięć
+
+#d_medium
+Vincent Vega z filmu palp fikszyn wyśmiewa Holendrów, którzy zamiast keczupu używają do frytek
+majonezu
+sosu czosnkowego
+musztardy
+chrzanu
+
+#d_easy
+Obrońca uciśnionych Kalifornijczyków, żyjących pod rządami brutalnego gubernatora , to człowiek w masce znany jako 
+Zorro
+San Antonio
+Super man
+Batman
+

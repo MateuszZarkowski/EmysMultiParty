@@ -1,0 +1,25 @@
+
+
+// loadModule("USpeech_SAPI");
+loadModule("USpeech_MSP");
+var speech = USpeech.new()|;
+
+// Jak odkomentujesz to dziala
+// speech.Speak("");
+// sleep(2s);
+
+loadModule("URecog_MSP");
+var recognition = URecog.new("InProc",0 , 0)|; // <- to powoduje blad
+
+recognition.AvailableInputs;
+recognition.AvailableRecognizers;
+
+
+speech.Speak("asdasd");
+
+
+
+
+
+
+
